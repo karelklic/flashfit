@@ -6,10 +6,21 @@ from data import Data
 from graphicsscene import GraphicsScene
 from graphicsview import GraphicsView
 
+class SpinBox(QtGui.QSpinBox):
+    valueChangeFinished = QtCore.pyqtSignal(int)
+
+    def __init__(self, parent=None):
+        QtGui.QDockWidget.__init__(self, parent)
+        self.editingFinished.connect(self.__editingFinished)
+        
+    def __editingFinished(self):
+        self.valueChangeFinished.emit(self.value())
+
 class Settings(QtGui.QDockWidget):
     def __init__(self, parent=None):
         QtGui.QDockWidget.__init__(self, parent)
-        self.setWindowTitle("Settings")
+        #self.setWindowTitle("Settings")
+        self.setTitleBarWidget(QtGui.QWidget())
         self.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
         self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         
@@ -17,6 +28,7 @@ class Settings(QtGui.QDockWidget):
         layout = QtGui.QVBoxLayout(mainWidget)
         mainWidget.setLayout(layout)
 
+        # Add model settings
         model = QtGui.QGroupBox("Model", self)
         modelLayout = QtGui.QVBoxLayout(model)
         abc = QtGui.QRadioButton("ABC", self)
@@ -34,19 +46,44 @@ class Settings(QtGui.QDockWidget):
         k2 = QtGui.QDoubleSpinBox(self)
         layout.addWidget(k2)
 
+        # Add Time Axis Length control
         model = QtGui.QGroupBox("Time Axis Length", self)
         modelLayout = QtGui.QHBoxLayout(model)
-        self.timeAxisLength = QtGui.QSpinBox()
+        self.timeAxisLength = SpinBox()
         self.timeAxisLength.setRange(GraphicsScene.MIN_WIDTH, GraphicsScene.MAX_WIDTH)
         self.timeAxisLength.setValue(GraphicsScene.DEFAULT_WIDTH)
         modelLayout.addWidget(self.timeAxisLength)
         model.setLayout(modelLayout)
         layout.addWidget(model)
+
+        # Add input data control
+        model = QtGui.QGroupBox("Input Data", self)
+        modelLayout = QtGui.QVBoxLayout(model)
+        measuredPointsLabel = QtGui.QLabel("Measured Point Count:")
+        modelLayout.addWidget(measuredPointsLabel)
+        self.measuredPoints = QtGui.QLabel("0")
+        self.measuredPoints.setAlignment(QtCore.Qt.AlignHCenter)
+        modelLayout.addWidget(self.measuredPoints)
+        usedPointsLabel = QtGui.QLabel("Used Point Count:")
+        modelLayout.addWidget(usedPointsLabel)
+        self.usedPoints = SpinBox()
+        self.usedPoints.setRange(0, 10000)
+        self.usedPoints.setEnabled(False)
+        modelLayout.addWidget(self.usedPoints)
+        model.setLayout(modelLayout)
+        layout.addWidget(model)
+
         layout.addStretch()
         self.setWidget(mainWidget)
 
     def onSceneRectChanged(self, rect):
         self.timeAxisLength.setValue(rect.width())
+
+    def onDataLoaded(self, data):
+        self.measuredPoints.setText(str(len(data.originalData.time)))
+        self.usedPoints.setValue(data.maxPoints)
+        self.usedPoints.setRange(10, len(data.originalData.time))
+        self.usedPoints.setEnabled(True)
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -89,7 +126,8 @@ class MainWindow(QtGui.QMainWindow):
         self.data = Data()
         self.scene = GraphicsScene(self)
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
-        self.settings.timeAxisLength.valueChanged.connect(self.scene.changeWidth)
+        self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
+        self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
         self.view = GraphicsView(self.scene)
         self.setCentralWidget(self.view)
 
@@ -127,7 +165,9 @@ class MainWindow(QtGui.QMainWindow):
                                            "Error occured when loading " + name)
             return
 
-        self.data.copyFromOriginalData(2000) # 2000 points
+        self.data.maxPoints = Data.DEFAULT_USED_POINTS_COUNT
+        self.data.copyFromOriginalData()
+        self.settings.onDataLoaded(self.data)
         self.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
         self.data.recalculateAbsorbances()
         
@@ -144,7 +184,22 @@ class MainWindow(QtGui.QMainWindow):
             files.removeLast()
         settings.setValue("recentFileList", files)
         self.updateRecentFileActions()
-       
+
+    def reloadFromOriginalData(self, points):
+        # Do not act on timeAxisLength changes when loading.
+        self.settings.timeAxisLength.valueChangeFinished.disconnect(self.scene.changeWidth)
+
+        # TODO: save fulllightvoltage pointer and other pointers time and recover after loading
+
+        self.data.maxPoints = points
+        self.data.copyFromOriginalData()
+        # TODO: next line to be removed
+        self.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
+        self.data.recalculateAbsorbances()
+        self.scene.updateFromData(self.data)
+
+        # Connect it back.
+        self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
 
 application = QtGui.QApplication(sys.argv)
 window = MainWindow()

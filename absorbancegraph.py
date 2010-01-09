@@ -15,6 +15,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
     def recreateFromData(self):
         for item in self.children():
             self.removeFromGroup(item)
+            self.scene().removeItem(item)
             del item
 
         timeModifier = self.width / float(self.data.timeSpan)
@@ -39,6 +40,8 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         lastTime = None
         lastAbsorbance = None
         children = self.children()
+        if len(children) < len(self.data.time) - 1:
+            print "Error", len(children), len(self.data.time) - 1
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
             absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier

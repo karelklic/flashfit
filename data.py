@@ -55,6 +55,8 @@ class OriginalData:
                     
 class Data(QtCore.QObject):
 
+    DEFAULT_USED_POINTS_COUNT = 2000
+
     def __init__(self, parent=None):
         """
         No data is present after init.
@@ -63,6 +65,8 @@ class Data(QtCore.QObject):
 
         # Data loaded from input file.
         self.originalData = OriginalData()
+
+        self.maxPoints = self.DEFAULT_USED_POINTS_COUNT
         
         # Subset of originalData.time
         self.time = []
@@ -92,13 +96,13 @@ class Data(QtCore.QObject):
         # Both values are offsets to self.time array.
         self.fitAbsorbanceTimePointer = None
 
-    def copyFromOriginalData(self, numberOfPoints):
+    def copyFromOriginalData(self):
         """
         numberOfPoints is a maximum number of points to be copied 
         from original data
         """
         maxPoints = len(self.originalData.time)
-        idealRatio = maxPoints / float(numberOfPoints)
+        idealRatio = maxPoints / float(self.maxPoints)
         self.time = []
         self.minTime = None
         self.maxTime = None

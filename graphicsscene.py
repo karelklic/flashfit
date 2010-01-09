@@ -32,7 +32,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.absorbanceAxis.update()
 
     def updateFromData(self, data):
-        width = min(max(self.DEFAULT_WIDTH, len(data.time)), self.MAX_WIDTH)
+        width = min(max(self.MIN_WIDTH, len(data.time)), self.MAX_WIDTH)
         self.__setSceneSize(width, self.HEIGHT)
         self.timeAxis.setTime(data.minTime, data.maxTime)
         self.timeAxis.update()

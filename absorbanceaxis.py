@@ -16,6 +16,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
     def update(self):
         for item in self.children():
             self.removeFromGroup(item)
+            self.scene().removeItem(item)
             del item
 
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, 0, self.height))
