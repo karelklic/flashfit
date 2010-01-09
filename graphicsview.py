@@ -6,20 +6,15 @@ class GraphicsView(QtGui.QGraphicsView):
         self.setTransformationAnchor(QtGui.QGraphicsView.NoAnchor)
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # TODO: Fix infinite recursion and remove the following line.
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
 
         # Set initial position and scaling.
-        self.resizeLoop = 0
         self.fitInView(self.scene().sceneRect());
         self.horizontalScrollBar().setValue(self.horizontalScrollBar().minimum())
 
     def resizeEvent(self, event):
         "Overrides parent implementation"
-
-        # Resize loop is here to avoid infinite recursion when ScrollBar appears.
-        # It allows us to auto-hide scroll bars.
-        if self.resizeLoop == 10:
-            self.resizeLoop = 0
-            return
 
         def getScrollBarValue(sb):
             size = sb.maximum() - sb.minimum()
@@ -32,8 +27,7 @@ class GraphicsView(QtGui.QGraphicsView):
 
         # Save the scroll bar position to set it later.
         hvalue = getScrollBarValue(self.horizontalScrollBar())
-        self.fitInView(self.scene().sceneRect());
-        self.resizeLoop += 1
+        self.fitInView(self.scene().sceneRect())
         setScrollBarValue(self.horizontalScrollBar(), hvalue)
 
     def fitInView(self, rect):
@@ -49,13 +43,7 @@ class GraphicsView(QtGui.QGraphicsView):
         sceneRect = self.matrix().mapRect(rect);
         if sceneRect.isEmpty():
             return
-        xratio = viewRect.width() / sceneRect.width()
         yratio = viewRect.height() / sceneRect.height()
-        # Respect the aspect ratio mode.
-        if xratio < yratio:
-            xratio = yratio = max(xratio, yratio)
-        else:
-            xratio = yratio = min(xratio, yratio)
         # Scale and center on the center of a rect.
-        self.scale(xratio, yratio)
+        self.scale(yratio, yratio)
         self.centerOn(rect.center())
