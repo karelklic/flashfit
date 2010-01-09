@@ -5,85 +5,7 @@ from PyQt4 import QtCore, QtGui
 from data import Data
 from graphicsscene import GraphicsScene
 from graphicsview import GraphicsView
-
-class SpinBox(QtGui.QSpinBox):
-    valueChangeFinished = QtCore.pyqtSignal(int)
-
-    def __init__(self, parent=None):
-        QtGui.QDockWidget.__init__(self, parent)
-        self.editingFinished.connect(self.__editingFinished)
-        
-    def __editingFinished(self):
-        self.valueChangeFinished.emit(self.value())
-
-class Settings(QtGui.QDockWidget):
-    def __init__(self, parent=None):
-        QtGui.QDockWidget.__init__(self, parent)
-        #self.setWindowTitle("Settings")
-        self.setTitleBarWidget(QtGui.QWidget())
-        self.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
-        self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
-        
-        mainWidget = QtGui.QWidget(self)
-        layout = QtGui.QVBoxLayout(mainWidget)
-        mainWidget.setLayout(layout)
-
-        # Add model settings
-        model = QtGui.QGroupBox("Model", self)
-        modelLayout = QtGui.QVBoxLayout(model)
-        abc = QtGui.QRadioButton("ABC", self)
-        abc.setChecked(True)
-        modelLayout.addWidget(abc)
-        sfo = QtGui.QRadioButton("Single First Order", self)
-        modelLayout.addWidget(sfo)
-        dfo = QtGui.QRadioButton("Dual First Order", self)
-        modelLayout.addWidget(dfo)
-        model.setLayout(modelLayout)
-        layout.addWidget(model)
-
-        k1 = QtGui.QDoubleSpinBox(self)
-        layout.addWidget(k1)
-        k2 = QtGui.QDoubleSpinBox(self)
-        layout.addWidget(k2)
-
-        # Add Time Axis Length control
-        model = QtGui.QGroupBox("Time Axis Length", self)
-        modelLayout = QtGui.QHBoxLayout(model)
-        self.timeAxisLength = SpinBox()
-        self.timeAxisLength.setRange(GraphicsScene.MIN_WIDTH, GraphicsScene.MAX_WIDTH)
-        self.timeAxisLength.setValue(GraphicsScene.DEFAULT_WIDTH)
-        modelLayout.addWidget(self.timeAxisLength)
-        model.setLayout(modelLayout)
-        layout.addWidget(model)
-
-        # Add input data control
-        model = QtGui.QGroupBox("Input Data", self)
-        modelLayout = QtGui.QVBoxLayout(model)
-        measuredPointsLabel = QtGui.QLabel("Measured Point Count:")
-        modelLayout.addWidget(measuredPointsLabel)
-        self.measuredPoints = QtGui.QLabel("0")
-        self.measuredPoints.setAlignment(QtCore.Qt.AlignHCenter)
-        modelLayout.addWidget(self.measuredPoints)
-        usedPointsLabel = QtGui.QLabel("Used Point Count:")
-        modelLayout.addWidget(usedPointsLabel)
-        self.usedPoints = SpinBox()
-        self.usedPoints.setRange(0, 10000)
-        self.usedPoints.setEnabled(False)
-        modelLayout.addWidget(self.usedPoints)
-        model.setLayout(modelLayout)
-        layout.addWidget(model)
-
-        layout.addStretch()
-        self.setWidget(mainWidget)
-
-    def onSceneRectChanged(self, rect):
-        self.timeAxisLength.setValue(rect.width())
-
-    def onDataLoaded(self, data):
-        self.measuredPoints.setText(str(len(data.originalData.time)))
-        self.usedPoints.setValue(data.maxPoints)
-        self.usedPoints.setRange(10, len(data.originalData.time))
-        self.usedPoints.setEnabled(True)
+from settings import Settings
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -99,6 +21,7 @@ class MainWindow(QtGui.QMainWindow):
 
         saveAct = QtGui.QAction("&Save as image", self)
         saveAct.setShortcut("Ctrl+S")
+        saveAct.triggered.connect(self.saveAsImage)
         fileMenu.addAction(saveAct)
         fileMenu.addSeparator()
 
@@ -139,6 +62,22 @@ class MainWindow(QtGui.QMainWindow):
         if self.sender():
             self.loadFile(self.sender().data().toString())
 
+    def saveAsImage(self):
+        """
+        TODO: Design Save image Dialog
+        """
+        image = QtGui.QFileDialog.getSaveFileName(self, "Save file", "", "PNG Image (*.png)")
+        if len(image) == 0:
+            return
+
+        pixmap = QtGui.QPixmap(800, 600)
+        pixmap.fill() # White background.
+        painter = QtGui.QPainter(pixmap)
+        self.scene.render(painter)
+        painter.end()
+        
+        pixmap.save(image)
+
     def updateRecentFileActions(self):
         settings = QtCore.QSettings("Karel Klic", "flashfit")
         files = settings.value("recentFileList").toStringList()
@@ -152,6 +91,9 @@ class MainWindow(QtGui.QMainWindow):
         self.separatorAct.setVisible(numRecentFiles > 0)
 
     def loadFile(self, name):
+        """
+        Loads input file and displays its content in graph.
+        """
         fi = QtCore.QFileInfo(name)
         if not fi.isFile() or not fi.isReadable():
             return
@@ -186,6 +128,9 @@ class MainWindow(QtGui.QMainWindow):
         self.updateRecentFileActions()
 
     def reloadFromOriginalData(self, points):
+        """
+        Changes the number of measured points used from all points loaded from input file.
+        """
         # Do not act on timeAxisLength changes when loading.
         self.settings.timeAxisLength.valueChangeFinished.disconnect(self.scene.changeWidth)
 
@@ -204,6 +149,5 @@ class MainWindow(QtGui.QMainWindow):
 application = QtGui.QApplication(sys.argv)
 window = MainWindow()
 window.show()
-
 application.lastWindowClosed.connect(application.quit)
 application.exec_()
