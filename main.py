@@ -9,7 +9,7 @@ from settings import Settings
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        super(MainWindow, self).__init__(parent)
         self.setWindowTitle("flashfit")
 
         fileMenu = self.menuBar().addMenu("&File")

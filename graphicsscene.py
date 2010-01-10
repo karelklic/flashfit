@@ -2,6 +2,7 @@ from PyQt4 import QtCore, QtGui
 from timeaxis import TimeAxis
 from absorbanceaxis import AbsorbanceAxis
 from absorbancegraph import AbsorbanceGraph
+from timebar import TimeBar
 
 class GraphicsScene(QtGui.QGraphicsScene):
 
@@ -30,6 +31,9 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
         self.absorbanceAxis.update()
+        self.fullLightBar1 = TimeBar(GraphicsScene.HEIGHT)
+        self.fullLightBar1.setPos(100, 0)
+        self.addItem(self.fullLightBar1)
 
     def updateFromData(self, data):
         width = min(max(self.MIN_WIDTH, len(data.time)), self.MAX_WIDTH)
