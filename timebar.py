@@ -16,6 +16,7 @@ class TimeBarTriangle(QtGui.QGraphicsPolygonItem):
             poly.append(QtCore.QPointF(0, barHeight - self.SIZE))
 
         super(TimeBarTriangle, self).__init__(poly, parent)
+        self.setCursor(QtCore.Qt.SizeHorCursor)
 
         # Setup pens.
         self.normalPen = QtGui.QPen()
@@ -45,12 +46,20 @@ class TimeBarTriangle(QtGui.QGraphicsPolygonItem):
         self.setPen(p)
 
 class TimeBarLine(QtGui.QGraphicsLineItem):
+    SELECTION_X_MARGIN = 15
+
     def __init__(self, barHeight, parent=None):
         # Create line.
         line = QtCore.QLineF()
         line.setP1(QtCore.QPointF(0, TimeBarTriangle.SIZE))
         line.setP2(QtCore.QPointF(0, barHeight - TimeBarTriangle.SIZE))
         super(TimeBarLine, self).__init__(line, parent)
+        self.setCursor(QtCore.Qt.SizeHorCursor)
+        self.boundingRect = QtCore.QRectF( \
+            line.x1() - self.SELECTION_X_MARGIN / 2, line.y1(), \
+                self.SELECTION_X_MARGIN, line.y2() - line.y1())
+        self.shape = super(TimeBarLine, self).shape()
+        self.shape.addRect(self.boundingRect)
 
         # Setup pens.
         self.normalPen = QtGui.QPen(QtCore.Qt.DashLine)
@@ -77,6 +86,12 @@ class TimeBarLine(QtGui.QGraphicsLineItem):
         p = self.pen()
         p.setColor(color)
         self.setPen(p)
+
+    def boundingRect(self):
+        return self.boundingRect
+
+    def shape(self):
+        return self.shape
   
 class TimeBar(QtGui.QGraphicsItemGroup):
     ItemSendsGeometryChanges = 0x800
