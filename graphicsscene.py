@@ -2,18 +2,18 @@ from PyQt4 import QtCore, QtGui
 from timeaxis import TimeAxis
 from absorbanceaxis import AbsorbanceAxis
 from absorbancegraph import AbsorbanceGraph
-from timebar import TimeBar
+from timebarpair import TimeBarPair
 
 class GraphicsScene(QtGui.QGraphicsScene):
-
+    """
+    The scene containing graph. It's 1000 points high and 1000 or more 
+    points wide.
+    """
     DEFAULT_WIDTH = 2000
     MIN_WIDTH = 400
     MAX_WIDTH = 20000
     HEIGHT = 1000
 
-    """
-    It's the scene containing graph. It's 1000 points high and 1000 or more points wide.
-    """
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
         # Create basic objects in the scene 
@@ -31,9 +31,12 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
         self.absorbanceAxis.update()
-        self.fullLightBar1 = TimeBar(GraphicsScene.HEIGHT)
-        self.fullLightBar1.setPos(100, 0)
-        self.addItem(self.fullLightBar1)
+        self.fullLightBars = TimeBarPair(GraphicsScene.HEIGHT, "Full light", self)
+        self.fullLightBars.setPos(100, 400)
+        self.fullLightBars.setColor(QtGui.QColor("#333366"))
+        self.fitAbsorbanceBars = TimeBarPair(GraphicsScene.HEIGHT, "Absorbance Fit", self)
+        self.fitAbsorbanceBars.setPos(500, 1500)
+        self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
 
     def updateFromData(self, data):
         width = min(max(self.MIN_WIDTH, len(data.time)), self.MAX_WIDTH)
