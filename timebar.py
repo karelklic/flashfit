@@ -1,97 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import math
-
-class TimeBarTriangle(QtGui.QGraphicsPolygonItem):
-    SIZE = 20
-    def __init__(self, barHeight, top, parent=None):
-        # Create polygon.
-        poly = QtGui.QPolygonF()
-        if top:
-            poly.append(QtCore.QPointF(-self.SIZE/2, 0))
-            poly.append(QtCore.QPointF(self.SIZE/2, 0))
-            poly.append(QtCore.QPointF(0, self.SIZE))
-        else:
-            poly.append(QtCore.QPointF(-self.SIZE/2, barHeight))
-            poly.append(QtCore.QPointF(self.SIZE/2, barHeight))
-            poly.append(QtCore.QPointF(0, barHeight - self.SIZE))
-
-        super(TimeBarTriangle, self).__init__(poly, parent)
-        self.setCursor(QtCore.Qt.SizeHorCursor)
-
-        # Setup pens.
-        self.normalPen = QtGui.QPen()
-        self.normalPen.setWidth(3)
-        self.selectedPen = QtGui.QPen()
-        self.selectedPen.setWidth(5)
-        self.setPen(self.normalPen)
-
-    def setSelectedPen(self, selected):
-        if selected:
-            self.setPen(self.selectedPen)
-        else:
-            self.setPen(self.normalPen)
-
-    def setColor(self, color):
-        # Color normal pen
-        np = self.normalPen
-        np.setColor(color)
-        self.normalPen = np
-        # Color selection pen
-        sp = self.selectedPen
-        sp.setColor(color)
-        self.selectedPen = sp
-        # Color current pen
-        p = self.pen()
-        p.setColor(color)
-        self.setPen(p)
-
-class TimeBarLine(QtGui.QGraphicsLineItem):
-    SELECTION_X_MARGIN = 15
-
-    def __init__(self, barHeight, parent=None):
-        # Create line.
-        line = QtCore.QLineF()
-        line.setP1(QtCore.QPointF(0, TimeBarTriangle.SIZE))
-        line.setP2(QtCore.QPointF(0, barHeight - TimeBarTriangle.SIZE))
-        super(TimeBarLine, self).__init__(line, parent)
-        self.setCursor(QtCore.Qt.SizeHorCursor)
-        self.boundingRect = QtCore.QRectF( \
-            line.x1() - self.SELECTION_X_MARGIN / 2, line.y1(), \
-                self.SELECTION_X_MARGIN, line.y2() - line.y1())
-        self.shape = super(TimeBarLine, self).shape()
-        self.shape.addRect(self.boundingRect)
-
-        # Setup pens.
-        self.normalPen = QtGui.QPen(QtCore.Qt.DashLine)
-        self.selectedPen = QtGui.QPen(QtCore.Qt.DashLine)
-        self.selectedPen.setWidth(3)
-        self.setPen(self.normalPen)
-
-    def setSelectedPen(self, selected):
-        if selected:
-            self.setPen(self.selectedPen)
-        else:
-            self.setPen(self.normalPen)
-
-    def setColor(self, color):
-        # Color normal pen
-        np = self.normalPen
-        np.setColor(color)
-        self.normalPen = np
-        # Color selection pen
-        sp = self.selectedPen
-        sp.setColor(color)
-        self.selectedPen = sp
-        # Color current pen
-        p = self.pen()
-        p.setColor(color)
-        self.setPen(p)
-
-    def boundingRect(self):
-        return self.boundingRect
-
-    def shape(self):
-        return self.shape
+from timebarline import TimeBarLine
+from timebartriangle import TimeBarTriangle
   
 class TimeBar(QtGui.QGraphicsItemGroup):
     ItemSendsGeometryChanges = 0x800
@@ -99,7 +9,6 @@ class TimeBar(QtGui.QGraphicsItemGroup):
     class Signals(QtCore.QObject):
         # Qt Signal
         positionChanged = QtCore.pyqtSignal()
-
 
     def __init__(self, height, parent=None):
         super(TimeBar, self).__init__(parent)
