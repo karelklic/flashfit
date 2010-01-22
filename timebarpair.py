@@ -45,9 +45,9 @@ class TimeBarPair:
             self.bar1.pos().x(), 40, \
             self.bar2.pos().x(), 40)
         self.legendLine.setLine(line)
-        textX = line.dx() / 2 + min(line.x1(), line.x2())
+        textX = abs(line.dx()) / 2 + min(line.x1(), line.x2())
         textX -= self.legendText.boundingRect().width() / 2
         self.legendText.setPos(textX, 12)
-        self.legendText.setVisible(line.dx() > self.legendText.boundingRect().width() + 5)
+        self.legendText.setVisible(abs(line.dx()) > self.legendText.boundingRect().width() + 5)
         
         
