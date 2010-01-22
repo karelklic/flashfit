@@ -14,6 +14,17 @@ class GraphicsScene(QtGui.QGraphicsScene):
     MAX_WIDTH = 20000
     HEIGHT = 1000
 
+    # Border on the right side of the scene, with blank space, in pixels.
+    BORDER_RIGHT = 10
+    # Border between the left side of the scene and the start of the time axis, in pixels.
+    # Absorbance axis label and tics must fit here.
+    BORDER_LEFT = 70
+    # Border on the top of the scene, in pixels.
+    BORDER_TOP = 10
+    # Border between the time axis line and the bottom of the scene, in pixels.
+    # Time axis label and tics must fit here.
+    BORDER_BOTTOM = 58
+
     def __init__(self, parent=None):
         super(GraphicsScene, self).__init__(parent)
         # Create basic objects in the scene 
@@ -31,10 +42,14 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
         self.absorbanceAxis.update()
-        self.fullLightBars = TimeBarPair(GraphicsScene.HEIGHT, "Full light", self)
+        self.fullLightBars = TimeBarPair( \
+            GraphicsScene.HEIGHT, "Full light", \
+            self.timeAxis, self.BORDER_LEFT, self)
         self.fullLightBars.setPos(100, 400)
         self.fullLightBars.setColor(QtGui.QColor("#333366"))
-        self.fitAbsorbanceBars = TimeBarPair(GraphicsScene.HEIGHT, "Absorbance Fit", self)
+        self.fitAbsorbanceBars = TimeBarPair( \
+            GraphicsScene.HEIGHT, "Absorbance Fit", \
+            self.timeAxis, self.BORDER_LEFT, self)
         self.fitAbsorbanceBars.setPos(500, 1500)
         self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
 
@@ -47,6 +62,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.absorbanceAxis.update()
         self.absorbanceGraph.setData(data)
         self.absorbanceGraph.recreateFromData()
+        self.fullLightBars.updatePositionFromData(data.fullLightVoltageTime1(), data.fullLightVoltageTime2())
+        self.fitAbsorbanceBars.updatePositionFromData(data.fitAbsorbanceTime1(), data.fitAbsorbanceTime2())
 
     def changeWidth(self, width):
         oldWidth = self.width()
@@ -59,19 +76,15 @@ class GraphicsScene(QtGui.QGraphicsScene):
         """
         Not to be called from outside.
         """
-        borderRight = 10
-        borderLeft = 70
-        borderTop = 10
-        borderBottom = 58
         residualsSize = int(height * 0.15)
         self.setSceneRect(QtCore.QRectF(0, 0, width, height))
-        self.timeAxis.setPos(borderLeft, height - borderBottom)
-        self.timeAxis.setWidth(width - borderLeft - borderRight)
-        self.absorbanceAxis.setPos(borderLeft, borderTop)
-        self.absorbanceAxis.setHeights(height - borderTop - borderBottom, \
-                                           height - borderTop - borderBottom - residualsSize)
-        self.absorbanceGraph.setPos(borderLeft, borderTop)
-        self.absorbanceGraph.setSize(width - borderLeft - borderRight, \
-                                         height - borderTop - borderBottom - residualsSize)
-        self.absorbanceResidualSeparatorAxis.setPos(borderLeft, height - borderBottom - residualsSize)
-        self.absorbanceResidualSeparatorAxis.setLine(0, 0, width - borderLeft - borderRight, 0)
+        self.timeAxis.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM)
+        self.timeAxis.setWidth(width - self.BORDER_LEFT - self.BORDER_RIGHT)
+        self.absorbanceAxis.setPos(self.BORDER_LEFT, self.BORDER_TOP)
+        self.absorbanceAxis.setHeights(height - self.BORDER_TOP - self.BORDER_BOTTOM, \
+                                           height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceGraph.setPos(self.BORDER_LEFT, self.BORDER_TOP)
+        self.absorbanceGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, \
+                                         height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceResidualSeparatorAxis.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceResidualSeparatorAxis.setLine(0, 0, width - self.BORDER_LEFT - self.BORDER_RIGHT, 0)

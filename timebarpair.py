@@ -2,7 +2,20 @@ from PyQt4 import QtCore, QtGui
 from timebar import TimeBar
 
 class TimeBarPair:
-    def __init__(self, barHeight, text, parent):
+    def __init__(self, barHeight, text, timeAxis, leftBorder, parent):
+        """
+        Parameter barHeight is a height of time bars in pixels.
+        Parameter text is displayed as a label between the time bars.
+        Parameter timeAxis points to Time Axis on which the time bars
+        are placed.
+        Parameter leftBorder contains the width of free space between
+        the left side of the scene and Time Axis, in pixels.
+        Parameter parent is a parent object in scene where time bars 
+        will be displayed.
+        """
+        self.timeAxis = timeAxis
+        self.leftBorder = leftBorder
+
         self.bar1 = TimeBar(barHeight)
         self.bar2 = TimeBar(barHeight)
         self.setPos(100, 200)
@@ -50,4 +63,9 @@ class TimeBarPair:
         self.legendText.setPos(textX, 12)
         self.legendText.setVisible(abs(line.dx()) > self.legendText.boundingRect().width() + 5)
         
-        
+    def updatePositionFromData(self, time1, time2):
+        """
+        Parameters are time values in seconds.
+        """
+        self.bar1.setPos(self.leftBorder + self.timeAxis.mapTimeToPixels(time1), 0)
+        self.bar2.setPos(self.leftBorder + self.timeAxis.mapTimeToPixels(time2), 0)

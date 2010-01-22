@@ -167,10 +167,22 @@ class Data(QtCore.QObject):
             self.absorbanceSpan = self.maxAbsorbance - self.minAbsorbance
 
     def guessFullLightVoltagePointerValue(self):
+        """
+        Takes time and voltage waveform, and tries to determine which part of
+        the waveform contains voltage corresponding to the full light.
+        The full light should be at the beginning of the waveform, followed
+        by a flash.
+        """
+        # TODO: real algorithm here
         self.setFullLightVoltagePointer(0, 10)
 
     def guessFitAbsorbanceTimePointer(self):
-        self.fitAbsorbanceTimePointer = (0, 0)
+        """
+        Takes time and voltage waveform, and tries to determine which part of
+        the waveform should be fitted by a curve.
+        """
+        # TODO: real algorithm here
+        self.setFitAbsorbanceTimePointer(15, 30)
 
     def setFullLightVoltagePointer(self, start, stop):
         if start > stop:
@@ -183,3 +195,36 @@ class Data(QtCore.QObject):
         for i in range(start, stop):
             sum += self.voltage[i]
         self.fullLightVoltage = sum / float(stop - start + 1)
+
+    def fullLightVoltageTime1(self):
+        """
+        In seconds
+        """
+        return self.time[self.fullLightVoltagePointer[0]]
+
+    def fullLightVoltageTime2(self):
+        """
+        In seconds
+        """
+        return self.time[self.fullLightVoltagePointer[1]]
+
+    def setFitAbsorbanceTimePointer(self, start, stop):
+        if start > stop:
+            start, stop = stop, start
+        
+        self.fitAbsorbanceTimePointer = (start, stop)
+
+        # Calculate something from it.
+        pass
+
+    def fitAbsorbanceTime1(self):
+        """
+        In seconds
+        """
+        return self.time[self.fullLightVoltagePointer[0]]
+
+    def fitAbsorbanceTime2(self):
+        """
+        In seconds
+        """
+        return self.time[self.fullLightVoltagePointer[1]]

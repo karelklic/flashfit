@@ -112,6 +112,7 @@ class MainWindow(QtGui.QMainWindow):
         self.settings.onDataLoaded(self.data)
         self.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
         self.data.recalculateAbsorbances()
+        self.data.guessFitAbsorbanceTimePointer()
         
         # Refresh GUI
         self.scene.updateFromData(self.data)

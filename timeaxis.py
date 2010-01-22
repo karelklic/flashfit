@@ -6,12 +6,40 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         super(TimeAxis, self).__init__(parent)
 
     def setWidth(self, width):
+        """
+        Sets time axis width in pixels.
+        """
         self.width = width
 
     def setTime(self, minTime, maxTime):
+        """
+        Sets minimum and maximum time displayed on axis (in seconds).
+        """
         self.minTime = minTime
         self.maxTime = maxTime
-
+    
+    def mapTimeToPixels(self, time):
+        """
+        The only parameter is a time value in seconds.
+        From input time, minimum and maximum time displayed on the axis,
+        and from axis width in pixels, calculates the position of certain
+        time on axis in pixels. This pixel offset is returned.
+        
+        Note that the returned value is not the X offset in the scene,
+        because there is a free space (padding) on the left of the axis.
+        The width of this space must be added to the returned value
+        to obtain X position in the scene.
+        """
+        assert(time >= self.minTime)
+        assert(time <= self.maxTime)
+        timeSpan = float(self.maxTime - self.minTime)
+        assert(timeSpan > 0)
+        # Map the position to the range 0..1
+        percents = float(time - self.minTime) / timeSpan
+        assert(percents >= 0 and percents <= 1)
+        # Map to pixels
+        return self.width * percents
+        
     def update(self):
         # Remove the old axis.
         for item in self.children():
@@ -57,6 +85,7 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
             time += ticSpan
             count += 1
 
+        # Sets and displays axis label.
         text = QtGui.QGraphicsTextItem("time")
         text.setPos(self.width - 75, 24)
         font = QtGui.QFont()
