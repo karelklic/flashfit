@@ -16,8 +16,8 @@ class TimeBarPair:
         self.timeAxis = timeAxis
         self.leftBorder = leftBorder
 
-        self.bar1 = TimeBar(barHeight)
-        self.bar2 = TimeBar(barHeight)
+        self.bar1 = TimeBar(barHeight, timeAxis, leftBorder)
+        self.bar2 = TimeBar(barHeight, timeAxis, leftBorder)
         self.setPos(100, 200)
         parent.addItem(self.bar1)
         parent.addItem(self.bar2)

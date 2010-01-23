@@ -39,6 +39,15 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         assert(percents >= 0 and percents <= 1)
         # Map to pixels
         return self.width * percents
+
+    def mapPixelsToTime(self, pixelOffset):
+        assert(pixelOffset >= 0)
+        assert(pixelOffset <= self.width)
+        # Map the pixel offset to the range 0..1
+        percents = pixelOffset / float(self.width)
+        assert(percents >= 0 and percents <= 1)
+        # Map to time
+        return self.minTime + percents * (self.maxTime - self.minTime)
         
     def update(self):
         # Remove the old axis.

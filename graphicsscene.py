@@ -10,7 +10,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
     points wide.
     """
     DEFAULT_WIDTH = 2000
-    MIN_WIDTH = 400
+    MIN_WIDTH = 800
     MAX_WIDTH = 20000
     HEIGHT = 1000
 
@@ -54,19 +54,33 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
 
     def updateFromData(self, data):
+        """
+        Updates all parts of the scene.
+        """
         width = min(max(self.MIN_WIDTH, len(data.time)), self.MAX_WIDTH)
         self.__setSceneSize(width, self.HEIGHT)
         self.timeAxis.setTime(data.minTime, data.maxTime)
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(data.minAbsorbance, data.maxAbsorbance)
         self.absorbanceAxis.update()
+        self.updateAbsorbanceGraph(data)
+        self.updateFullLightBars(data)
+        self.updateFitAbsorbanceBars(data)
+
+    def updateAbsorbanceGraph(self, data):
         self.absorbanceGraph.setData(data)
         self.absorbanceGraph.recreateFromData()
+
+    def updateFullLightBars(self, data):
         self.fullLightBars.updatePositionFromData(data.fullLightVoltageTime1(), data.fullLightVoltageTime2())
+
+    def updateFitAbsorbanceBars(self, data):
         self.fitAbsorbanceBars.updatePositionFromData(data.fitAbsorbanceTime1(), data.fitAbsorbanceTime2())
 
     def changeWidth(self, width):
-        oldWidth = self.width()
+        # Only change the width if it really changed.
+        if self.width() == width:
+            return        
         self.__setSceneSize(width, self.HEIGHT)
         self.timeAxis.update()
         self.absorbanceAxis.update()

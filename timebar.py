@@ -7,11 +7,28 @@ class TimeBar(QtGui.QGraphicsItemGroup):
     ItemSendsGeometryChanges = 0x800
 
     class Signals(QtCore.QObject):
-        # Qt Signal
+        """
+        TimeBar is not a subclass of QObject, and it cannot be.
+        This helper class contains TimeBar's signals.
+        """
+        # Qt Signals
         positionChanged = QtCore.pyqtSignal()
+        # The parameter is time in seconds.
+        positionChangeFinished = QtCore.pyqtSignal(float)
 
-    def __init__(self, height, parent=None):
+    def __init__(self, height, timeAxis, leftBorder, parent=None):
+        """
+        Parameter height is a height of the time bar in pixels.
+        Parameter timeAxis points to Time Axis on which the time bars
+        are placed.
+        Parameter leftBorder contains the width of free space between
+        the left side of the scene and Time Axis, in pixels.
+        Parameter parent is a parent object in scene where time bars 
+        will be displayed.
+        """
         super(TimeBar, self).__init__(parent)
+        self.timeAxis = timeAxis
+        self.leftBorder = leftBorder
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(self.ItemSendsGeometryChanges, True)
 
@@ -47,12 +64,21 @@ class TimeBar(QtGui.QGraphicsItemGroup):
             if not self.isSelected():
                 self.scene().clearSelection()
                 self.setSelected(True)
-            self.movingItemsInitialPositions = None
+            self.clearMovingItemsInitialPositions()
 
     def mouseReleaseEvent(self, event):
         super(TimeBar, self).mouseReleaseEvent(event)
-        if event.buttons() == 0:
+        self.clearMovingItemsInitialPositions()
+
+    def clearMovingItemsInitialPositions(self):
+        """
+        Clears movingItemsInitialPositions array that is created on the start of mouse drag.
+        Sends the signal about the end of position change.
+        """
+        if self.movingItemsInitialPositions:
             self.movingItemsInitialPositions = None
+            time = self.timeAxis.mapPixelsToTime(self.pos().x() - self.leftBorder)
+            self.signals.positionChangeFinished.emit(time)
 
     def mouseMoveEvent(self, event):
         super(TimeBar, self).mouseMoveEvent(event)
@@ -69,4 +95,9 @@ class TimeBar(QtGui.QGraphicsItemGroup):
 
                 currentParentPos.setY(0)
                 buttonDownParentPos.setY(0)
-                item.setPos(self.movingItemsInitialPositions[item] + currentParentPos - buttonDownParentPos);
+                pos = self.movingItemsInitialPositions[item] + currentParentPos - buttonDownParentPos
+                if pos.x() < self.leftBorder:
+                    pos.setX(self.leftBorder)
+                elif pos.x() >= self.leftBorder + self.timeAxis.width:
+                    pos.setX(self.leftBorder + self.timeAxis.width)
+                item.setPos(pos);

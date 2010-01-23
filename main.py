@@ -51,6 +51,11 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
+        self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
+        self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
+        self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)
+        self.scene.fitAbsorbanceBars.bar2.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime2)
+        self.data.dataChanged.connect(self.onDataChanged)
         self.view = GraphicsView(self.scene)
         self.setCentralWidget(self.view)
 
@@ -119,7 +124,7 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowTitle(QtCore.QFileInfo(name).fileName() + " - flashfit")
     
         # Recent files
-        settings = QtCore.QSettings("Karel Klic", "flashfit")
+        settings = QtCore.QSettings("karelklic", "flashfit")
         files = settings.value("recentFileList").toStringList()
         files.removeAll(name)
         files.prepend(name)
@@ -132,20 +137,33 @@ class MainWindow(QtGui.QMainWindow):
         """
         Changes the number of measured points used from all points loaded from input file.
         """
+        # Do nothing if the number of points hasn't changed.
+        if self.data.maxPoints == points:
+            return
+
         # Do not act on timeAxisLength changes when loading.
         self.settings.timeAxisLength.valueChangeFinished.disconnect(self.scene.changeWidth)
 
         # TODO: save fulllightvoltage pointer and other pointers time and recover after loading
+        fullLightVoltageTimes = self.data.fullLightVoltageTimes()
+        fitAbsorbanceTimes = self.data.fitAbsorbanceTimes()
 
         self.data.maxPoints = points
         self.data.copyFromOriginalData()
-        # TODO: next line to be removed
-        self.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
-        self.data.recalculateAbsorbances()
+        self.data.setFullLightVoltageTimes(fullLightVoltageTimes, False)
+        self.data.setFitAbsorbanceTimes(fitAbsorbanceTimes, False)
         self.scene.updateFromData(self.data)
 
         # Connect it back.
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
+
+    def onDataChanged(self, change):
+        if change & Data.DATA_CHANGED_ABSORBANCE:
+            self.scene.updateAbsorbanceGraph(self.data)
+        if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
+            self.scene.updateFullLightBars(self.data)
+        if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
+            self.scene.updateFitAbsorbanceBars(self.data)
 
 application = QtGui.QApplication(sys.argv)
 window = MainWindow()

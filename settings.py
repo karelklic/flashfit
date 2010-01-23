@@ -6,9 +6,9 @@ class SpinBox(QtGui.QSpinBox):
 
     def __init__(self, parent=None):
         QtGui.QDockWidget.__init__(self, parent)
-        self.editingFinished.connect(self.__editingFinished)
+        self.editingFinished.connect(self.onEditingFinished)
         
-    def __editingFinished(self):
+    def onEditingFinished(self):
         self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):

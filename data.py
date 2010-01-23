@@ -57,6 +57,12 @@ class Data(QtCore.QObject):
 
     DEFAULT_USED_POINTS_COUNT = 2000
 
+    # Qt Signals
+    DATA_CHANGED_ABSORBANCE = 0x01
+    DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER = 0x02
+    DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER = 0x04
+    dataChanged = QtCore.pyqtSignal(int)
+
     def __init__(self, parent=None):
         """
         No data is present after init.
@@ -185,10 +191,13 @@ class Data(QtCore.QObject):
         self.setFitAbsorbanceTimePointer(15, 30)
 
     def setFullLightVoltagePointer(self, start, stop):
+        """
+        Parameters start and stop are offsets to self.time array.
+        """
         if start > stop:
             start, stop = stop, start
 
-        self.fullLightVoltagePointer = (start, stop)
+        self.fullLightVoltagePointer = [start, stop]
         
         # Calculate the arithmetic mean voltage from it.
         sum = 0.0
@@ -196,23 +205,81 @@ class Data(QtCore.QObject):
             sum += self.voltage[i]
         self.fullLightVoltage = sum / float(stop - start + 1)
 
+    def findClosestTimeOffset(self, time, minOffset, maxOffset):
+        if maxOffset - minOffset == 1:
+            if (time - self.time[minOffset]) < (self.time[maxOffset] - time):
+                return minOffset
+            else:
+                return maxOffset
+
+        middleOffset = minOffset + (maxOffset - minOffset) / 2
+        middleTime = self.time[middleOffset]
+        if time < middleTime:
+            return self.findClosestTimeOffset(time, minOffset, middleOffset)
+        else:
+            return self.findClosestTimeOffset(time, middleOffset, maxOffset)
+
     def fullLightVoltageTime1(self):
         """
-        In seconds
+        Returns time in seconds.
         """
         return self.time[self.fullLightVoltagePointer[0]]
 
     def fullLightVoltageTime2(self):
         """
-        In seconds
+        Returns time in seconds.
         """
         return self.time[self.fullLightVoltagePointer[1]]
 
+    def fullLightVoltageTimes(self):
+        """
+        Returns two time values in seconds.
+        """
+        return (self.fullLightVoltageTime1(), self.fullLightVoltageTime2())
+
+    def setFullLightVoltageTime1(self, time):
+        """
+        Recalculates absorbance values.
+        """
+        if len(self.time) < 2:
+            return
+        start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
+        self.setFullLightVoltagePointer(start, self.fullLightVoltagePointer[1])
+        self.recalculateAbsorbances()
+        self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE | self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
+    def setFullLightVoltageTime2(self, time):
+        """
+        Recalculates absorbance values.
+        """
+        if len(self.time) < 2:
+            return
+        stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
+        self.setFullLightVoltagePointer(self.fullLightVoltagePointer[0], stop)
+        self.recalculateAbsorbances()
+        self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE | self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
+    def setFullLightVoltageTimes(self, times, emitDataChangedSignal=True):
+        """
+        Recalculates absorbance values.
+        """
+        if len(self.time) < 2:
+            return
+        start = self.findClosestTimeOffset(times[0], 0, len(self.time) - 1)
+        stop = self.findClosestTimeOffset(times[1], 0, len(self.time) - 1)
+        self.setFullLightVoltagePointer(start, stop)
+        self.recalculateAbsorbances()
+        if emitDataChangedSignal:
+            self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE | self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
     def setFitAbsorbanceTimePointer(self, start, stop):
+        """
+        Parameters start and stop are offsets to self.time array.
+        """
         if start > stop:
             start, stop = stop, start
         
-        self.fitAbsorbanceTimePointer = (start, stop)
+        self.fitAbsorbanceTimePointer = [start, stop]
 
         # Calculate something from it.
         pass
@@ -221,10 +288,43 @@ class Data(QtCore.QObject):
         """
         In seconds
         """
-        return self.time[self.fullLightVoltagePointer[0]]
+        return self.time[self.fitAbsorbanceTimePointer[0]]
 
     def fitAbsorbanceTime2(self):
         """
         In seconds
         """
-        return self.time[self.fullLightVoltagePointer[1]]
+        return self.time[self.fitAbsorbanceTimePointer[1]]
+
+    def fitAbsorbanceTimes(self):
+        """
+        Returns two time values in seconds.
+        """
+        return (self.fitAbsorbanceTime1(), self.fitAbsorbanceTime2())
+
+    def setFitAbsorbanceTime1(self, time):
+        if len(self.time) < 2:
+            return
+        start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
+        self.setFitAbsorbanceTimePointer(start, self.fitAbsorbanceTimePointer[1])
+        # TODO: recalc
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+
+    def setFitAbsorbanceTime2(self, time):
+        if len(self.time) < 2:
+            return
+        stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
+        self.setFitAbsorbanceTimePointer(self.fitAbsorbanceTimePointer[0], stop)
+        # TODO: recalc
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+
+    def setFitAbsorbanceTimes(self, times, emitDataChangedSignal=True):
+        if len(self.time) < 2:
+            return
+        start = self.findClosestTimeOffset(times[0], 0, len(self.time) - 1)
+        stop = self.findClosestTimeOffset(times[1], 0, len(self.time) - 1)
+        self.setFitAbsorbanceTimePointer(start, stop)
+        # TODO: recalc
+        if emitDataChangedSignal:
+            self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+        
