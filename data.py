@@ -71,7 +71,6 @@ class Data(QtCore.QObject):
 
         # Data loaded from input file.
         self.originalData = OriginalData()
-
         self.maxPoints = self.DEFAULT_USED_POINTS_COUNT
         
         # Subset of originalData.time
@@ -179,16 +178,33 @@ class Data(QtCore.QObject):
         The full light should be at the beginning of the waveform, followed
         by a flash.
         """
-        # TODO: real algorithm here
-        self.setFullLightVoltagePointer(0, 10)
+        start = 0
+        end = 0
+        sum = self.voltage[0]
+        for i in range(start + 1, len(self.voltage) - 1):
+            if (self.voltage[i] - sum / i) > self.originalData.voltageSpan * 0.5:
+                end = i - max(1, int(i * 0.1))
+                break
+            sum += self.voltage[i]
+        if end == start:
+            end = len(self.voltage) / 2
+            
+        self.setFullLightVoltagePointer(start, end)
 
     def guessFitAbsorbanceTimePointer(self):
         """
         Takes time and voltage waveform, and tries to determine which part of
         the waveform should be fitted by a curve.
         """
-        # TODO: real algorithm here
-        self.setFitAbsorbanceTimePointer(15, 30)
+        start = len(self.voltage) - 1
+        end = len(self.voltage) - 1
+        # The start point is the point with the highest voltage.
+        highest = self.voltage[start]
+        for i in range(0, end - 1):
+            if self.voltage[i] > highest:
+                highest = self.voltage[i]
+                start = i        
+        self.setFitAbsorbanceTimePointer(start, end)
 
     def setFullLightVoltagePointer(self, start, stop):
         """
