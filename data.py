@@ -91,6 +91,9 @@ class Data(QtCore.QObject):
         self.absorbanceFit = []
         # Residuals in time.
         self.residuals = []
+        self.minResiduals = None
+        self.maxResiduals = None
+        self.residualsSpan = None
         # Full light voltage
         # Used to calculate absorbance from voltage.
         self.fullLightVoltage = None
@@ -356,12 +359,18 @@ class Data(QtCore.QObject):
         p = [ 10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0]) ]
         (p, ssq, c, a, curv, r) = ngml.ngml(ngml.rcalcABC, p, a_0, time, absorbance)
         
-        a_tot = matlib.multiply(c, a)
+        a_tot = matlib.dot(c, a)
         sigma_y = math.sqrt(ssq / (len(absorbance) - len(p) - matlib.size(a)))
         # sigma for parameters
         sigma_p = sigma_y * math.sqrt(matlib.diag(linalg.inv(curv)).sum())
         self.absorbanceFit = a_tot[:,0].transpose().tolist()[0]
-        self.residuals = r.tolist()
+        
+        # Set residuals
+        self.residuals = r.transpose().tolist()[0]
+        self.minResiduals = min(self.residuals)
+        self.maxResiduals = max(self.residuals)
+        self.residualsSpan = self.maxResiduals - self.minResiduals
+
 #[k,ssq,C,A,Curv,r]=nglm2(fname,k0,A_0,t,Y); 	               % call ngl/m
 #A_tot=C*A;
 #sig_y=sqrt(ssq/(prod(size(Y))-length(k)-(prod(size(A)))));     % sigma_r

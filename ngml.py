@@ -40,7 +40,7 @@ def rcalcABC(k, a_0, t, y):
     ca = matlib.dot(c, a)
     r = y - ca
     
-    return (r, c, a.transpose())
+    return (r, c, a)
 
 def ngml(function, p, a_0, t, y):
     """
@@ -99,7 +99,7 @@ def ngml(function, p, a_0, t, y):
         # augment Jacobian matrix
         j_mp = matlib.vstack((j, mp * matlib.eye(len(p))))
         # augment residual vector
-        r0_mp = matlib.concatenate((r0_old, matlib.zeros(matlib.size(p)).transpose()))
+        r0_mp = matlib.concatenate((r0_old, matlib.zeros(p.shape)))
         # calculate parameter shifts
         delta_p = linalg.lstsq(-j_mp, r0_mp)[0]
         # add parameter shifts
@@ -109,5 +109,7 @@ def ngml(function, p, a_0, t, y):
     # Curvature matrix
     curv = j.H * j
 
+    # Should 'r' be returned, or maybe 'r0' should be? 
+    # Both seems to be wrong.
     return (p, ssq, c, a, curv, r)
 

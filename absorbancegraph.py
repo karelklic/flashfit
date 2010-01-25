@@ -25,7 +25,6 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
             absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier
-            #print str(t) + "/" + str(len(data.time)) + " " + str(time) + " # " + str(absorbance)
             if lastTime != None and lastAbsorbance != None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance))
                 line.setParentItem(self)
