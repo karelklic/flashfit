@@ -1,10 +1,11 @@
-from numpy import matrix
+import numpy
+from numpy import matrix, matlib, linalg
 import math
 
 def rcalcABC(k, a_0, t, y):
     """
     Parameter k (=parameter) is a column vector.
-    Parameter A_0 is a number.
+    Parameter a_0 is a number.
     Parameter t is a list of time values.
     Parameter y is a column vector of measured values.
     Returns tuple of three values:
@@ -15,42 +16,45 @@ def rcalcABC(k, a_0, t, y):
     # First column of C contains concentrations of A
     c0 = []
     for tloop in t:
-        c0.append(a_0 * math.exp(-k[0] * tloop))
-    c[:,0] = c0
+        c0.append(a_0 * math.exp(-k[0,0] * tloop))
 
     # Second column of C contains concetrations of B
     c1 = []
     for tloop in t:
-        c1.append(a_0 * k[0] / (k[1] - k[0]) * (math.exp(-k[0] * tloop) - math.exp(-k[1] * tloop)))
-    c[:,1] = c1
+        c1.append(a_0 * k[0,0] / (k[1,0] - k[0,0]) * (math.exp(-k[0,0] * tloop) - math.exp(-k[1,0] * tloop)))
 
     # Third column of C contains concentrations of C
     c2 = []
-    for i in range(0, len(c0) - 1):
+    for i in range(0, len(c0)):
         c2.append(a_0 - c0[i] - c1[i])
 
-    c = matrix([c0,c1,c2])
+    c = matlib.mat([c0, c1, c2])
     c = c.transpose()
     
     # elimination of linear parameters
-    a = linalg.lstsq(c, y)
+    # [0] because we just need the result, not the residuals etc.
+    a = linalg.lstsq(c, y)[0]
 
-    # residuals
-    r = y - c * a
+    # calculate residuals
+    # ca = c * a (matrix multiplication)
+    ca = matlib.dot(c, a)
+    r = y - ca
     
-    return (r.transpose(), c, a)
+    return (r, c, a)
 
 def ngml(function, p, a_0, t, y):
     """
     Newton-Gauss-Levenberg/Marquardt algorithm
-    Parameter p (=initial parameter) is a column vector.
-    A_0 is a number (usually 1e-3)
+    Parameter p is a list of initial parameters.
+    a_0 is a number (usually 1e-3)
     Parameter t contains a list of time values.
     Parameter y is a list of measured values.
     """
 
     # make column vector from y
     y = matrix(y).transpose()
+    # make column vector from p
+    p = matrix(p).transpose()
 
     ssq_old = 1e50
     # Marquardt parameter
@@ -61,12 +65,13 @@ def ngml(function, p, a_0, t, y):
     delta = 1e-6
 
     it = 0 # iteration
+    j = matlib.empty([len(t), len(p)]) # Jacobian
     while it < 50:
         # call calc of residuals
-        (r0, C, A) = function(p, A_0, t, y)
-        ssq = sum(multiply(r0, r0))
+        (r0, c, a) = function(p, a_0, t, y)
+        ssq = matlib.sum(matlib.multiply(r0, r0))
         conv_crit = (ssq_old - ssq) / ssq_old
-        fprintf(1,'it=%i, ssq=%g, mp=%g, conv_crit=%g\n',it,ssq,mp,conv_crit)
+        print "it=%i, ssq=%g, mp=%g, conv_crit=%g" % (it, ssq, mp, conv_crit)
         if abs(conv_crit) <= mu: # ssq_old=ssq, minimum reached !
             if mp == 0:
                 break # if Marquardt par zero, stop
@@ -77,42 +82,33 @@ def ngml(function, p, a_0, t, y):
             mp = mp / 3
             ssq_old = ssq  
             r0_old = r0
-            for i in range(0, len(p) - 1):					
+            for i in range(0, len(p)):					
                 p[i] = (1 + delta) * p[i]						
-                r = function(p, a_0, t, y);				
-                J(:,i) = (r - r0) / (delta * p[i]);			
+                r = function(p, a_0, t, y)[0];
+                ji = (r - r0) / (delta * p[i])
+                for loop in range(0, matlib.size(r)):
+                    j[loop, i] = ji[loop, 0]
                 p[i] = p[i] / (1 + delta);						
         elif conv_crit < -mu: # divergence !
             if mp == 0:											
                 mp = 1 # use Marquardt parameter
             else:
                 mp = mp * 5										 
-            p = p - delta_p # and take shifts back 
-   
-       # augment Jacobian matrix
-       J_mp = [J; mp * eye(len(p))]	
-       # augment residual vector
-       r0_mp = [r0_old; zeros(size(p))] 
-       # calculate parameter shifts
-       delta_p = -J_mp \ r0_mp 
-       # add parameter shifts
-       p = p + delta_p 
-       it += 1
+            p = p - delta_p # and take shifts back
 
+        # augment Jacobian matrix
+        j_mp = matlib.vstack((j, mp * matlib.eye(len(p))))
+        print "j_mp", matlib.shape(j_mp)
+        # augment residual vector
+        r0_mp = matlib.concatenate((r0_old, matlib.zeros(matlib.size(p)).transpose()))
+        # calculate parameter shifts
+        delta_p = linalg.lstsq(-j_mp, r0_mp)[0]
+        # add parameter shifts
+        p = p + delta_p 
+        it += 1
+       
+    # Curvature matrix
+    curv = j.H * j
 
+    return (p, ssq, c, a, curv, r)
 
-[k,ssq,C,A,Curv,r]=nglm2(fname,k0,A_0,t,Y); 	               % call ngl/m
-A_tot=C*A;
-sig_y=sqrt(ssq/(prod(size(Y))-length(k)-(prod(size(A)))));     % sigma_r
-sig_k=sig_y*sqrt(diag(inv(Curv))); % sigma_par
-
-for i=1:length(k)
-   fprintf(1,'k(%i): %g +- %g\n',i,k(i),sig_k(i));
-end
-fprintf(1,'sig_y: %g\n',sig_y);
-figure(1);
-subplot(2,1,1);plot(t,A_tot,t,Y,'.');
-ylabel('absorbance')
-subplot(2,1,2);plot(t,r);
-xlabel('time');ylabel('residuals');
-print('plot.png', '-dpng');

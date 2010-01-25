@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import math
+import ngml
 
 class OriginalData:
     """
@@ -344,3 +345,26 @@ class Data(QtCore.QObject):
         if emitDataChangedSignal:
             self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
         
+    def fitAbsorbances(self):
+        time = self.time[self.fitAbsorbanceTimePointer[0]:self.fitAbsorbanceTimePointer[1]]
+        print "Length", len(time)
+        absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:self.fitAbsorbanceTimePointer[1]]
+        a_0 = 1e-3
+        p = [ 10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0]) ]
+        (p, ssq, c, a, curv, r) = ngml.ngml(ngml.rcalcABC, p, a_0, time, absorbance)
+
+#[k,ssq,C,A,Curv,r]=nglm2(fname,k0,A_0,t,Y); 	               % call ngl/m
+#A_tot=C*A;
+#sig_y=sqrt(ssq/(prod(size(Y))-length(k)-(prod(size(A)))));     % sigma_r
+#sig_k=sig_y*sqrt(diag(inv(Curv))); % sigma_par
+
+#for i=1:length(k)
+#   fprintf(1,'k(%i): %g +- %g\n',i,k(i),sig_k(i));
+#end
+#fprintf(1,'sig_y: %g\n',sig_y);
+#figure(1);
+#subplot(2,1,1);plot(t,A_tot,t,Y,'.');
+#ylabel('absorbance')
+#subplot(2,1,2);plot(t,r);
+#xlabel('time');ylabel('residuals');
+#print('plot.png', '-dpng');
