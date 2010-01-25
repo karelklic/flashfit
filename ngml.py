@@ -110,6 +110,5 @@ def ngml(function, p, a_0, t, y):
     curv = j.H * j
 
     # Should 'r' be returned, or maybe 'r0' should be? 
-    # Both seems to be wrong.
-    return (p, ssq, c, a, curv, r)
+    return (p, ssq, c, a, curv, r0)
 
