@@ -40,13 +40,12 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         lastAbsorbance = None
         children = self.children()
         if len(children) < len(self.data.time) - 1:
-            print "Error", len(children), len(self.data.time) - 1
+            print "Error in absorbance graph resize", len(children), len(self.data.time) - 1
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
             absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier
             if lastTime != None and lastAbsorbance != None:
-                line = children[t - 1].line()
-                line.setLine(lastTime, lastAbsorbance, time, absorbance)
+                line = QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance)
                 children[t - 1].setLine(line)
             lastTime = time
             lastAbsorbance = absorbance

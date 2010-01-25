@@ -351,8 +351,9 @@ class Data(QtCore.QObject):
         
     def fitAbsorbances(self):
         # Prepare input
-        time = self.time[self.fitAbsorbanceTimePointer[0]:self.fitAbsorbanceTimePointer[1]]
-        absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:self.fitAbsorbanceTimePointer[1]]
+        # "+ 1" is here to get a slice which also includes pointer[1]
+        time = self.time[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
+        absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         a_0 = 1e-3
         # Prepare initial parameters
         p = [ 10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0]) ]

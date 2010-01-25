@@ -47,7 +47,7 @@ class MainWindow(QtGui.QMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.settings)
 
         self.data = Data()
-        self.scene = GraphicsScene(self)
+        self.scene = GraphicsScene(self.data, self)
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
@@ -55,7 +55,7 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
         self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)
         self.scene.fitAbsorbanceBars.bar2.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime2)
-        self.data.dataChanged.connect(self.onDataChanged)
+        self.data.dataChanged.connect(self.scene.onDataChanged)
         self.view = GraphicsView(self.scene)
         self.setCentralWidget(self.view)
 
@@ -121,7 +121,7 @@ class MainWindow(QtGui.QMainWindow):
         self.data.fitAbsorbances()
         
         # Refresh GUI
-        self.scene.updateFromData(self.data)
+        self.scene.updateFromData()
         self.setWindowTitle(QtCore.QFileInfo(name).fileName() + " - flashfit")
     
         # Recent files
@@ -153,21 +153,10 @@ class MainWindow(QtGui.QMainWindow):
         self.data.copyFromOriginalData()
         self.data.setFullLightVoltageTimes(fullLightVoltageTimes, False)
         self.data.setFitAbsorbanceTimes(fitAbsorbanceTimes, False)
-        self.scene.updateFromData(self.data)
+        self.scene.updateFromData()
 
         # Connect it back.
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
-
-    def onDataChanged(self, change):
-        if change & Data.DATA_CHANGED_ABSORBANCE:
-            self.scene.updateAbsorbanceGraph(self.data)
-        if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
-            self.scene.updateFullLightBars(self.data)
-        if change & Data.DATA_CHANGED_FIT_ABSORBANCE:
-            self.scene.updateAbsorbanceFit(self.data)
-            self.scene.updateResidualsGraph(self.data)
-        if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
-            self.scene.updateFitAbsorbanceBars(self.data)
 
 application = QtGui.QApplication(sys.argv)
 window = MainWindow()
