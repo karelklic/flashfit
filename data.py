@@ -62,7 +62,8 @@ class Data(QtCore.QObject):
     # Qt Signals
     DATA_CHANGED_ABSORBANCE = 0x01
     DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER = 0x02
-    DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER = 0x04
+    DATA_CHANGED_FIT_ABSORBANCE = 0x04
+    DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER = 0x08
     dataChanged = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
@@ -304,9 +305,6 @@ class Data(QtCore.QObject):
         
         self.fitAbsorbanceTimePointer = [start, stop]
 
-        # Calculate something from it.
-        pass
-
     def fitAbsorbanceTime1(self):
         """
         In seconds
@@ -330,16 +328,16 @@ class Data(QtCore.QObject):
             return
         start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(start, self.fitAbsorbanceTimePointer[1])
-        # TODO: recalc
-        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+        self.fitAbsorbances()
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def setFitAbsorbanceTime2(self, time):
         if len(self.time) < 2:
             return
         stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(self.fitAbsorbanceTimePointer[0], stop)
-        # TODO: recalc
-        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+        self.fitAbsorbances()
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def setFitAbsorbanceTimes(self, times, emitDataChangedSignal=True):
         if len(self.time) < 2:
@@ -347,22 +345,28 @@ class Data(QtCore.QObject):
         start = self.findClosestTimeOffset(times[0], 0, len(self.time) - 1)
         stop = self.findClosestTimeOffset(times[1], 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(start, stop)
-        # TODO: recalc
+        self.fitAbsorbances()
         if emitDataChangedSignal:
-            self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+            self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
         
     def fitAbsorbances(self):
+        # Prepare input
         time = self.time[self.fitAbsorbanceTimePointer[0]:self.fitAbsorbanceTimePointer[1]]
         absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:self.fitAbsorbanceTimePointer[1]]
         a_0 = 1e-3
-        # Initial parameters
+        # Prepare initial parameters
         p = [ 10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0]) ]
+
+        # Run the fitting algorithm.
         (p, ssq, c, a, curv, r) = ngml.ngml(ngml.rcalcABC, p, a_0, time, absorbance)
-        
-        a_tot = matlib.dot(c, a)
+
+        # Set parameters (speed constants?) and sigma for parameters
+        self.p = p
         sigma_y = math.sqrt(ssq / (len(absorbance) - len(p) - matlib.size(a)))
-        # sigma for parameters
-        sigma_p = sigma_y * math.sqrt(matlib.diag(linalg.inv(curv)).sum())
+        self.sigma_p = sigma_y * math.sqrt(matlib.diag(linalg.inv(curv)).sum())
+        
+        # Set absorbance fit curve
+        a_tot = matlib.dot(c, a)
         self.absorbanceFit = a_tot[:,0].transpose().tolist()[0]
         
         # Set residuals
@@ -372,17 +376,9 @@ class Data(QtCore.QObject):
         self.residualsSpan = self.maxResiduals - self.minResiduals
 
 #[k,ssq,C,A,Curv,r]=nglm2(fname,k0,A_0,t,Y); 	               % call ngl/m
-#A_tot=C*A;
 #sig_y=sqrt(ssq/(prod(size(Y))-length(k)-(prod(size(A)))));     % sigma_r
 #sig_k=sig_y*sqrt(diag(inv(Curv))); % sigma_par
-
 #for i=1:length(k)
 #   fprintf(1,'k(%i): %g +- %g\n',i,k(i),sig_k(i));
 #end
 #fprintf(1,'sig_y: %g\n',sig_y);
-#figure(1);
-#subplot(2,1,1);plot(t,A_tot,t,Y,'.');
-#ylabel('absorbance')
-#subplot(2,1,2);plot(t,r);
-#xlabel('time');ylabel('residuals');
-#print('plot.png', '-dpng');

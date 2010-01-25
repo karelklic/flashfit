@@ -163,6 +163,9 @@ class MainWindow(QtGui.QMainWindow):
             self.scene.updateAbsorbanceGraph(self.data)
         if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
             self.scene.updateFullLightBars(self.data)
+        if change & Data.DATA_CHANGED_FIT_ABSORBANCE:
+            self.scene.updateAbsorbanceFit(self.data)
+            self.scene.updateResidualsGraph(self.data)
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
             self.scene.updateFitAbsorbanceBars(self.data)
 
