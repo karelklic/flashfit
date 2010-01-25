@@ -89,6 +89,7 @@ class Data(QtCore.QObject):
         self.maxAbsorbance = None
         self.absorbanceSpan = None
         # Absorbance fit in time.
+        self.absorbanceFitFunction = ngml.rcalcABC
         self.absorbanceFit = []
         # Residuals in time.
         self.residuals = []
@@ -350,16 +351,24 @@ class Data(QtCore.QObject):
             self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
         
     def fitAbsorbances(self):
+        # Do nothing if no data is loaded.
+        if self.fitAbsorbanceTimePointer == None:
+            return
         # Prepare input
         # "+ 1" is here to get a slice which also includes pointer[1]
         time = self.time[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         a_0 = 1e-3
         # Prepare initial parameters
-        p = [ 10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0]) ]
+        if self.absorbanceFitFunction == ngml.rcalcABC or self.absorbanceFitFunction == ngml.rcalcFirst2:
+            p = [10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0])]
+        elif self.absorbanceFitFunction == ngml.rcalcFirst:
+            p = [10 / (time[len(time) - 1] - time[0])]
+        else:
+            print "Error while preparing parameters: unknown model function."
 
         # Run the fitting algorithm.
-        (p, ssq, c, a, curv, r) = ngml.ngml(ngml.rcalcABC, p, a_0, time, absorbance)
+        (p, ssq, c, a, curv, r) = ngml.ngml(self.absorbanceFitFunction, p, a_0, time, absorbance)
 
         # Set parameters (speed constants?) and sigma for parameters
         self.p = p

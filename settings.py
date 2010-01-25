@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 from graphicsscene import GraphicsScene
+import ngml
 
 class SpinBox(QtGui.QSpinBox):
     valueChangeFinished = QtCore.pyqtSignal(int)
@@ -12,6 +13,8 @@ class SpinBox(QtGui.QSpinBox):
         self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):
+    modelFunctionChanged = QtCore.pyqtSignal()
+
     def __init__(self, parent=None):
         QtGui.QDockWidget.__init__(self, parent)
         #self.setWindowTitle("Settings")
@@ -26,20 +29,23 @@ class Settings(QtGui.QDockWidget):
         # Add model settings
         model = QtGui.QGroupBox("Model", self)
         modelLayout = QtGui.QVBoxLayout(model)
-        abc = QtGui.QRadioButton("ABC", self)
-        abc.setChecked(True)
-        modelLayout.addWidget(abc)
-        sfo = QtGui.QRadioButton("Single First Order", self)
-        modelLayout.addWidget(sfo)
-        dfo = QtGui.QRadioButton("Dual First Order", self)
-        modelLayout.addWidget(dfo)
+        self.abc = QtGui.QRadioButton("ABC", self)
+        self.abc.setChecked(True)
+        self.abc.toggled.connect(self.modelFunctionChanged.emit)
+        modelLayout.addWidget(self.abc)
+        self.sfo = QtGui.QRadioButton("Single First Order", self)
+        self.sfo.toggled.connect(self.modelFunctionChanged.emit)
+        modelLayout.addWidget(self.sfo)
+        self.dfo = QtGui.QRadioButton("Dual First Order", self)
+        self.dfo.toggled.connect(self.modelFunctionChanged.emit)
+        modelLayout.addWidget(self.dfo)
         model.setLayout(modelLayout)
         layout.addWidget(model)
 
-        k1 = QtGui.QDoubleSpinBox(self)
-        layout.addWidget(k1)
-        k2 = QtGui.QDoubleSpinBox(self)
-        layout.addWidget(k2)
+        #k1 = QtGui.QDoubleSpinBox(self)
+        #layout.addWidget(k1)
+        #k2 = QtGui.QDoubleSpinBox(self)
+        #layout.addWidget(k2)
 
         # Add Time Axis Length control
         model = QtGui.QGroupBox("Time Axis Length", self)
@@ -81,3 +87,13 @@ class Settings(QtGui.QDockWidget):
         self.usedPoints.setValue(data.maxPoints)
         self.usedPoints.setRange(10, len(data.originalData.time))
         self.usedPoints.setEnabled(True)
+
+    def modelFunction(self):
+        if self.abc.isChecked():
+            return ngml.rcalcABC
+        elif self.sfo.isChecked():
+            return ngml.rcalcFirst
+        elif self.dfo.isChecked():
+            return ngml.rcalcFirst2
+        else:
+            print "Error while selecting model function."

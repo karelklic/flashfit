@@ -51,6 +51,7 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
+        self.settings.modelFunctionChanged.connect(self.onModelFunctionChanged)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
         self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
         self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)
@@ -145,19 +146,33 @@ class MainWindow(QtGui.QMainWindow):
         # Do not act on timeAxisLength changes when loading.
         self.settings.timeAxisLength.valueChangeFinished.disconnect(self.scene.changeWidth)
 
-        # TODO: save fulllightvoltage pointer and other pointers time and recover after loading
+        # Save fulllightvoltage pointer and fit absorbance pointer time, to be recovered after loading
         fullLightVoltageTimes = self.data.fullLightVoltageTimes()
         fitAbsorbanceTimes = self.data.fitAbsorbanceTimes()
 
         self.data.maxPoints = points
         self.data.copyFromOriginalData()
+
+        # Recover fulllightvoltage pointer and fit absorbance pointer times
         self.data.setFullLightVoltageTimes(fullLightVoltageTimes, False)
         self.data.setFitAbsorbanceTimes(fitAbsorbanceTimes, False)
+
         self.scene.updateFromData()
 
         # Connect it back.
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
 
+    def onModelFunctionChanged(self):
+        # This method is called twice per every change.
+        # Do not recalculate absorbances twice.
+        if self.data.absorbanceFitFunction == self.settings.modelFunction():
+            return
+
+        self.data.absorbanceFitFunction = self.settings.modelFunction()
+        self.data.fitAbsorbances()
+        self.scene.updateAbsorbanceFit()
+        self.scene.updateResidualsGraph()
+        
 application = QtGui.QApplication(sys.argv)
 window = MainWindow()
 window.show()

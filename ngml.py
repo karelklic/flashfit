@@ -42,6 +42,49 @@ def rcalcABC(k, a_0, t, y):
     
     return (r, c, a)
 
+def rcalcFirst(k, a_0, t, y):
+    # First column of C contains concentrations of A
+    c0 = []
+    for tloop in t:
+        c0.append(a_0 * math.exp(-k[0,0] * tloop))
+   
+    c = matlib.mat([c0])
+    c = c.transpose()
+    
+    # elimination of linear parameters
+    # [0] because we just need the result, not the residuals etc.
+    a = linalg.lstsq(c, y)[0]
+
+    # calculate residuals
+    # ca = c * a (matrix multiplication)
+    ca = matlib.dot(c, a)
+    r = y - ca
+    
+    return (r, c, a)
+
+def rcalcFirst2(k, a_0, t, y):
+    c0 = []
+    for tloop in t:
+        c0.append(a_0 * math.exp(-k[0,0] * tloop))
+   
+    c1 = []
+    for tloop in t:
+        c1.append(a_0 * math.exp(-k[1,0] * tloop))
+
+    c = matlib.mat([c0, c1])
+    c = c.transpose()
+    
+    # elimination of linear parameters
+    # [0] because we just need the result, not the residuals etc.
+    a = linalg.lstsq(c, y)[0]
+
+    # calculate residuals
+    # ca = c * a (matrix multiplication)
+    ca = matlib.dot(c, a)
+    r = y - ca
+    
+    return (r, c, a)
+
 def ngml(function, p, a_0, t, y):
     """
     Newton-Gauss-Levenberg/Marquardt algorithm
