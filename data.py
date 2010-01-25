@@ -360,7 +360,8 @@ class Data(QtCore.QObject):
         sigma_y = math.sqrt(ssq / (len(absorbance) - len(p) - matlib.size(a)))
         # sigma for parameters
         sigma_p = sigma_y * math.sqrt(matlib.diag(linalg.inv(curv)).sum())
-        self.absorbanceFit = a_tot
+        self.absorbanceFit = a_tot[:,0].transpose().tolist()[0]
+        self.residuals = r.tolist()
 #[k,ssq,C,A,Curv,r]=nglm2(fname,k0,A_0,t,Y); 	               % call ngl/m
 #A_tot=C*A;
 #sig_y=sqrt(ssq/(prod(size(Y))-length(k)-(prod(size(A)))));     % sigma_r

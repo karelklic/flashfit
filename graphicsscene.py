@@ -3,6 +3,7 @@ from timeaxis import TimeAxis
 from absorbanceaxis import AbsorbanceAxis
 from absorbancegraph import AbsorbanceGraph
 from timebarpair import TimeBarPair
+from absorbancefit import AbsorbanceFit
 
 class GraphicsScene(QtGui.QGraphicsScene):
     """
@@ -34,6 +35,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.absorbanceAxis)
         self.absorbanceGraph = AbsorbanceGraph()
         self.addItem(self.absorbanceGraph)
+        self.absorbanceFit = AbsorbanceFit()
+        self.addItem(self.absorbanceFit)
         self.absorbanceResidualSeparatorAxis = QtGui.QGraphicsLineItem()
         self.addItem(self.absorbanceResidualSeparatorAxis)
         # Set initial scene properties
@@ -64,12 +67,17 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.absorbanceAxis.setAbsorbance(data.minAbsorbance, data.maxAbsorbance)
         self.absorbanceAxis.update()
         self.updateAbsorbanceGraph(data)
+        self.updateAbsorbanceFit(data)
         self.updateFullLightBars(data)
         self.updateFitAbsorbanceBars(data)
 
     def updateAbsorbanceGraph(self, data):
         self.absorbanceGraph.setData(data)
         self.absorbanceGraph.recreateFromData()
+
+    def updateAbsorbanceFit(self, data):
+        self.absorbanceFit.setData(data)
+        self.absorbanceFit.recreateFromData()
 
     def updateFullLightBars(self, data):
         self.fullLightBars.updatePositionFromData(data.fullLightVoltageTime1(), data.fullLightVoltageTime2())
@@ -99,6 +107,9 @@ class GraphicsScene(QtGui.QGraphicsScene):
                                            height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceGraph.setPos(self.BORDER_LEFT, self.BORDER_TOP)
         self.absorbanceGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, \
+                                         height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceFit.setPos(self.BORDER_LEFT, self.BORDER_TOP)
+        self.absorbanceFit.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, \
                                          height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceResidualSeparatorAxis.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceResidualSeparatorAxis.setLine(0, 0, width - self.BORDER_LEFT - self.BORDER_RIGHT, 0)
