@@ -40,7 +40,7 @@ def rcalcABC(k, a_0, t, y):
     ca = matlib.dot(c, a)
     r = y - ca
     
-    return (r, c, a)
+    return (r, c, a.transpose())
 
 def ngml(function, p, a_0, t, y):
     """
@@ -98,7 +98,6 @@ def ngml(function, p, a_0, t, y):
 
         # augment Jacobian matrix
         j_mp = matlib.vstack((j, mp * matlib.eye(len(p))))
-        print "j_mp", matlib.shape(j_mp)
         # augment residual vector
         r0_mp = matlib.concatenate((r0_old, matlib.zeros(matlib.size(p)).transpose()))
         # calculate parameter shifts
