@@ -5,6 +5,7 @@ from absorbancegraph import AbsorbanceGraph
 from timebarpair import TimeBarPair
 from absorbancefit import AbsorbanceFit
 from residualsgraph import ResidualsGraph
+from informationtable import InformationTable
 from data import Data
 
 class GraphicsScene(QtGui.QGraphicsScene):
@@ -44,6 +45,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.absorbanceResidualSeparatorAxis)
         self.residualsGraph = ResidualsGraph()
         self.addItem(self.residualsGraph)
+        self.informationTable = InformationTable(self.absorbanceGraph)
+        self.addItem(self.informationTable)
         # Set initial scene properties
         self.__setSceneSize(self.DEFAULT_WIDTH, self.HEIGHT)
         self.timeAxis.setTime(0, 1.0)
@@ -76,6 +79,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.updateResidualsGraph()
         self.updateFullLightBars()
         self.updateFitAbsorbanceBars()
+        self.updateInformationTable()
 
     def updateAbsorbanceGraph(self):
         self.absorbanceGraph.setData(self.data)
@@ -94,6 +98,10 @@ class GraphicsScene(QtGui.QGraphicsScene):
 
     def updateFitAbsorbanceBars(self):
         self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(), self.data.fitAbsorbanceTime2())
+
+    def updateInformationTable(self):
+        self.informationTable.setData(self.data)
+        self.informationTable.recreateFromData()
 
     def changeWidth(self, width):
         # Only change the width if it really changed.
@@ -133,10 +141,12 @@ class GraphicsScene(QtGui.QGraphicsScene):
     def onDataChanged(self, change):
         if change & Data.DATA_CHANGED_ABSORBANCE:
             self.updateAbsorbanceGraph()
+            self.updateInformationTable()
         if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
             self.updateFullLightBars()
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE:
             self.updateAbsorbanceFit()
             self.updateResidualsGraph()
+            self.updateInformationTable()
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
             self.updateFitAbsorbanceBars()

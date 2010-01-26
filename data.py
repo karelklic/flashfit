@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 from numpy import matrix, matlib, linalg
+import numpy
 import math
 import ngml
 
@@ -371,9 +372,10 @@ class Data(QtCore.QObject):
         (p, ssq, c, a, curv, r) = ngml.ngml(self.absorbanceFitFunction, p, a_0, time, absorbance)
 
         # Set parameters (speed constants?) and sigma for parameters
-        self.p = p
-        sigma_y = math.sqrt(ssq / (len(absorbance) - len(p) - matlib.size(a)))
-        self.sigma_p = sigma_y * math.sqrt(matlib.diag(linalg.inv(curv)).sum())
+        self.p = p.transpose().tolist()[0]
+        sigma_y = math.sqrt(ssq / (len(absorbance) - matlib.size(p) - matlib.size(a)))
+        self.sigma_p = sigma_y * numpy.sqrt(matlib.diag(linalg.inv(curv)))
+        self.sigma_p = self.sigma_p.tolist()
         
         # Set absorbance fit curve
         a_tot = matlib.dot(c, a)

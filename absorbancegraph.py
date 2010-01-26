@@ -13,6 +13,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         self.data = data
         
     def recreateFromData(self):
+        # Remove all subitems.
         for item in self.children():
             self.removeFromGroup(item)
             self.scene().removeItem(item)
