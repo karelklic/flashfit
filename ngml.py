@@ -131,7 +131,7 @@ def ngml(function, p, a_0, t, y):
                 ji = (r - r0) / (delta * p[i])
                 for loop in range(0, matlib.size(r)):
                     j[loop, i] = ji[loop, 0]
-                p[i] = p[i] / (1 + delta);						
+                p[i] = p[i] / (1 + delta)						
         elif conv_crit < -mu: # divergence !
             if mp == 0:											
                 mp = 1 # use Marquardt parameter

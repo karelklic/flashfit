@@ -362,9 +362,9 @@ class Data(QtCore.QObject):
         a_0 = 1e-3
         # Prepare initial parameters
         if self.absorbanceFitFunction == ngml.rcalcABC or self.absorbanceFitFunction == ngml.rcalcFirst2:
-            p = [10 / (time[len(time) - 1] - time[0]), 3 / (time[len(time) - 1] - time[0])]
+            p = [10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])]
         elif self.absorbanceFitFunction == ngml.rcalcFirst:
-            p = [10 / (time[len(time) - 1] - time[0])]
+            p = [10 / (time[len(time) / 2] - time[0])]
         else:
             print "Error while preparing parameters: unknown model function."
 
