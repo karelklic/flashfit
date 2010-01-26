@@ -8,6 +8,9 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         self.absorbanceGraph = absorbanceGraph
         self.textItem = QtGui.QGraphicsSimpleTextItem("")
         self.textItem.setParentItem(self)
+        font = QtGui.QFont()
+        font.setPixelSize(26)
+        self.textItem.setFont(font)
 
     def setData(self, data):
         self.data = data
@@ -19,11 +22,11 @@ class InformationTable(QtGui.QGraphicsItemGroup):
     def textFromData(self):
         text = ""
         for i in range(0, len(self.data.p)):
-            text += "k(" + str(i + 1) + ") = " + str(self.data.p[i]) + u" ± " + str(self.data.sigma_p[i]) + "\n"
+            text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
         return text
 
     def findPlaceInScene(self):
-        self.setPos(self.absorbanceGraph.pos().x() + 300, self.absorbanceGraph.pos().y() + 80)
+        self.setPos(self.absorbanceGraph.pos().x() + 400, self.absorbanceGraph.pos().y() + 80)
         #MIN_WIDTH = self.boundingRect().width()
         #success = False
         #for x in range(10, int(self.absorbanceGraph.width - MIN_WIDTH), int(self.absorbanceGraph.width / 10)):

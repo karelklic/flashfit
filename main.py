@@ -85,7 +85,7 @@ class MainWindow(QtGui.QMainWindow):
         pixmap.save(image)
 
     def updateRecentFileActions(self):
-        settings = QtCore.QSettings("Karel Klic", "flashfit")
+        settings = QtCore.QSettings()
         files = settings.value("recentFileList").toStringList()
         numRecentFiles = min(len(files), len(self.recentFileActs))
         for i in range(0, numRecentFiles):
@@ -126,12 +126,13 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowTitle(QtCore.QFileInfo(name).fileName() + " - flashfit")
     
         # Recent files
-        settings = QtCore.QSettings("karelklic", "flashfit")
+        settings = QtCore.QSettings()
         files = settings.value("recentFileList").toStringList()
         files.removeAll(name)
         files.prepend(name)
         while len(files) > len(self.recentFileActs):
-            files.removeLast()
+            # files.removeLast() seems to be nonexistant in PyQt
+            files.removeAt(len(files) - 1)
         settings.setValue("recentFileList", files)
         self.updateRecentFileActions()
 
@@ -172,8 +173,12 @@ class MainWindow(QtGui.QMainWindow):
         self.data.fitAbsorbances()
         self.scene.updateAbsorbanceFit()
         self.scene.updateResidualsGraph()
+        self.scene.updateInformationTable()
         
 application = QtGui.QApplication(sys.argv)
+QtCore.QCoreApplication.setOrganizationName("flashfit")
+QtCore.QCoreApplication.setOrganizationDomain("")
+QtCore.QCoreApplication.setApplicationName("flashfit");
 window = MainWindow()
 window.show()
 application.lastWindowClosed.connect(application.quit)
