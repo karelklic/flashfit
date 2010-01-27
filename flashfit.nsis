@@ -1,0 +1,112 @@
+; flashfit.nsis - Installer script for Windows.
+; In Fedora, install mingw32-nsis package and then
+; makensis flashfit.nsis
+
+!include "MUI2.nsh"
+!include "Sections.nsh"
+!include "LogicLib.nsh"
+!include "WordFunc.nsh"
+
+!define VERSION "0.1"
+
+; The name of the installer
+Name "FlashFit ${VERSION}"
+Caption "FlashFit ${VERSION}"
+
+; The file to write
+OutFile "flashfit-${VERSION}.exe"
+
+;Interface Settings
+!define MUI_ABORTWARNING
+
+; The default installation directory
+InstallDir $PROGRAMFILES\FlashFit-${VERSION}
+
+; Registry key to check for directory (so if you install again, it will 
+; overwrite the old one automatically)
+InstallDirRegKey HKLM "Software\FlashFit${VERSION}" "Install_Dir"
+
+SetCompressor zlib
+
+; Necessary for correct Vista uninstallation.
+RequestExecutionLevel admin
+
+;===============================================================================
+; Pages
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+;!define MUI_FINISHPAGE_RUN "$INSTDIR\main.pyw"
+!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+!insertmacro MUI_PAGE_FINISH
+
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
+!insertmacro MUI_LANGUAGE "English"
+
+;===============================================================================
+; The stuff to install
+;
+Section "FlashFit (required)"
+  SectionIn 1 2 3 RO
+  SetOutPath $INSTDIR
+
+  ; Set output path to the installation directory.
+  SetOutPath $INSTDIR
+  
+  SetOverwrite on
+  File "*.py"
+  File /oname=main.pyw "main.py"
+  File "AUTHORS"
+  File "COPYING"
+  File "README"
+  
+  ; Write the installation path into the registry
+  WriteRegStr HKLM "SOFTWARE\FlashFit${VERSION}" "Install_Dir" "$INSTDIR"
+  
+  ; Write the uninstall keys for Windows
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit${VERSION}" "DisplayName" "FlashFit ${VERSION}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit${VERSION}" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegExpandStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit${VERSION}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit$${VERSION}" "DisplayVersion" "${VERSION}"
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit${VERSION}" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit${VERSION}" "NoRepair" 1
+  WriteUninstaller "uninstall.exe"
+SectionEnd
+
+;===============================================================================
+; Optional section (can be disabled by the user)
+;
+Section "Start Menu Shortcuts"
+  SetShellVarContext all
+  CreateDirectory "$SMPROGRAMS\FlashFit ${VERSION}"
+  CreateShortCut  "$SMPROGRAMS\FlashFit ${VERSION}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+  CreateShortCut  "$SMPROGRAMS\FlashFit ${VERSION}\FlashFit.lnk" "$INSTDIR\main.pyw"
+SectionEnd
+
+;===============================================================================
+; Uninstaller
+;
+Section Uninstall
+  ; Remove registry keys
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\FlashFit${VERSION}"
+  DeleteRegKey HKLM "Software\Vectronix\FlashFit${VERSION}"
+
+  ; Remove files and uninstaller
+  Delete "$INSTDIR\*.py"
+  Delete "$INSTDIR\*.pyw"
+  Delete "$INSTDIR\*.pyc"
+  Delete "$INSTDIR\AUTHORS"
+  Delete "$INSTDIR\COPYING"
+  Delete "$INSTDIR\README"
+  Delete "$INSTDIR\uninstall.exe"
+
+  ; Remove shortcuts, if any
+  SetShellVarContext all
+  Delete "$SMPROGRAMS\FlashFit ${VERSION}\*.*"
+  RMDir "$SMPROGRAMS\FlashFit ${VERSION}"
+
+  ; Remove directories used
+  RMDir $INSTDIR
+SectionEnd
