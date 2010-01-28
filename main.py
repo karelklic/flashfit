@@ -85,6 +85,10 @@ class MainWindow(QtGui.QMainWindow):
         pixmap.save(image)
 
     def updateRecentFileActions(self):
+        """
+        Updates QActions associated with Recent Files in the main menu from
+        application settings.
+        """
         settings = QtCore.QSettings()
         files = settings.value("recentFileList").toStringList()
         numRecentFiles = min(len(files), len(self.recentFileActs))
