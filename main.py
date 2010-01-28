@@ -6,42 +6,21 @@ from data import Data
 from graphicsscene import GraphicsScene
 from graphicsview import GraphicsView
 from settings import Settings
+from menubar import MenuBar
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setWindowTitle("flashfit")
 
-        fileMenu = self.menuBar().addMenu("&File")
-
-        openAct = QtGui.QAction("&Open", self)
-        openAct.setShortcut("Ctrl+O")
-        openAct.triggered.connect(self.openFile)
-        fileMenu.addAction(openAct)
-
-        saveAct = QtGui.QAction("&Save as image", self)
-        saveAct.setShortcut("Ctrl+S")
-        saveAct.triggered.connect(self.saveAsImage)
-        fileMenu.addAction(saveAct)
-        fileMenu.addSeparator()
-
-        # Recent Files
-        self.recentFileActs = []
-        for i in range(0, 5):
-            act = QtGui.QAction(self)
-            act.setVisible(False)
+        # Create and connect Mani Menu Bar
+        self.setMenuBar(MenuBar(self))
+        self.menuBar().openAct.triggered.connect(self.openFile)
+        self.menuBar().saveAct.triggered.connect(self.saveAsImage)
+        for act in self.menuBar().recentFileActs:
             act.triggered.connect(self.openRecentFile)
-            fileMenu.addAction(act)
-            self.recentFileActs.append(act)
+        self.menuBar().quitAct.triggered.connect(self.close)
 
-        self.separatorAct = fileMenu.addSeparator() # used by RecentFile
-        self.updateRecentFileActions()
-
-        # The rest of File Menu
-        quitAct = QtGui.QAction("&Quit", self)
-        quitAct.setShortcut("Ctrl+Q")
-        quitAct.triggered.connect(self.close)
-        fileMenu.addAction(quitAct)       
 
         self.settings = Settings(self)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.settings)
@@ -84,22 +63,6 @@ class MainWindow(QtGui.QMainWindow):
         
         pixmap.save(image)
 
-    def updateRecentFileActions(self):
-        """
-        Updates QActions associated with Recent Files in the main menu from
-        application settings.
-        """
-        settings = QtCore.QSettings()
-        files = settings.value("recentFileList").toStringList()
-        numRecentFiles = min(len(files), len(self.recentFileActs))
-        for i in range(0, numRecentFiles):
-            text = "&" + str(i) + " " + QtCore.QFileInfo(files[i]).fileName()
-            self.recentFileActs[i].setText(text)
-            self.recentFileActs[i].setData(files[i])
-            self.recentFileActs[i].setVisible(True)
-
-        self.separatorAct.setVisible(numRecentFiles > 0)
-
     def loadFile(self, name):
         """
         Loads input file and displays its content in graph.
@@ -129,16 +92,8 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.updateFromData()
         self.setWindowTitle(QtCore.QFileInfo(name).fileName() + " - flashfit")
     
-        # Recent files
-        settings = QtCore.QSettings()
-        files = settings.value("recentFileList").toStringList()
-        files.removeAll(name)
-        files.prepend(name)
-        while len(files) > len(self.recentFileActs):
-            # files.removeLast() seems to be nonexistant in PyQt
-            files.removeAt(len(files) - 1)
-        settings.setValue("recentFileList", files)
-        self.updateRecentFileActions()
+        # Update Recent files in the Main Menu
+        self.menuBar().addRecentFile(name)        
 
     def reloadFromOriginalData(self, points):
         """
