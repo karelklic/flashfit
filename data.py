@@ -92,6 +92,8 @@ class Data(QtCore.QObject):
         # Absorbance fit in time.
         self.absorbanceFitFunction = ngml.rcalcABC
         self.absorbanceFit = []
+        self.p = [] # parameters, also called "k"
+        self.sigma_p = [] # accuracy of parameters
         # Residuals in time.
         self.residuals = []
         self.minResiduals = None
