@@ -44,3 +44,17 @@ class TimeBarTriangle(QtGui.QGraphicsPolygonItem):
         p = self.pen()
         p.setColor(color)
         self.setPen(p)
+
+    def itemChange(self, change, value):
+        """
+        This virtual function is called by QGraphicsItem to notify custom 
+        items that some part of the item's state changes.
+        """
+        # Set proper cursor for enabled and disabled item.
+        if change == self.ItemEnabledChange:
+            if self.isEnabled(): # means it will became disabled now
+                self.setCursor(QtCore.Qt.ArrowCursor)
+            else: # means it will became enabled now
+                self.setCursor(QtCore.Qt.SizeHorCursor)
+
+        return super(TimeBarTriangle, self).itemChange(change, value)

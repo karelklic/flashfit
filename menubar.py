@@ -58,3 +58,6 @@ class MenuBar(QtGui.QMenuBar):
         settings.setValue("recentFileList", files)
         self.updateRecentFileActions()
         
+    def setEnabled(self, enabled):
+        for act in [self.openAct, self.saveAct, self.separatorAct] + self.recentFileActs:
+            act.setEnabled(enabled)

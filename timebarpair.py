@@ -69,3 +69,7 @@ class TimeBarPair:
         """
         self.bar1.setPos(self.leftBorder + self.timeAxis.mapTimeToPixels(time1), 0)
         self.bar2.setPos(self.leftBorder + self.timeAxis.mapTimeToPixels(time2), 0)
+
+    def setEnabled(self, enabled):
+        self.bar1.setEnabled(enabled)
+        self.bar2.setEnabled(enabled)
