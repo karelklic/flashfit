@@ -42,8 +42,14 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
             lastFit = fit
 
     def resizeFromData(self):
+        # Do nothing if no data are loaded.
         if self.data == None:
             return
+        if self.data.timeSpan == None:
+            return
+        if len(self.data.absorbanceFit) == 0:
+            return
+
         timeModifier = self.width / float(self.data.timeSpan)
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)
         lastTime = None
