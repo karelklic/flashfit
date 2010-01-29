@@ -53,13 +53,13 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
         self.absorbanceAxis.update()
-        self.fullLightBars = TimeBarPair( \
-            GraphicsScene.HEIGHT, "Full light", \
+        self.fullLightBars = TimeBarPair(
+            GraphicsScene.HEIGHT, "Full light",
             self.timeAxis, self.BORDER_LEFT, self)
         self.fullLightBars.setPos(100, 400)
         self.fullLightBars.setColor(QtGui.QColor("#333366"))
-        self.fitAbsorbanceBars = TimeBarPair( \
-            GraphicsScene.HEIGHT, "Absorbance Fit", \
+        self.fitAbsorbanceBars = TimeBarPair(
+            GraphicsScene.HEIGHT, "Absorbance Fit",
             self.timeAxis, self.BORDER_LEFT, self)
         self.fitAbsorbanceBars.setPos(500, 1500)
         self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
@@ -94,9 +94,15 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.residualsGraph.recreateFromData()
 
     def updateFullLightBars(self):
+        # Do nothing when no data are loaded.
+        if len(self.data.time) == 0:
+            return
         self.fullLightBars.updatePositionFromData(self.data.fullLightVoltageTime1(), self.data.fullLightVoltageTime2())
 
     def updateFitAbsorbanceBars(self):
+        # Do nothing when no data are loaded.
+        if len(self.data.time) == 0:
+            return
         self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(), self.data.fitAbsorbanceTime2())
 
     def updateInformationTable(self):
