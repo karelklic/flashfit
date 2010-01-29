@@ -81,6 +81,7 @@ class Data(QtCore.QObject):
         self.originalData = OriginalData()
         self.maxPoints = self.DEFAULT_USED_POINTS_COUNT
         self.fileName = "" # Full Path
+        self.fileCreated = QtCore.QDateTime()
         
         # Subset of originalData.time
         self.time = []

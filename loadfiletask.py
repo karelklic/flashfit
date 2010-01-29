@@ -30,6 +30,7 @@ class LoadFileTask(QtCore.QThread):
         self.mainWindow.data.maxPoints = Data.DEFAULT_USED_POINTS_COUNT
         self.messageAdded.emit("Copying %d points from loaded data..." % self.mainWindow.data.maxPoints)
         self.mainWindow.data.fileName = self.name # full path
+        self.mainWindow.data.fileCreated = QtCore.QFileInfo(self.name).lastModified()
         self.mainWindow.data.copyFromOriginalData()
         self.messageAdded.emit("Computing absorbance...")
         self.mainWindow.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage

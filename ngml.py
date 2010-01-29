@@ -113,7 +113,10 @@ def ngml(model, p, a_0, t, y, logger = None):
     Parameter y is a list of measured values.
 
     Also check leastsq in SciPy, as it might be useful:
-    http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html
+     http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html
+    Wikipedia:
+     http://en.wikipedia.org/wiki/Levenberg%E2%80%93Marquardt_algorithm
+     http://en.wikipedia.org/wiki/Non-linear_least_squares
     """
     # make column vector from y
     y = matrix(y).transpose()

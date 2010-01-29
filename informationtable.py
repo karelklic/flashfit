@@ -22,7 +22,8 @@ class InformationTable(QtGui.QGraphicsItemGroup):
     def textFromData(self):
         text = ""
         if len(self.data.fileName) > 0:
-            text += u"name = %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
+            text += u"name: %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
+            text += u"measured: %s\n" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
         if len(self.data.p) > 0:
             text += u"method = %s\n" % self.data.absorbanceFitFunction.name
         for i in range(0, len(self.data.p)):
@@ -42,5 +43,3 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         #        break
 
         # TODO: change font size when failure occurs
-
-        
