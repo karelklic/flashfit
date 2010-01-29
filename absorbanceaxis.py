@@ -14,10 +14,10 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         self.maxAbsorbance = maxAbsorbance
 
     def update(self):
-        for item in self.children():
+        # Remove all subitems.
+        for item in self.childItems():
             self.removeFromGroup(item)
             self.scene().removeItem(item)
-            del item
 
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, 0, self.height))
         line.setParentItem(self)

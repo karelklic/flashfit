@@ -14,10 +14,9 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         
     def recreateFromData(self):
         # Remove all subitems.
-        for item in self.children():
+        for item in self.childItems():
             self.removeFromGroup(item)
             self.scene().removeItem(item)
-            del item
 
         timeModifier = self.width / float(self.data.timeSpan)
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)

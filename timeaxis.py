@@ -51,10 +51,9 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         
     def update(self):
         # Remove the old axis.
-        for item in self.children():
+        for item in self.childItems():
             self.removeFromGroup(item)
             self.scene().removeItem(item)
-            del item
 
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, self.width, 0))
         line.setParentItem(self)
