@@ -21,6 +21,10 @@ class InformationTable(QtGui.QGraphicsItemGroup):
 
     def textFromData(self):
         text = ""
+        if len(self.data.fileName) > 0:
+            text += u"name = %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
+        if len(self.data.p) > 0:
+            text += u"method = %s\n" % self.data.absorbanceFitFunction.name
         for i in range(0, len(self.data.p)):
             text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
         if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:

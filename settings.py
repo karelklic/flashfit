@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 from graphicsscene import GraphicsScene
-import ngml
+from ngml import ModelABC, ModelFirst, ModelFirst2
 import types
 
 class SpinBox(QtGui.QSpinBox):
@@ -14,7 +14,7 @@ class SpinBox(QtGui.QSpinBox):
         self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):
-    modelFunctionChanged = QtCore.pyqtSignal(types.MethodType)
+    modelFunctionChanged = QtCore.pyqtSignal(types.ClassType)
 
     def __init__(self, parent=None):
         QtGui.QDockWidget.__init__(self, parent)
@@ -29,14 +29,14 @@ class Settings(QtGui.QDockWidget):
         # Add model settings
         model = QtGui.QGroupBox("Model", self)
         modelLayout = QtGui.QVBoxLayout(model)
-        self.abc = QtGui.QRadioButton("ABC", self)
+        self.abc = QtGui.QRadioButton(ModelABC.name, self)
         self.abc.setChecked(True)
         self.abc.toggled.connect(self.onModelFunctionChanged)
         modelLayout.addWidget(self.abc)
-        self.sfo = QtGui.QRadioButton("Single First Order", self)
+        self.sfo = QtGui.QRadioButton(ModelFirst.name, self)
         self.sfo.toggled.connect(self.onModelFunctionChanged)
         modelLayout.addWidget(self.sfo)
-        self.dfo = QtGui.QRadioButton("Dual First Order", self)
+        self.dfo = QtGui.QRadioButton(ModelFirst2.name, self)
         self.dfo.toggled.connect(self.onModelFunctionChanged)
         modelLayout.addWidget(self.dfo)
         self.fit = QtGui.QPushButton("Fit")
@@ -92,10 +92,10 @@ class Settings(QtGui.QDockWidget):
 
     def onModelFunctionChanged(self):
         if self.abc.isChecked():
-            self.modelFunctionChanged.emit(ngml.rcalcABC)
+            self.modelFunctionChanged.emit(ModelABC())
         elif self.sfo.isChecked():
-            self.modelFunctionChanged.emit(ngml.rcalcFirst)
+            self.modelFunctionChanged.emit(ModelFirst())
         elif self.dfo.isChecked():
-            self.modelFunctionChanged.emit(ngml.rcalcFirst2)
+            self.modelFunctionChanged.emit(ModelFirst2())
         else:
             print "Error while selecting model function."

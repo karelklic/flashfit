@@ -80,6 +80,7 @@ class Data(QtCore.QObject):
         # Data loaded from input file.
         self.originalData = OriginalData()
         self.maxPoints = self.DEFAULT_USED_POINTS_COUNT
+        self.fileName = "" # Full Path
         
         # Subset of originalData.time
         self.time = []
@@ -90,7 +91,7 @@ class Data(QtCore.QObject):
         self.voltage = []
         self.clearAbsorbance()
         # Absorbance fit in time.
-        self.absorbanceFitFunction = ngml.rcalcABC
+        self.absorbanceFitFunction = ngml.ModelABC()
         self.clearAbsorbanceFit()
         # Full light voltage
         # Used to calculate absorbance from voltage.
@@ -375,12 +376,7 @@ class Data(QtCore.QObject):
         absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         a_0 = 1e-3
         # Prepare initial parameters
-        if self.absorbanceFitFunction == ngml.rcalcABC or self.absorbanceFitFunction == ngml.rcalcFirst2:
-            p = [10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])]
-        elif self.absorbanceFitFunction == ngml.rcalcFirst:
-            p = [10 / (time[len(time) / 2] - time[0])]
-        else:
-            print "Error while preparing parameters: unknown model function."
+        p = self.absorbanceFitFunction.getInitialParameters(time)
 
         # Run the fitting algorithm.
         (p, ssq, c, a, curv, r) = ngml.ngml(self.absorbanceFitFunction, p, a_0, time, absorbance, logger)

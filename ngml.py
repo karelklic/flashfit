@@ -1,99 +1,120 @@
+# -*- coding: utf-8 -*- (Python reads this)
 import numpy
 from numpy import matrix, matlib, linalg
 import math
 
-def rcalcABC(k, a_0, t, y):
-    """
-    Parameter k (=parameter) is a column vector.
-    Parameter a_0 is a number.
-    Parameter t is a list of time values.
-    Parameter y is a column vector of measured values.
-    Returns tuple of three values:
-       - first value is a list of residuals 'r'
-       - second value is a matrix of concentrations 'c'
-       - third value is a matrix 'a'
-    """
-    # First column of C contains concentrations of A
-    c0 = []
-    for tloop in t:
-        c0.append(a_0 * math.exp(-k[0,0] * tloop))
+class ModelABC:
+    name = u"A→B→C"
 
-    # Second column of C contains concetrations of B
-    c1 = []
-    for tloop in t:
-        c1.append(a_0 * k[0,0] / (k[1,0] - k[0,0]) * (math.exp(-k[0,0] * tloop) - math.exp(-k[1,0] * tloop)))
+    def getInitialParameters(self, time):
+        return [10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])]
 
-    # Third column of C contains concentrations of C
-    c2 = []
-    for i in range(0, len(c0)):
-        c2.append(a_0 - c0[i] - c1[i])
+    def rcalc(self, k, a_0, t, y):
+        """
+        Parameter k (=parameter) is a column vector.
+        Parameter a_0 is a number.
+        Parameter t is a list of time values.
+        Parameter y is a column vector of measured values.
+        Returns tuple of three values:
+        - first value is a list of residuals 'r'
+        - second value is a matrix of concentrations 'c'
+        - third value is a matrix 'a'
+        """
+        # First column of C contains concentrations of A
+        c0 = []
+        for tloop in t:
+            c0.append(a_0 * math.exp(-k[0,0] * tloop))
 
-    c = matlib.mat([c0, c1, c2])
-    c = c.transpose()
+        # Second column of C contains concetrations of B
+        c1 = []
+        for tloop in t:
+            c1.append(a_0 * k[0,0] / (k[1,0] - k[0,0]) * (math.exp(-k[0,0] * tloop) - math.exp(-k[1,0] * tloop)))
+
+        # Third column of C contains concentrations of C
+        c2 = []
+        for i in range(0, len(c0)):
+            c2.append(a_0 - c0[i] - c1[i])
+
+        c = matlib.mat([c0, c1, c2])
+        c = c.transpose()
     
-    # elimination of linear parameters
-    # [0] because we just need the result, not the residuals etc.
-    a = linalg.lstsq(c, y)[0]
+        # elimination of linear parameters
+        # [0] because we just need the result, not the residuals etc.
+        a = linalg.lstsq(c, y)[0]
 
-    # calculate residuals
-    # ca = c * a (matrix multiplication)
-    ca = matlib.dot(c, a)
-    r = y - ca
+        # calculate residuals
+        # ca = c * a (matrix multiplication)
+        ca = matlib.dot(c, a)
+        r = y - ca
     
-    return (r, c, a)
+        return (r, c, a)
+    
+class ModelFirst:
+    name = u"Single First Order"
 
-def rcalcFirst(k, a_0, t, y):
-    # First column of C contains concentrations of A
-    c0 = []
-    for tloop in t:
-        c0.append(a_0 * math.exp(-k[0,0] * tloop))
+    def getInitialParameters(self, time):
+        return [10 / (time[len(time) / 2] - time[0])]
+
+    def rcalc(self, k, a_0, t, y):
+        # First column of C contains concentrations of A
+        c0 = []
+        for tloop in t:
+            c0.append(a_0 * math.exp(-k[0,0] * tloop))
    
-    c = matlib.mat([c0])
-    c = c.transpose()
+        c = matlib.mat([c0])
+        c = c.transpose()
     
-    # elimination of linear parameters
-    # [0] because we just need the result, not the residuals etc.
-    a = linalg.lstsq(c, y)[0]
+        # elimination of linear parameters
+        # [0] because we just need the result, not the residuals etc.
+        a = linalg.lstsq(c, y)[0]
 
-    # calculate residuals
-    # ca = c * a (matrix multiplication)
-    ca = matlib.dot(c, a)
-    r = y - ca
-    
-    return (r, c, a)
+        # calculate residuals
+        # ca = c * a (matrix multiplication)
+        ca = matlib.dot(c, a)
+        r = y - ca
+        
+        return (r, c, a)
 
-def rcalcFirst2(k, a_0, t, y):
-    c0 = []
-    for tloop in t:
-        c0.append(a_0 * math.exp(-k[0,0] * tloop))
+class ModelFirst2:
+    name = u"Dual First Order"
+
+    def getInitialParameters(self, time):
+        return [10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])]
+
+    def rcalc(self, k, a_0, t, y):
+        c0 = []
+        for tloop in t:
+            c0.append(a_0 * math.exp(-k[0,0] * tloop))
    
-    c1 = []
-    for tloop in t:
-        c1.append(a_0 * math.exp(-k[1,0] * tloop))
+        c1 = []
+        for tloop in t:
+            c1.append(a_0 * math.exp(-k[1,0] * tloop))
 
-    c = matlib.mat([c0, c1])
-    c = c.transpose()
+        c = matlib.mat([c0, c1])
+        c = c.transpose()
     
-    # elimination of linear parameters
-    # [0] because we just need the result, not the residuals etc.
-    a = linalg.lstsq(c, y)[0]
+        # elimination of linear parameters
+        # [0] because we just need the result, not the residuals etc.
+        a = linalg.lstsq(c, y)[0]
 
-    # calculate residuals
-    # ca = c * a (matrix multiplication)
-    ca = matlib.dot(c, a)
-    r = y - ca
+        # calculate residuals
+        # ca = c * a (matrix multiplication)
+        ca = matlib.dot(c, a)
+        r = y - ca
     
-    return (r, c, a)
+        return (r, c, a)
 
-def ngml(function, p, a_0, t, y, logger = None):
+def ngml(model, p, a_0, t, y, logger = None):
     """
     Newton-Gauss-Levenberg/Marquardt algorithm
     Parameter p is a list of initial parameters.
     a_0 is a number (usually 1e-3)
     Parameter t contains a list of time values.
     Parameter y is a list of measured values.
-    """
 
+    Also check leastsq in SciPy, as it might be useful:
+    http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html
+    """
     # make column vector from y
     y = matrix(y).transpose()
     # make column vector from p
@@ -111,7 +132,7 @@ def ngml(function, p, a_0, t, y, logger = None):
     j = matlib.empty([len(t), len(p)]) # Jacobian
     while it < 50:
         # call calc of residuals
-        (r0, c, a) = function(p, a_0, t, y)
+        (r0, c, a) = model.rcalc(p, a_0, t, y)
         ssq = matlib.sum(matlib.multiply(r0, r0))
         conv_crit = (ssq_old - ssq) / ssq_old
         if logger:
@@ -128,7 +149,7 @@ def ngml(function, p, a_0, t, y, logger = None):
             r0_old = r0
             for i in range(0, len(p)):					
                 p[i] = (1 + delta) * p[i]						
-                r = function(p, a_0, t, y)[0];
+                r = model.rcalc(p, a_0, t, y)[0];
                 ji = (r - r0) / (delta * p[i])
                 for loop in range(0, matlib.size(r)):
                     j[loop, i] = ji[loop, 0]
