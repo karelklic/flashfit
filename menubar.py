@@ -10,7 +10,7 @@ class MenuBar(QtGui.QMenuBar):
         self.openAct.setShortcut("Ctrl+O")
         self.fileMenu.addAction(self.openAct)
 
-        self.saveAct = QtGui.QAction("&Save as image", self)
+        self.saveAct = QtGui.QAction("&Save as PNG image", self)
         self.saveAct.setShortcut("Ctrl+S")
         self.fileMenu.addAction(self.saveAct)
         self.fileMenu.addSeparator()
