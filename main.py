@@ -120,7 +120,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menuBar().setEnabled(False)
         self.scene.fullLightBars.setEnabled(False)
         self.scene.fitAbsorbanceBars.setEnabled(False)
-        self.scene.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("#e0e0e0")));
+        self.scene.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("#d0d0d0")));
 
         task.finished.connect(self.onTaskFinished)
         task.messageAdded.connect(self.statusBar().showMessage)
