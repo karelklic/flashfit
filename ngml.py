@@ -85,7 +85,7 @@ def rcalcFirst2(k, a_0, t, y):
     
     return (r, c, a)
 
-def ngml(function, p, a_0, t, y):
+def ngml(function, p, a_0, t, y, logger = None):
     """
     Newton-Gauss-Levenberg/Marquardt algorithm
     Parameter p is a list of initial parameters.
@@ -114,7 +114,8 @@ def ngml(function, p, a_0, t, y):
         (r0, c, a) = function(p, a_0, t, y)
         ssq = matlib.sum(matlib.multiply(r0, r0))
         conv_crit = (ssq_old - ssq) / ssq_old
-        print "it=%i, ssq=%g, mp=%g, conv_crit=%g" % (it, ssq, mp, conv_crit)
+        if logger:
+            logger("Fitting absorbance: it=%i, ssq=%g, mp=%g, conv_crit=%g" % (it, ssq, mp, conv_crit))
         if abs(conv_crit) <= mu: # ssq_old=ssq, minimum reached !
             if mp == 0:
                 break # if Marquardt par zero, stop

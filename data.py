@@ -24,7 +24,7 @@ class OriginalData:
         self.maxVoltage = None
         self.voltageSpan = None
 
-    def readFromCsvReader(self, reader):
+    def readFromCsvReader(self, reader, logger = None):
         """
         The reader must be opened and valid.
         The method might raise csv.Error
@@ -43,7 +43,11 @@ class OriginalData:
         reader.next() # Row 6 - horizontal offset
 
         # Read measured data.
+        rowCount = 0
         for row in reader:
+            rowCount += 1
+            if rowCount % 20000 == 0 and logger:
+                logger("Loaded %d rows from the input file." % rowCount)
             self.time.append(float(row[3]))
             voltage = float(row[4])
             self.voltage.append(voltage)
@@ -251,6 +255,7 @@ class Data(QtCore.QObject):
         """
         Returns time in seconds.
         """
+        assert self.fullLightVoltagePointer[0] >= 0 and self.fullLightVoltagePointer[0] < len(self.time), "FullLight pointer invalid: %d, time length %d" % (self.fullLightVoltagePointer[0], len(self.time))
         return self.time[self.fullLightVoltagePointer[0]]
 
     def fullLightVoltageTime2(self):
@@ -353,7 +358,7 @@ class Data(QtCore.QObject):
         if emitDataChangedSignal:
             self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
         
-    def fitAbsorbances(self):
+    def fitAbsorbances(self, logger = None):
         # Do nothing if no data is loaded.
         if self.fitAbsorbanceTimePointer == None:
             return
@@ -371,9 +376,11 @@ class Data(QtCore.QObject):
             print "Error while preparing parameters: unknown model function."
 
         # Run the fitting algorithm.
-        (p, ssq, c, a, curv, r) = ngml.ngml(self.absorbanceFitFunction, p, a_0, time, absorbance)
+        (p, ssq, c, a, curv, r) = ngml.ngml(self.absorbanceFitFunction, p, a_0, time, absorbance, logger)
 
         # Set parameters (speed constants?) and sigma for parameters
+        if logger:
+            logger("Fitting absorbance: final calculations")
         self.p = p.transpose().tolist()[0]
         sigma_y = math.sqrt(ssq / (len(absorbance) - matlib.size(p) - matlib.size(a)))
         self.sigma_p = sigma_y * numpy.sqrt(matlib.diag(linalg.inv(curv)))
@@ -388,11 +395,3 @@ class Data(QtCore.QObject):
         self.minResiduals = min(self.residuals)
         self.maxResiduals = max(self.residuals)
         self.residualsSpan = self.maxResiduals - self.minResiduals
-
-#[k,ssq,C,A,Curv,r]=nglm2(fname,k0,A_0,t,Y); 	               % call ngl/m
-#sig_y=sqrt(ssq/(prod(size(Y))-length(k)-(prod(size(A)))));     % sigma_r
-#sig_k=sig_y*sqrt(diag(inv(Curv))); % sigma_par
-#for i=1:length(k)
-#   fprintf(1,'k(%i): %g +- %g\n',i,k(i),sig_k(i));
-#end
-#fprintf(1,'sig_y: %g\n',sig_y);
