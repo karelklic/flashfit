@@ -11,12 +11,18 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         font = QtGui.QFont()
         font.setPixelSize(26)
         self.textItem.setFont(font)
+        self.rect = QtGui.QGraphicsRectItem()
+        self.rect.setVisible(False)
+        self.rect.setParentItem(self)
 
     def setData(self, data):
         self.data = data
 
     def recreateFromData(self):
-        self.textItem.setText(self.textFromData())
+        text = self.textFromData()
+        self.textItem.setText(text)
+        self.rect.setRect(self.textItem.boundingRect().normalized().adjusted(-10, -10, 10, 10))
+        self.rect.setVisible(len(text) > 0)
         self.findPlaceInScene()
 
     def textFromData(self):
@@ -30,6 +36,9 @@ class InformationTable(QtGui.QGraphicsItemGroup):
             text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
         if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
             text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
+        # remove the last newline
+        if text.endswith("\n"):
+            text = text[0:-1]
         return text
 
     def findPlaceInScene(self):
