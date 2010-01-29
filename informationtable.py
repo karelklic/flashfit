@@ -23,7 +23,8 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         text = ""
         for i in range(0, len(self.data.p)):
             text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
-        text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
+        if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
+            text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
         return text
 
     def findPlaceInScene(self):

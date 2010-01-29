@@ -16,14 +16,16 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
         self.data = data
 
     def recreateFromData(self):
-        # Do nothing if no data are loaded.
-        if self.data.timeSpan == None:
-            return
-        
         # Remove all subitems.
         for item in self.childItems():
             self.removeFromGroup(item)
             self.scene().removeItem(item)
+
+        # Do nothing if no data are loaded.
+        if self.data.timeSpan == None:
+            return
+        if len(self.data.absorbanceFit) == 0:
+            return
 
         timeModifier = self.width / float(self.data.timeSpan)
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)
