@@ -33,9 +33,8 @@ class LoadFileTask(QtCore.QThread):
         self.messageAdded.emit("Computing absorbance...")
         self.mainWindow.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
         self.mainWindow.data.recalculateAbsorbances()
-        self.messageAdded.emit("Fitting absorbance")
+        self.messageAdded.emit("Setting fit absorbance pointers")
         self.mainWindow.data.guessFitAbsorbanceTimePointer()
-        self.mainWindow.data.fitAbsorbances(self.messageAdded.emit)
 
     def postRun(self):
         """

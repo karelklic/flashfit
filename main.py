@@ -9,6 +9,7 @@ from settings import Settings
 from menubar import MenuBar
 from loadfiletask import LoadFileTask
 from changepointcounttask import ChangePointCountTask
+from fittask import FitTask
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -26,7 +27,6 @@ class MainWindow(QtGui.QMainWindow):
             act.triggered.connect(self.openRecentFile)
         self.menuBar().quitAct.triggered.connect(self.close)
 
-
         self.settings = Settings(self)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.settings)
 
@@ -35,7 +35,8 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
-        self.settings.modelFunctionChanged.connect(self.onModelFunctionChanged)
+        self.settings.modelFunctionChanged.connect(self.data.setAbsorbanceFitFunction)
+        self.settings.fit.clicked.connect(self.fitAbsorbances)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
         self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
         self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)
@@ -103,17 +104,13 @@ class MainWindow(QtGui.QMainWindow):
         self.task = ChangePointCountTask(pointCount, self)
         self.runTask(self.task)
 
+    def fitAbsorbances(self):
+        self.task = FitTask(self)
+        self.runTask(self.task)
+
     def onModelFunctionChanged(self):
         # This method is called twice per every change.
-        # Do not recalculate absorbances twice.
-        if self.data.absorbanceFitFunction == self.settings.modelFunction():
-            return
-
-        self.data.absorbanceFitFunction = self.settings.modelFunction()
-        self.data.fitAbsorbances()
-        self.scene.updateAbsorbanceFit()
-        self.scene.updateResidualsGraph()
-        self.scene.updateInformationTable()
+        self.data.setAbsorbanceFitFunction(self.settings.modelFunction())
 
     def runTask(self, task):
         """
@@ -123,6 +120,8 @@ class MainWindow(QtGui.QMainWindow):
         self.menuBar().setEnabled(False)
         self.scene.fullLightBars.setEnabled(False)
         self.scene.fitAbsorbanceBars.setEnabled(False)
+        self.scene.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("#e0e0e0")));
+
         task.finished.connect(self.onTaskFinished)
         task.messageAdded.connect(self.statusBar().showMessage)
         task.start()
@@ -133,6 +132,7 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.fullLightBars.setEnabled(True)
         self.scene.fitAbsorbanceBars.setEnabled(True)
         self.statusBar().showMessage("Done", 3000)
+        self.scene.setBackgroundBrush(QtGui.QBrush(QtCore.Qt.NoBrush));
 
 application = QtGui.QApplication(sys.argv)
 QtCore.QCoreApplication.setOrganizationName("flashfit")

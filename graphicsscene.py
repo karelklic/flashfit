@@ -125,15 +125,16 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM)
         self.timeAxis.setWidth(width - self.BORDER_LEFT - self.BORDER_RIGHT)
         self.absorbanceAxis.setPos(self.BORDER_LEFT, self.BORDER_TOP)
-        self.absorbanceAxis.setHeights(height - self.BORDER_TOP - self.BORDER_BOTTOM, \
-                                           height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceAxis.setHeights(height - self.BORDER_TOP - self.BORDER_BOTTOM,
+                                       height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceGraph.setPos(self.BORDER_LEFT, self.BORDER_TOP)
-        self.absorbanceGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, \
-                                         height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT,
+                                     height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceFit.setPos(self.BORDER_LEFT, self.BORDER_TOP)
-        self.absorbanceFit.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, \
-                                         height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
-        self.absorbanceResidualSeparatorAxis.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceFit.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT,
+                                   height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceResidualSeparatorAxis.setPos(self.BORDER_LEFT, 
+                                                    height - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceResidualSeparatorAxis.setLine(0, 0, width - self.BORDER_LEFT - self.BORDER_RIGHT, 0)
         self.residualsGraph.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM - residualsSize)
         self.residualsGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, residualsSize)
@@ -145,6 +146,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
             self.updateFullLightBars()
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE:
+            # Delete absorbance and residuals, hide params from the information table.
             self.updateAbsorbanceFit()
             self.updateResidualsGraph()
             self.updateInformationTable()

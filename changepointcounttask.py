@@ -35,8 +35,6 @@ class ChangePointCountTask(QtCore.QThread):
 
         self.messageAdded.emit("Computing absorbance...")
         self.mainWindow.data.recalculateAbsorbances()
-        self.messageAdded.emit("Fitting absorbance")
-        self.mainWindow.data.fitAbsorbances(self.messageAdded.emit)
 
     def postRun(self):
         """

@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui
 from graphicsscene import GraphicsScene
 import ngml
+import types
 
 class SpinBox(QtGui.QSpinBox):
     valueChangeFinished = QtCore.pyqtSignal(int)
@@ -13,11 +14,10 @@ class SpinBox(QtGui.QSpinBox):
         self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):
-    modelFunctionChanged = QtCore.pyqtSignal()
+    modelFunctionChanged = QtCore.pyqtSignal(types.MethodType)
 
     def __init__(self, parent=None):
         QtGui.QDockWidget.__init__(self, parent)
-        #self.setWindowTitle("Settings")
         self.setTitleBarWidget(QtGui.QWidget())
         self.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
         self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
@@ -31,14 +31,16 @@ class Settings(QtGui.QDockWidget):
         modelLayout = QtGui.QVBoxLayout(model)
         self.abc = QtGui.QRadioButton("ABC", self)
         self.abc.setChecked(True)
-        self.abc.toggled.connect(self.modelFunctionChanged.emit)
+        self.abc.toggled.connect(self.onModelFunctionChanged)
         modelLayout.addWidget(self.abc)
         self.sfo = QtGui.QRadioButton("Single First Order", self)
-        self.sfo.toggled.connect(self.modelFunctionChanged.emit)
+        self.sfo.toggled.connect(self.onModelFunctionChanged)
         modelLayout.addWidget(self.sfo)
         self.dfo = QtGui.QRadioButton("Dual First Order", self)
-        self.dfo.toggled.connect(self.modelFunctionChanged.emit)
+        self.dfo.toggled.connect(self.onModelFunctionChanged)
         modelLayout.addWidget(self.dfo)
+        self.fit = QtGui.QPushButton("Fit")
+        modelLayout.addWidget(self.fit)
         model.setLayout(modelLayout)
         layout.addWidget(model)
 
@@ -88,12 +90,12 @@ class Settings(QtGui.QDockWidget):
         self.usedPoints.setRange(10, len(data.originalData.time))
         self.usedPoints.setEnabled(True)
 
-    def modelFunction(self):
+    def onModelFunctionChanged(self):
         if self.abc.isChecked():
-            return ngml.rcalcABC
+            self.modelFunctionChanged.emit(ngml.rcalcABC)
         elif self.sfo.isChecked():
-            return ngml.rcalcFirst
+            self.modelFunctionChanged.emit(ngml.rcalcFirst)
         elif self.dfo.isChecked():
-            return ngml.rcalcFirst2
+            self.modelFunctionChanged.emit(ngml.rcalcFirst2)
         else:
             print "Error while selecting model function."

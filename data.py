@@ -88,21 +88,10 @@ class Data(QtCore.QObject):
         self.timeSpan = None
         # Subset of originalData.voltage
         self.voltage = []
-        # Absorbance in time.
-        self.absorbance = []
-        self.minAbsorbance = None
-        self.maxAbsorbance = None
-        self.absorbanceSpan = None
+        self.clearAbsorbance()
         # Absorbance fit in time.
         self.absorbanceFitFunction = ngml.rcalcABC
-        self.absorbanceFit = []
-        self.p = [] # parameters, also called "k"
-        self.sigma_p = [] # accuracy of parameters
-        # Residuals in time.
-        self.residuals = []
-        self.minResiduals = None
-        self.maxResiduals = None
-        self.residualsSpan = None
+        self.clearAbsorbanceFit()
         # Full light voltage
         # Used to calculate absorbance from voltage.
         self.fullLightVoltage = None
@@ -117,6 +106,24 @@ class Data(QtCore.QObject):
         # Both values are offsets to self.time array.
         self.fitAbsorbanceTimePointer = None
 
+    def clearAbsorbance(self):
+        # Absorbance in time.
+        self.absorbance = []
+        self.minAbsorbance = None
+        self.maxAbsorbance = None
+        self.absorbanceSpan = None
+        self.clearAbsorbanceFit()
+
+    def clearAbsorbanceFit(self):
+        self.absorbanceFit = []
+        self.p = [] # parameters, also called "k"
+        self.sigma_p = [] # accuracy of parameters
+        # Residuals in time.
+        self.residuals = []
+        self.minResiduals = None
+        self.maxResiduals = None
+        self.residualsSpan = None
+        
     def copyFromOriginalData(self):
         """
         numberOfPoints is a maximum number of points to be copied 
@@ -164,11 +171,7 @@ class Data(QtCore.QObject):
         Also updates minAbsorbance and maxAbsorbance values
         Slow!
         """
-        # Recalculate absorbance from voltage.
-        self.absorbance = []
-        self.minAbsorbance = None
-        self.maxAbsorbance = None
-        self.absorbanceSpan = None
+        self.clearAbsorbance()
 
         # If we do not know full light voltage, we are done.
         if self.fullLightVoltage == None:
@@ -236,6 +239,7 @@ class Data(QtCore.QObject):
         for i in range(start, stop):
             sum += self.voltage[i]
         self.fullLightVoltage = sum / float(stop - start + 1)
+        self.clearAbsorbance()
 
     def findClosestTimeOffset(self, time, minOffset, maxOffset):
         if maxOffset - minOffset == 1:
@@ -313,6 +317,7 @@ class Data(QtCore.QObject):
             start, stop = stop, start
         
         self.fitAbsorbanceTimePointer = [start, stop]
+        self.clearAbsorbanceFit()
 
     def fitAbsorbanceTime1(self):
         """
@@ -337,7 +342,6 @@ class Data(QtCore.QObject):
             return
         start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(start, self.fitAbsorbanceTimePointer[1])
-        self.fitAbsorbances()
         self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def setFitAbsorbanceTime2(self, time):
@@ -345,7 +349,6 @@ class Data(QtCore.QObject):
             return
         stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(self.fitAbsorbanceTimePointer[0], stop)
-        self.fitAbsorbances()
         self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def setFitAbsorbanceTimes(self, times, emitDataChangedSignal=True):
@@ -354,10 +357,14 @@ class Data(QtCore.QObject):
         start = self.findClosestTimeOffset(times[0], 0, len(self.time) - 1)
         stop = self.findClosestTimeOffset(times[1], 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(start, stop)
-        self.fitAbsorbances()
         if emitDataChangedSignal:
             self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
-        
+
+    def setAbsorbanceFitFunction(self, function):
+        self.absorbanceFitFunction = function
+        self.clearAbsorbanceFit()
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)
+                
     def fitAbsorbances(self, logger = None):
         # Do nothing if no data is loaded.
         if self.fitAbsorbanceTimePointer == None:
