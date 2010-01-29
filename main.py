@@ -1,17 +1,22 @@
 #!/usr/bin/python
 
-import sys, csv, math
+import sys, math
 from PyQt4 import QtCore, QtGui
 from data import Data
 from graphicsscene import GraphicsScene
 from graphicsview import GraphicsView
 from settings import Settings
 from menubar import MenuBar
+from loadfiletask import LoadFileTask
+from changepointcounttask import ChangePointCountTask
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setWindowTitle("flashfit")
+        
+        # Create the status bar.
+        self.statusBar().showMessage("Ready", 3000)
 
         # Create and connect Mani Menu Bar
         self.setMenuBar(MenuBar(self))
@@ -71,56 +76,23 @@ class MainWindow(QtGui.QMainWindow):
         if not fi.isFile() or not fi.isReadable():
             return
 
-        # Load data
-        reader = csv.reader(open(name))
-        try:
-            self.data.originalData.readFromCsvReader(reader)
-        except (StopIteration, csv.Error):
-            QtGui.QMessageBox.critical(self, "Error while loading file", \
-                                           "Error occured when loading " + name)
-            return
+        # The task must be stored in self to prevent Python from
+        # deleting it.
+        self.task = LoadFileTask(name, self)
+        self.runTask(self.task)
 
-        self.data.maxPoints = Data.DEFAULT_USED_POINTS_COUNT
-        self.data.copyFromOriginalData()
-        self.settings.onDataLoaded(self.data)
-        self.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
-        self.data.recalculateAbsorbances()
-        self.data.guessFitAbsorbanceTimePointer()
-        self.data.fitAbsorbances()
-        
-        # Refresh GUI
-        self.scene.updateFromData()
-        self.setWindowTitle(QtCore.QFileInfo(name).fileName() + " - flashfit")
-    
-        # Update Recent files in the Main Menu
-        self.menuBar().addRecentFile(name)        
-
-    def reloadFromOriginalData(self, points):
+    def reloadFromOriginalData(self, pointCount):
         """
         Changes the number of measured points used from all points loaded from input file.
         """
         # Do nothing if the number of points hasn't changed.
-        if self.data.maxPoints == points:
+        if self.data.maxPoints == pointCount:
             return
 
-        # Do not act on timeAxisLength changes when loading.
-        self.settings.timeAxisLength.valueChangeFinished.disconnect(self.scene.changeWidth)
-
-        # Save fulllightvoltage pointer and fit absorbance pointer time, to be recovered after loading
-        fullLightVoltageTimes = self.data.fullLightVoltageTimes()
-        fitAbsorbanceTimes = self.data.fitAbsorbanceTimes()
-
-        self.data.maxPoints = points
-        self.data.copyFromOriginalData()
-
-        # Recover fulllightvoltage pointer and fit absorbance pointer times
-        self.data.setFullLightVoltageTimes(fullLightVoltageTimes, False)
-        self.data.setFitAbsorbanceTimes(fitAbsorbanceTimes, False)
-
-        self.scene.updateFromData()
-
-        # Connect it back.
-        self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
+        # The task must be stored in self to prevent Python from
+        # deleting it.
+        self.task = ChangePointCountTask(pointCount, self)
+        self.runTask(self.task)
 
     def onModelFunctionChanged(self):
         # This method is called twice per every change.
@@ -133,7 +105,26 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.updateAbsorbanceFit()
         self.scene.updateResidualsGraph()
         self.scene.updateInformationTable()
-        
+
+    def runTask(self, task):
+        """
+        Runs a task. This involves disabling most of the UI during the task.
+        """
+        self.settings.setEnabled(False)
+        self.menuBar().setEnabled(False)
+        self.scene.fullLightBars.setEnabled(False)
+        self.scene.fitAbsorbanceBars.setEnabled(False)
+        task.finished.connect(self.onTaskFinished)
+        task.messageAdded.connect(self.statusBar().showMessage)
+        task.start()
+
+    def onTaskFinished(self):
+        self.settings.setEnabled(True)
+        self.menuBar().setEnabled(True)
+        self.scene.fullLightBars.setEnabled(True)
+        self.scene.fitAbsorbanceBars.setEnabled(True)
+        self.statusBar().showMessage("Done", 3000)
+
 application = QtGui.QApplication(sys.argv)
 QtCore.QCoreApplication.setOrganizationName("flashfit")
 QtCore.QCoreApplication.setOrganizationDomain("")
