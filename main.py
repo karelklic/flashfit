@@ -60,10 +60,19 @@ class MainWindow(QtGui.QMainWindow):
         if len(image) == 0:
             return
 
-        pixmap = QtGui.QPixmap(800, 600)
+        if not image.endsWith(".png") and not image.endsWith(".PNG"):
+            image = image + ".png"
+
+        BORDER_WIDTH = 50 # pixels
+        imageWidth = self.scene.width() + 2 * BORDER_WIDTH
+        imageHeight = self.scene.height() + 2 * BORDER_WIDTH
+        pixmap = QtGui.QPixmap(imageWidth, imageHeight)
         pixmap.fill() # White background.
+        targetRect = QtCore.QRectF(BORDER_WIDTH, BORDER_WIDTH, \
+                                       self.scene.width(), \
+                                       self.scene.height())
         painter = QtGui.QPainter(pixmap)
-        self.scene.render(painter)
+        self.scene.render(painter, targetRect)
         painter.end()
         
         pixmap.save(image)
