@@ -44,8 +44,14 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
             line.setParentItem(self)
 
     def resizeFromData(self):
+        # Do nothing if no data are loaded.
         if self.data == None:
             return
+        if self.data.timeSpan == None:
+            return
+        if len(self.data.residuals) == 0:
+            return
+
         timeModifier = self.width / float(self.data.timeSpan)
         residualsModifier = self.height / float(self.data.residualsSpan)
         lastTime = None
