@@ -4,6 +4,8 @@ import math
 class TimeAxis(QtGui.QGraphicsItemGroup):
     def __init__(self, parent=None):
         super(TimeAxis, self).__init__(parent)
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
     def setWidth(self, width):
         """
@@ -51,12 +53,13 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         
     def update(self):
         # Remove the old axis.
-        for item in self.childItems():
-            self.removeFromGroup(item)
-            self.scene().removeItem(item)
+        self.removeFromGroup(self.child)
+        self.scene().removeItem(self.child)
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, self.width, 0))
-        line.setParentItem(self)
+        line.setParentItem(self.child)
 
         # Calculate and draw tics.
         timeSpan = float(self.maxTime - self.minTime)
@@ -86,10 +89,10 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
 
                 text = QtGui.QGraphicsTextItem(str(time))
                 text.setPos(ticx - text.boundingRect().width() / 2, 13)
-                text.setParentItem(self)
+                text.setParentItem(self.child)
                 ticlen = 15
             tic = QtGui.QGraphicsLineItem(QtCore.QLineF(ticx, 0, ticx, ticlen))
-            tic.setParentItem(self)
+            tic.setParentItem(self.child)
             time += ticSpan
             count += 1
 
@@ -99,4 +102,4 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         font = QtGui.QFont()
         font.setPixelSize(28)
         text.setFont(font)
-        text.setParentItem(self)
+        text.setParentItem(self.child)

@@ -7,6 +7,8 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
         self.pen = QtGui.QPen()
         self.pen.setWidth(3)
         self.pen.setColor(QtGui.QColor("#882222"))
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
     def setSize(self, width, height):
         self.width = width
@@ -17,9 +19,10 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
 
     def recreateFromData(self):
         # Remove all subitems.
-        for item in self.childItems():
-            self.removeFromGroup(item)
-            self.scene().removeItem(item)
+        self.removeFromGroup(self.child)
+        self.scene().removeItem(self.child)
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
         # Do nothing if no data are loaded.
         if self.data.timeSpan == None:
@@ -37,7 +40,7 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
             if lastTime != None and lastFit != None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastFit, time, fit))
                 line.setPen(self.pen)
-                line.setParentItem(self)
+                line.setParentItem(self.child)
             lastTime = time
             lastFit = fit
 
@@ -54,7 +57,7 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)
         lastTime = None
         lastAbsorbance = None
-        children = self.children()
+        children = self.child.children()
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
             fit = self.height - (self.data.absorbanceFit[t] - self.data.minAbsorbance) * absorbanceModifier

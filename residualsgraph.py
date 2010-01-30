@@ -4,6 +4,8 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
     def __init__(self, parent=None):
         super(ResidualsGraph, self).__init__(parent)
         self.data = None
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
     def setSize(self, width, height):
         self.width = width
@@ -14,9 +16,10 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
 
     def recreateFromData(self):
         # Remove all subitems.
-        for item in self.childItems():
-            self.removeFromGroup(item)
-            self.scene().removeItem(item)
+        self.removeFromGroup(self.child)
+        self.scene().removeItem(self.child)
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
         # Do nothing if no data are loaded.
         if self.data.timeSpan == None:
@@ -33,7 +36,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
             residual = self.height - (self.data.residuals[t] - self.data.minResiduals) * residualsModifier
             if lastTime != None and lastResidual != None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastResidual, time, residual))
-                line.setParentItem(self)
+                line.setParentItem(self.child)
             lastTime = time
             lastResidual = residual
 
@@ -41,7 +44,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         zeroResidualY = self.height + self.data.minResiduals * residualsModifier
         if zeroResidualY >= 0 and zeroResidualY < self.height:
             line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, zeroResidualY, self.width, zeroResidualY))
-            line.setParentItem(self)
+            line.setParentItem(self.child)
 
     def resizeFromData(self):
         # Do nothing if no data are loaded.
@@ -56,7 +59,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         residualsModifier = self.height / float(self.data.residualsSpan)
         lastTime = None
         lastResidual = None
-        children = self.children()
+        children = self.child.children()
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
             residual = self.height - (self.data.residuals[t] - self.data.minResiduals) * residualsModifier

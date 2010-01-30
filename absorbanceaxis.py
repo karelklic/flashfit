@@ -4,6 +4,8 @@ import math
 class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
     def __init__(self, parent=None):
         super(AbsorbanceAxis, self).__init__(parent)
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
     def setHeights(self, height, residualStart):
         self.height = height
@@ -15,12 +17,13 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
 
     def update(self):
         # Remove all subitems.
-        for item in self.childItems():
-            self.removeFromGroup(item)
-            self.scene().removeItem(item)
+        self.removeFromGroup(self.child)
+        self.scene().removeItem(self.child)
+        self.child = QtGui.QGraphicsItemGroup()
+        self.child.setParentItem(self)
 
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, 0, self.height))
-        line.setParentItem(self)
+        line.setParentItem(self.child)
 
         # Calculate and draw tics.
         absorbanceSpan = float(self.maxAbsorbance - self.minAbsorbance)
@@ -50,10 +53,10 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
 
                 text = QtGui.QGraphicsTextItem(str(absorbance))
                 text.setPos(-12 - text.boundingRect().width(), ticy - text.boundingRect().height() / 2)
-                text.setParentItem(self)
+                text.setParentItem(self.child)
                 ticlen = 15
             tic = QtGui.QGraphicsLineItem(QtCore.QLineF(-ticlen, ticy, 0, ticy))
-            tic.setParentItem(self)
+            tic.setParentItem(self.child)
             absorbance += ticSpan
             count += 1
 
@@ -63,4 +66,4 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         font = QtGui.QFont()
         font.setPixelSize(28)
         text.setFont(font)
-        text.setParentItem(self)
+        text.setParentItem(self.child)
