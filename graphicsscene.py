@@ -64,12 +64,17 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.fitAbsorbanceBars.setPos(500, 1500)
         self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
 
+    def autoSetWidth(self):
+        """
+        Determine the right width and set it
+        """
+        width = min(max(self.MIN_WIDTH, len(self.data.time)), self.MAX_WIDTH)
+        self.__setSceneSize(width, self.HEIGHT)        
+
     def updateFromData(self):
         """
         Updates all parts of the scene.
         """
-        width = min(max(self.MIN_WIDTH, len(self.data.time)), self.MAX_WIDTH)
-        self.__setSceneSize(width, self.HEIGHT)
         self.timeAxis.setTime(self.data.minTime, self.data.maxTime)
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(self.data.minAbsorbance, self.data.maxAbsorbance)

@@ -43,6 +43,7 @@ class LoadFileTask(QtCore.QThread):
         The code in this method is run in GUI thread.
         """
         # Refresh GUI
+        self.mainWindow.scene.autoSetWidth()
         self.mainWindow.scene.updateFromData()
         self.mainWindow.setWindowTitle(QtCore.QFileInfo(self.name).fileName() + " - flashfit")
         self.mainWindow.settings.onDataLoaded(self.mainWindow.data)
