@@ -21,22 +21,12 @@ class ModelABC:
         - third value is a matrix 'a'
         """
         # First column of C contains concentrations of A
-        c0 = []
-        for tloop in t:
-            c0.append(a_0 * math.exp(-k[0,0] * tloop))
-
+        c0 = a_0 * matlib.exp(-k[0,0] * t)
         # Second column of C contains concetrations of B
-        c1 = []
-        for tloop in t:
-            c1.append(a_0 * k[0,0] / (k[1,0] - k[0,0]) * (math.exp(-k[0,0] * tloop) - math.exp(-k[1,0] * tloop)))
-
+        c1 = a_0 * (k[0,0] / (k[1,0] - k[0,0])) * (matlib.exp(-k[0,0] * t) - matlib.exp(-k[1,0] * t))
         # Third column of C contains concentrations of C
-        c2 = []
-        for i in range(0, len(c0)):
-            c2.append(a_0 - c0[i] - c1[i])
-
-        c = matlib.mat([c0, c1, c2])
-        c = c.transpose()
+        c2 = a_0 - c0 - c1
+        c = matlib.hstack((c0, c1, c2))
     
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
@@ -44,9 +34,7 @@ class ModelABC:
 
         # calculate residuals
         # ca = c * a (matrix multiplication)
-        ca = matlib.dot(c, a)
-        r = y - ca
-    
+        r = y - matlib.dot(c, a)    
         return (r, c, a)
     
 class ModelFirst:
@@ -57,22 +45,14 @@ class ModelFirst:
 
     def rcalc(self, k, a_0, t, y):
         # First column of C contains concentrations of A
-        c0 = []
-        for tloop in t:
-            c0.append(a_0 * math.exp(-k[0,0] * tloop))
+        c = a_0 * matlib.exp(-k[0,0] * t)
    
-        c = matlib.mat([c0])
-        c = c.transpose()
-    
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = linalg.lstsq(c, y)[0]
 
         # calculate residuals
-        # ca = c * a (matrix multiplication)
-        ca = matlib.dot(c, a)
-        r = y - ca
-        
+        r = y - matlib.dot(c, a)        
         return (r, c, a)
 
 class ModelFirst2:
@@ -82,26 +62,16 @@ class ModelFirst2:
         return [10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])]
 
     def rcalc(self, k, a_0, t, y):
-        c0 = []
-        for tloop in t:
-            c0.append(a_0 * math.exp(-k[0,0] * tloop))
-   
-        c1 = []
-        for tloop in t:
-            c1.append(a_0 * math.exp(-k[1,0] * tloop))
-
-        c = matlib.mat([c0, c1])
-        c = c.transpose()
+        c0 = a_0 * matlib.exp(-k[0,0] * t)
+        c1 = a_0 * matlib.exp(-k[1,0] * t)
+        c = matlib.hstack((c0, c1))
     
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = linalg.lstsq(c, y)[0]
 
         # calculate residuals
-        # ca = c * a (matrix multiplication)
-        ca = matlib.dot(c, a)
-        r = y - ca
-    
+        r = y - matlib.dot(c, a)    
         return (r, c, a)
 
 def ngml(model, p, a_0, t, y, logger = None):
@@ -122,6 +92,8 @@ def ngml(model, p, a_0, t, y, logger = None):
     y = matrix(y).transpose()
     # make column vector from p
     p = matrix(p).transpose()
+    # make column vector from t
+    t = matrix(t).transpose()
 
     ssq_old = 1e50
     # Marquardt parameter
@@ -147,15 +119,13 @@ def ngml(model, p, a_0, t, y, logger = None):
                 mp = 0 # set to 0 , another iteration
                 r0_old = r0
         elif conv_crit > mu: # convergence !
-            mp = mp / 3
+            mp = mp / 3.0
             ssq_old = ssq  
             r0_old = r0
             for i in range(0, len(p)):					
                 p[i] = (1 + delta) * p[i]						
                 r = model.rcalc(p, a_0, t, y)[0];
-                ji = (r - r0) / (delta * p[i])
-                for loop in range(0, matlib.size(r)):
-                    j[loop, i] = ji[loop, 0]
+                j[:,i] = ((r - r0) / (delta * p[i]))[:,0]
                 p[i] = p[i] / (1 + delta)						
         elif conv_crit < -mu: # divergence !
             if mp == 0:											
@@ -167,7 +137,7 @@ def ngml(model, p, a_0, t, y, logger = None):
         # augment Jacobian matrix
         j_mp = matlib.vstack((j, mp * matlib.eye(len(p))))
         # augment residual vector
-        r0_mp = matlib.concatenate((r0_old, matlib.zeros(p.shape)))
+        r0_mp = matlib.vstack((r0_old, matlib.zeros(p.shape)))
         # calculate parameter shifts
         delta_p = linalg.lstsq(-j_mp, r0_mp)[0]
         # add parameter shifts
@@ -175,7 +145,7 @@ def ngml(model, p, a_0, t, y, logger = None):
         it += 1
        
     # Curvature matrix
-    curv = j.H * j
+    curv = matlib.dot(j.H, j)
 
     # Should 'r' be returned, or maybe 'r0' should be? 
     return (p, ssq, c, a, curv, r0)
