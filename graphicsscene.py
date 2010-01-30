@@ -29,8 +29,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
     # Time axis label and tics must fit here.
     BORDER_BOTTOM = 58
 
-    def __init__(self, data, parent=None):
-        super(GraphicsScene, self).__init__(parent)
+    def __init__(self, data, parentWindow):
+        super(GraphicsScene, self).__init__(parentWindow)
         self.data = data
         # Create basic objects in the scene 
         self.timeAxis = TimeAxis()
@@ -45,7 +45,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.absorbanceResidualSeparatorAxis)
         self.residualsGraph = ResidualsGraph(data)
         self.addItem(self.residualsGraph)
-        self.informationTable = InformationTable(data, self.absorbanceGraph)
+        self.informationTable = InformationTable(data, parentWindow.menuBar(), self.absorbanceGraph)
         self.addItem(self.informationTable)
         # Set initial scene properties
         self.__setSceneSize(self.DEFAULT_WIDTH, self.HEIGHT)

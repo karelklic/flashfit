@@ -2,9 +2,10 @@
 from PyQt4 import QtCore, QtGui
 
 class InformationTable(QtGui.QGraphicsItemGroup):
-    def __init__(self, data, absorbanceGraph, parent=None):
+    def __init__(self, data, menuBar, absorbanceGraph, parent=None):
         super(InformationTable, self).__init__(parent)
         self.data = data
+        self.menuBar = menuBar
         self.absorbanceGraph = absorbanceGraph
         self.textItem = QtGui.QGraphicsSimpleTextItem("")
         self.textItem.setParentItem(self)
@@ -23,16 +24,24 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         self.findPlaceInScene()
 
     def textFromData(self):
+        if not self.menuBar.showInformationBoxAct.isChecked():
+            return ""
+
         text = ""
         if len(self.data.fileName) > 0:
-            text += u"name: %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
-            text += u"measured: %s\n" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
-        if len(self.data.p) > 0:
-            text += u"model: %s\n" % self.data.absorbanceFitFunction.name
-        for i in range(0, len(self.data.p)):
-            text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
-        if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
-            text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
+            if self.menuBar.showNameAct.isChecked():
+                text += u"name: %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
+            if self.menuBar.showDateAct.isChecked():
+                text += u"measured: %s\n" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
+        if self.menuBar.showModelAct.isChecked():
+            if len(self.data.p) > 0:
+                text += u"model: %s\n" % self.data.absorbanceFitFunction.name
+        if self.menuBar.showRateConstantAct.isChecked():
+            for i in range(0, len(self.data.p)):
+                text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
+        if self.menuBar.showA0Act.isChecked():
+            if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
+                text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
         # remove the last newline
         if text.endswith("\n"):
             text = text[0:-1]
