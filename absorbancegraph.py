@@ -1,18 +1,15 @@
 from PyQt4 import QtCore, QtGui
 
 class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
-    def __init__(self, parent=None):
+    def __init__(self, data, parent=None):
         super(AbsorbanceGraph, self).__init__(parent)
-        self.data = None
+        self.data = data
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
 
     def setSize(self, width, height):
         self.width = width
         self.height = height
-
-    def setData(self, data):
-        self.data = data
         
     def recreateFromData(self):
         # Remove all subitems.
@@ -35,7 +32,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
             lastAbsorbance = absorbance
                     
     def resizeFromData(self):
-        if self.data == None:
+        if self.data.absorbanceSpan == None:
             return
         timeModifier = self.width / float(self.data.timeSpan)
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)

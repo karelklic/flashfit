@@ -37,15 +37,15 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.timeAxis)
         self.absorbanceAxis = AbsorbanceAxis()
         self.addItem(self.absorbanceAxis)
-        self.absorbanceGraph = AbsorbanceGraph()
+        self.absorbanceGraph = AbsorbanceGraph(data)
         self.addItem(self.absorbanceGraph)
-        self.absorbanceFit = AbsorbanceFit()
+        self.absorbanceFit = AbsorbanceFit(data)
         self.addItem(self.absorbanceFit)
         self.absorbanceResidualSeparatorAxis = QtGui.QGraphicsLineItem()
         self.addItem(self.absorbanceResidualSeparatorAxis)
-        self.residualsGraph = ResidualsGraph()
+        self.residualsGraph = ResidualsGraph(data)
         self.addItem(self.residualsGraph)
-        self.informationTable = InformationTable(self.absorbanceGraph)
+        self.informationTable = InformationTable(data, self.absorbanceGraph)
         self.addItem(self.informationTable)
         # Set initial scene properties
         self.__setSceneSize(self.DEFAULT_WIDTH, self.HEIGHT)
@@ -82,15 +82,12 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.updateInformationTable()
 
     def updateAbsorbanceGraph(self):
-        self.absorbanceGraph.setData(self.data)
         self.absorbanceGraph.recreateFromData()
 
     def updateAbsorbanceFit(self):
-        self.absorbanceFit.setData(self.data)
         self.absorbanceFit.recreateFromData()
 
     def updateResidualsGraph(self):
-        self.residualsGraph.setData(self.data)
         self.residualsGraph.recreateFromData()
 
     def updateFullLightBars(self):
@@ -106,7 +103,6 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(), self.data.fitAbsorbanceTime2())
 
     def updateInformationTable(self):
-        self.informationTable.setData(self.data)
         self.informationTable.recreateFromData()
 
     def changeWidth(self, width):

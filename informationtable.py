@@ -2,9 +2,9 @@
 from PyQt4 import QtCore, QtGui
 
 class InformationTable(QtGui.QGraphicsItemGroup):
-    def __init__(self, absorbanceGraph, parent=None):
+    def __init__(self, data, absorbanceGraph, parent=None):
         super(InformationTable, self).__init__(parent)
-        self.data = None
+        self.data = data
         self.absorbanceGraph = absorbanceGraph
         self.textItem = QtGui.QGraphicsSimpleTextItem("")
         self.textItem.setParentItem(self)
@@ -14,9 +14,6 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         self.rect = QtGui.QGraphicsRectItem()
         self.rect.setVisible(False)
         self.rect.setParentItem(self)
-
-    def setData(self, data):
-        self.data = data
 
     def recreateFromData(self):
         text = self.textFromData()
@@ -31,7 +28,7 @@ class InformationTable(QtGui.QGraphicsItemGroup):
             text += u"name: %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
             text += u"measured: %s\n" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
         if len(self.data.p) > 0:
-            text += u"method = %s\n" % self.data.absorbanceFitFunction.name
+            text += u"model: %s\n" % self.data.absorbanceFitFunction.name
         for i in range(0, len(self.data.p)):
             text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
         if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:

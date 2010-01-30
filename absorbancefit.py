@@ -1,9 +1,9 @@
 from PyQt4 import QtCore, QtGui
 
 class AbsorbanceFit(QtGui.QGraphicsItemGroup):
-    def __init__(self, parent=None):
+    def __init__(self, data, parent=None):
         super(AbsorbanceFit, self).__init__(parent)
-        self.data = None
+        self.data = data
         self.pen = QtGui.QPen()
         self.pen.setWidth(3)
         self.pen.setColor(QtGui.QColor("#882222"))
@@ -13,9 +13,6 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
     def setSize(self, width, height):
         self.width = width
         self.height = height
-
-    def setData(self, data):
-        self.data = data
 
     def recreateFromData(self):
         # Remove all subitems.
@@ -46,8 +43,6 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
 
     def resizeFromData(self):
         # Do nothing if no data are loaded.
-        if self.data == None:
-            return
         if self.data.timeSpan == None:
             return
         if len(self.data.absorbanceFit) == 0:

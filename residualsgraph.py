@@ -1,18 +1,15 @@
 from PyQt4 import QtCore, QtGui
 
 class ResidualsGraph(QtGui.QGraphicsItemGroup):
-    def __init__(self, parent=None):
+    def __init__(self, data, parent=None):
         super(ResidualsGraph, self).__init__(parent)
-        self.data = None
+        self.data = data
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
 
     def setSize(self, width, height):
         self.width = width
         self.height = height
-
-    def setData(self, data):
-        self.data = data
 
     def recreateFromData(self):
         # Remove all subitems.
@@ -48,8 +45,6 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
 
     def resizeFromData(self):
         # Do nothing if no data are loaded.
-        if self.data == None:
-            return
         if self.data.timeSpan == None:
             return
         if len(self.data.residuals) == 0:
