@@ -31,14 +31,12 @@ class Settings(QtGui.QDockWidget):
         modelLayout = QtGui.QVBoxLayout(model)
         self.abc = QtGui.QRadioButton(ModelABC.name, self)
         self.abc.setChecked(True)
-        self.abc.toggled.connect(self.onModelFunctionChanged)
-        modelLayout.addWidget(self.abc)
         self.sfo = QtGui.QRadioButton(ModelFirst.name, self)
-        self.sfo.toggled.connect(self.onModelFunctionChanged)
-        modelLayout.addWidget(self.sfo)
         self.dfo = QtGui.QRadioButton(ModelFirst2.name, self)
-        self.dfo.toggled.connect(self.onModelFunctionChanged)
-        modelLayout.addWidget(self.dfo)
+        for m in [self.abc, self.sfo, self.dfo]:
+            m.toggled.connect(self.onModelFunctionChanged)
+            modelLayout.addWidget(m)
+            
         self.fit = QtGui.QPushButton("Fit")
         modelLayout.addWidget(self.fit)
         model.setLayout(modelLayout)

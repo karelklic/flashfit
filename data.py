@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui
 from numpy import matrix, matlib, linalg
 import numpy
 import math
-import ngml
+from ngml import ModelABC
 
 class OriginalData:
     """
@@ -92,7 +92,7 @@ class Data(QtCore.QObject):
         self.voltage = []
         self.clearAbsorbance()
         # Absorbance fit in time.
-        self.absorbanceFitFunction = ngml.ModelABC()
+        self.absorbanceFitFunction = ModelABC()
         self.clearAbsorbanceFit()
         # Full light voltage
         # Used to calculate absorbance from voltage.
@@ -367,7 +367,7 @@ class Data(QtCore.QObject):
         self.clearAbsorbanceFit()
         self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)
                 
-    def fitAbsorbances(self, logger = None):
+    def fitAbsorbances(self, logger):
         # Do nothing if no data is loaded.
         if self.fitAbsorbanceTimePointer == None:
             return
@@ -375,27 +375,8 @@ class Data(QtCore.QObject):
         # "+ 1" is here to get a slice which also includes pointer[1]
         time = self.time[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
-        a_0 = 1e-3
-        # Prepare initial parameters
-        p = self.absorbanceFitFunction.getInitialParameters(time)
 
-        # Run the fitting algorithm.
-        (p, ssq, c, a, curv, r) = ngml.ngml(self.absorbanceFitFunction, p, a_0, time, absorbance, logger)
-
-        # Set parameters (speed constants?) and sigma for parameters
-        if logger:
-            logger("Fitting absorbance: final calculations")
-        self.p = p.transpose().tolist()[0]
-        sigma_y = math.sqrt(ssq / (len(absorbance) - matlib.size(p) - matlib.size(a)))
-        self.sigma_p = sigma_y * numpy.sqrt(matlib.diag(linalg.inv(curv)))
-        self.sigma_p = self.sigma_p.tolist()
-        
-        # Set absorbance fit curve
-        a_tot = matlib.dot(c, a)
-        self.absorbanceFit = a_tot[:,0].transpose().tolist()[0]
-        
-        # Set residuals
-        self.residuals = r.transpose().tolist()[0]
+        (self.p, self.sigma_p, self.absorbanceFit, self.residuals) = self.absorbanceFitFunction.calculate(time, absorbance, logger)
         self.minResiduals = min(self.residuals)
         self.maxResiduals = max(self.residuals)
         self.residualsSpan = self.maxResiduals - self.minResiduals

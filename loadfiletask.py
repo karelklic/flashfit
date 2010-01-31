@@ -23,8 +23,8 @@ class LoadFileTask(QtCore.QThread):
         try:
             self.mainWindow.data.originalData.readFromCsvReader(reader, self.messageAdded.emit)
         except (StopIteration, csv.Error):
-            QtGui.QMessageBox.critical(self, "Error while loading file", \
-                                           "Error occured when loading " + name)
+            QtGui.QMessageBox.critical(self, "Error while loading file",
+                                       "Error occured when loading " + name)
             return
 
         self.mainWindow.data.maxPoints = Data.DEFAULT_USED_POINTS_COUNT
