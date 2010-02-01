@@ -253,7 +253,7 @@ class ModelABC(BaseModel):
     name = u"A→B→C"
 
     def getInitialParameters(self, time):
-        return ([10 / (time[len(time) / 2] - time[0]), 9 / (time[len(time) / 2] - time[0])],
+        return ([10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])],
                 [True, False])
     
     def rcalc(self, k, a_0, t, y):
@@ -319,7 +319,7 @@ class ModelFirst2(BaseModel):
     name = u"Dual First Order"
 
     def getInitialParameters(self, time):
-        return ([10 / (time[len(time) / 2] - time[0]), 9 / (time[len(time) / 2] - time[0])],
+        return ([10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])],
                 [True, True])
 
     def rcalc(self, k, a_0, t, y):
