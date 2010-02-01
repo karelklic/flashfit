@@ -14,10 +14,8 @@ class SpinBox(QtGui.QSpinBox):
         self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):
-    modelFunctionChanged = QtCore.pyqtSignal(types.ClassType)
-
-    def __init__(self, parent=None):
-        QtGui.QDockWidget.__init__(self, parent)
+    def __init__(self, parentWindow):
+        QtGui.QDockWidget.__init__(self, parentWindow)
         self.setTitleBarWidget(QtGui.QWidget())
         self.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
         self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
@@ -36,7 +34,11 @@ class Settings(QtGui.QDockWidget):
         for m in [self.abc, self.sfo, self.dfo]:
             m.toggled.connect(self.onModelFunctionChanged)
             modelLayout.addWidget(m)
-            
+
+        self.implementation = QtGui.QCheckBox("Alt. impl.", self)
+        self.implementation.setChecked(False)
+        self.implementation.toggled.connect(self.onImplementationChanged)
+        modelLayout.addWidget(self.implementation)
         self.fit = QtGui.QPushButton("Fit")
         modelLayout.addWidget(self.fit)
         model.setLayout(modelLayout)
@@ -90,10 +92,16 @@ class Settings(QtGui.QDockWidget):
 
     def onModelFunctionChanged(self):
         if self.abc.isChecked():
-            self.modelFunctionChanged.emit(ModelABC())
+            self.parent().data.setAbsorbanceFitFunction(ModelABC())
         elif self.sfo.isChecked():
-            self.modelFunctionChanged.emit(ModelFirst())
+            self.parent().data.setAbsorbanceFitFunction(ModelFirst())
         elif self.dfo.isChecked():
-            self.modelFunctionChanged.emit(ModelFirst2())
+            self.parent().data.setAbsorbanceFitFunction(ModelFirst2())
         else:
             print "Error while selecting model function."
+
+    def onImplementationChanged(self):
+        impl = 0
+        if self.implementation.isChecked():
+            impl = 1
+        self.parent().data.setAbsorbanceFitImplementation(impl)

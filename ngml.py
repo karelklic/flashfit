@@ -4,10 +4,11 @@ from numpy import matrix, matlib, linalg
 import math
 
 class BaseModel:
-    def calculate(self, time, absorbance, logger):
+    def calculate(self, time, absorbance, implementation, logger):
         """
         Parameter time is array
         Parameter absorbance is array
+        Parameter implementation is 0 or 1
         """
         # Prepare initial parameters
         (p, p_firstOrder)  = self.getInitialParameters(time)
@@ -20,8 +21,7 @@ class BaseModel:
         # We have two possibilities: ngml and ngml2
         # ngml is from the book
         # ngml2 is from the old source
-        old = True
-        if old:
+        if implementation == 1:
             return self.ngml2(p, p_firstOrder, p_fixed, time, absorbance, logger)
         else:
             a_0 = 1e-3
@@ -235,7 +235,7 @@ class BaseModel:
 
         # Set parameters (speed constants?) and sigma for parameters
         logger("Fitting absorbance: final calculations")
-        sigma_y = math.sqrt(ssq / (len(absorbance) - matlib.size(p) - matlib.size(a)))
+        sigma_y = math.sqrt(ssq / (matlib.size(y) - matlib.size(p) - matlib.size(a)))
         p = p.transpose().tolist()[0]
         sigma_p = sigma_y * numpy.sqrt(matlib.diag(linalg.inv(curv)))
         sigma_p = sigma_p.tolist()

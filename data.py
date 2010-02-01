@@ -93,6 +93,7 @@ class Data(QtCore.QObject):
         self.clearAbsorbance()
         # Absorbance fit in time.
         self.absorbanceFitFunction = ModelABC()
+        self.absorbanceFitImplementation = 0
         self.clearAbsorbanceFit()
         # Full light voltage
         # Used to calculate absorbance from voltage.
@@ -366,6 +367,11 @@ class Data(QtCore.QObject):
         self.absorbanceFitFunction = function
         self.clearAbsorbanceFit()
         self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)
+
+    def setAbsorbanceFitImplementation(self, implementation):
+        self.absorbanceFitImplementation = implementation
+        self.clearAbsorbanceFit()
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)        
                 
     def fitAbsorbances(self, logger):
         # Do nothing if no data is loaded.
@@ -376,7 +382,12 @@ class Data(QtCore.QObject):
         time = self.time[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
 
-        (self.p, self.sigma_p, self.absorbanceFit, self.residuals) = self.absorbanceFitFunction.calculate(time, absorbance, logger)
+        (self.p, self.sigma_p, 
+         self.absorbanceFit, self.residuals) = self.absorbanceFitFunction.calculate(time, 
+                                                                                    absorbance, 
+                                                                                    self.absorbanceFitImplementation, 
+                                                                                    logger)
+
         self.minResiduals = min(self.residuals)
         self.maxResiduals = max(self.residuals)
         self.residualsSpan = self.maxResiduals - self.minResiduals

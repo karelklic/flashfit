@@ -19,7 +19,7 @@ class MainWindow(QtGui.QMainWindow):
         # Create the status bar.
         self.statusBar().showMessage("Ready", 3000)
 
-        # Create and connect Mani Menu Bar
+        # Create and connect Main Menu Bar
         self.setMenuBar(MenuBar(self))
         self.menuBar().openAct.triggered.connect(self.openFile)
         self.menuBar().saveAct.triggered.connect(self.saveAsImage)
@@ -27,15 +27,15 @@ class MainWindow(QtGui.QMainWindow):
             act.triggered.connect(self.openRecentFile)
         self.menuBar().quitAct.triggered.connect(self.close)
 
+        self.data = Data()
+
         self.settings = Settings(self)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.settings)
 
-        self.data = Data()
         self.scene = GraphicsScene(self.data, self)
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
-        self.settings.modelFunctionChanged.connect(self.data.setAbsorbanceFitFunction)
         self.settings.fit.clicked.connect(self.fitAbsorbances)
         self.menuBar().showMenuToggleConnect(self.scene.updateInformationTable)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
@@ -108,10 +108,6 @@ class MainWindow(QtGui.QMainWindow):
     def fitAbsorbances(self):
         self.task = FitTask(self)
         self.runTask(self.task)
-
-    def onModelFunctionChanged(self):
-        # This method is called twice per every change.
-        self.data.setAbsorbanceFitFunction(self.settings.modelFunction())
 
     def runTask(self, task):
         """
