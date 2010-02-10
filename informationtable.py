@@ -18,6 +18,9 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         font.setPixelSize(26)
         self.textItem.setFont(font)
 
+        # Precision of rate constants.
+        self.rateCoeffPrecision = 6
+
         # The rectangle around all the text.
         self.rect = QtGui.QGraphicsRectItem()
         self.rect.setVisible(False)
@@ -51,7 +54,8 @@ class InformationTable(QtGui.QGraphicsItemGroup):
                 text += u"model: %s\n" % self.data.absorbanceFitFunction.name
         if self.menuBar.showRateConstantAct.isChecked():
             for i in range(0, len(self.data.p)):
-                text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
+                template = u"k(%%d) = %%.%de ± %%.%de\n" % (self.rateCoeffPrecision,self.rateCoeffPrecision)
+                text += template % (i + 1, self.data.p[i], self.data.sigma_p[i])
         if self.menuBar.showA0Act.isChecked():
             if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
                 text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]

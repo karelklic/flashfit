@@ -158,3 +158,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
             
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
             self.updateFitAbsorbanceBars()
+
+    def changeRateCoeffPrecision(self, precision):
+        self.informationTable.rateCoeffPrecision = precision
+        self.informationTable.recreateFromData()

@@ -36,6 +36,7 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
+        self.settings.rateCoeffPrecision.valueChanged.connect(self.scene.changeRateCoeffPrecision)
         self.settings.fit.clicked.connect(self.fitAbsorbances)
         self.menuBar().showMenuToggleConnect(self.scene.informationTable.recreateFromData)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
