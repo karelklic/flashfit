@@ -45,7 +45,7 @@ class LoadFileTask(QtCore.QThread):
         # Refresh GUI
         self.mainWindow.scene.autoSetWidth()
         self.mainWindow.scene.updateFromData()
-        self.mainWindow.setWindowTitle(QtCore.QFileInfo(self.name).fileName() + " - flashfit")
+        self.mainWindow.setLoadedFilePath(self.name)
         self.mainWindow.settings.onDataLoaded(self.mainWindow.data)
         # Update Recent files in the Main Menu
         self.mainWindow.menuBar().addRecentFile(self.name)        
