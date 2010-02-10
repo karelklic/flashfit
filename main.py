@@ -37,7 +37,7 @@ class MainWindow(QtGui.QMainWindow):
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
         self.settings.fit.clicked.connect(self.fitAbsorbances)
-        self.menuBar().showMenuToggleConnect(self.scene.updateInformationTable)
+        self.menuBar().showMenuToggleConnect(self.scene.informationTable.recreateFromData)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
         self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
         self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)

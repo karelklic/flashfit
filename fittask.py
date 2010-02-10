@@ -22,4 +22,4 @@ class FitTask(QtCore.QThread):
         # Refresh GUI
         self.mainWindow.scene.updateAbsorbanceFit()
         self.mainWindow.scene.updateResidualsGraph()
-        self.mainWindow.scene.updateInformationTable()
+        self.mainWindow.scene.informationTable.recreateFromData()
