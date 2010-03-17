@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+]>
+<!--$ docbook2html manual.xml-->
+<book>
+  <bookinfo>
+    <title>FlashFit Manual</title>
+    <edition>0</edition>
+  </bookinfo>
+  <part>
+    <title>Algorithms</title>
+    <partintro>
+      <para>This part describes the algorithms and equations used in FlashFit to fit, process, and convert measured data.</para>
+    </partintro>
+    <chapter>
+      <title>Fitting algorithm</title>
+      <para>FlashFit uses Newton-Gauss-Levenberg/Marquardt algorithm. It solves non-linear least squares problem.</para>
+    </chapter>
+  </part>
+</book>
