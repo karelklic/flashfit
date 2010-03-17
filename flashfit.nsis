@@ -7,7 +7,7 @@
 !include "LogicLib.nsh"
 !include "WordFunc.nsh"
 
-!define VERSION "0.1"
+!define VERSION "0.2"
 
 ; The name of the installer
 Name "FlashFit ${VERSION}"
@@ -60,6 +60,7 @@ Section "FlashFit (required)"
   File /oname=main.pyw "main.py"
   File "AUTHORS"
   File "COPYING"
+  File "NEWS"
   File "README"
   
   ; Write the installation path into the registry
@@ -99,6 +100,7 @@ Section Uninstall
   Delete "$INSTDIR\*.pyc"
   Delete "$INSTDIR\AUTHORS"
   Delete "$INSTDIR\COPYING"
+  Delete "$INSTDIR\NEWS"
   Delete "$INSTDIR\README"
   Delete "$INSTDIR\uninstall.exe"
 

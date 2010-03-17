@@ -14,7 +14,7 @@ from fittask import FitTask
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.setWindowTitle("flashfit")
+        self.setWindowTitle("flashfit v0.2")
         
         # Create the status bar.
         self.statusBar().showMessage("Ready", 3000)

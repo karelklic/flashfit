@@ -1,0 +1,18 @@
+== FlashFit 0.2
+Released 2010-02-01.
+
+- Includes alternative fitting algorithm.
+- The work area is not resized when the point count is changed.
+- Information table and its parts can be hidden.
+- Added a rectangle around the information table.
+- File creation date, file name, A0 is included in the information table.
+- Massive speed optimizations.
+- Fitting is no longer automatic, the data are fitted on button click.
+- Background tasks for file loading, point count changes, and fitting.
+- Added a status bar displaying progress data.
+- Improved image export (PNG resolution)
+
+== FlashFit 0.1
+Released 2010-01-27.
+
+Initial release.
