@@ -84,7 +84,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.updateResidualsGraph()
         self.updateFullLightBars()
         self.updateFitAbsorbanceBars()
-        self.updateInformationTable()
+        self.informationTable.recreateFromData()
+        self.informationTable.findPlaceInScene()
 
     def updateAbsorbanceGraph(self):
         self.absorbanceGraph.recreateFromData()
@@ -106,9 +107,6 @@ class GraphicsScene(QtGui.QGraphicsScene):
         if len(self.data.time) == 0:
             return
         self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(), self.data.fitAbsorbanceTime2())
-
-    def updateInformationTable(self):
-        self.informationTable.recreateFromData()
 
     def changeWidth(self, width):
         # Only change the width if it really changed.
@@ -149,13 +147,18 @@ class GraphicsScene(QtGui.QGraphicsScene):
     def onDataChanged(self, change):
         if change & Data.DATA_CHANGED_ABSORBANCE:
             self.updateAbsorbanceGraph()
-            self.updateInformationTable()
+            self.informationTable.recreateFromData()
         if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
             self.updateFullLightBars()
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE:
             # Delete absorbance and residuals, hide params from the information table.
             self.updateAbsorbanceFit()
             self.updateResidualsGraph()
-            self.updateInformationTable()
+            self.informationTable.recreateFromData()
+            
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
             self.updateFitAbsorbanceBars()
+
+    def changeRateCoeffPrecision(self, precision):
+        self.informationTable.rateCoeffPrecision = precision
+        self.informationTable.recreateFromData()

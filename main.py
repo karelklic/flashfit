@@ -14,7 +14,9 @@ from fittask import FitTask
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.setWindowTitle("flashfit v0.2")
+
+        # Set initial value of self.loadFilePath
+        self.setLoadedFilePath("")
         
         # Create the status bar.
         self.statusBar().showMessage("Ready", 3000)
@@ -36,8 +38,9 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
+        self.settings.rateCoeffPrecision.valueChanged.connect(self.scene.changeRateCoeffPrecision)
         self.settings.fit.clicked.connect(self.fitAbsorbances)
-        self.menuBar().showMenuToggleConnect(self.scene.updateInformationTable)
+        self.menuBar().showMenuToggleConnect(self.scene.informationTable.recreateFromData)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
         self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
         self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)
@@ -58,12 +61,21 @@ class MainWindow(QtGui.QMainWindow):
         """
         TODO: Design Save image Dialog
         """
-        image = QtGui.QFileDialog.getSaveFileName(self, "Save file", "", "PNG Image (*.png)")
+        fileName = QtCore.QFileInfo(self.loadedFilePath).completeBaseName() 
+        image = QtGui.QFileDialog.getSaveFileName(self, "Save file", fileName, "PNG Image (*.png)")
         if len(image) == 0:
             return
 
         if not image.endsWith(".png") and not image.endsWith(".PNG"):
             image = image + ".png"
+
+        if QtCore.QFileInfo(image).exists():
+            fileName = QtCore.QFileInfo(image).fileName() 
+            result = QtGui.QMessageBox.question(self, "Image file already exists", 
+                                       "Image file {0} already exists. Overwrite?".format(fileName),
+                                       QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.Yes)
+            if result != QtGui.QMessageBox.Yes:
+                return
 
         BORDER_WIDTH = 50 # pixels
         imageWidth = self.scene.width() + 2 * BORDER_WIDTH
@@ -130,6 +142,14 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.fitAbsorbanceBars.setEnabled(True)
         self.statusBar().showMessage("Done", 3000)
         self.scene.setBackgroundBrush(QtGui.QBrush(QtCore.Qt.NoBrush));
+
+    def setLoadedFilePath(self, path):
+        self.loadedFilePath = path
+        fileName = QtCore.QFileInfo(path).fileName()
+        if len(fileName) == 0:
+            self.setWindowTitle("flashfit")
+        else:
+            self.setWindowTitle(fileName + " - flashfit")
 
 application = QtGui.QApplication(sys.argv)
 QtCore.QCoreApplication.setOrganizationName("flashfit")

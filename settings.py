@@ -14,6 +14,9 @@ class SpinBox(QtGui.QSpinBox):
         self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):
+    """
+    Settings panel docked on the left side of the main window.
+    """
     def __init__(self, parentWindow):
         QtGui.QDockWidget.__init__(self, parentWindow)
         self.setTitleBarWidget(QtGui.QWidget())
@@ -49,18 +52,6 @@ class Settings(QtGui.QDockWidget):
         #k2 = QtGui.QDoubleSpinBox(self)
         #layout.addWidget(k2)
 
-        # Add Time Axis Length control
-        model = QtGui.QGroupBox("Time Axis Length", self)
-        modelLayout = QtGui.QHBoxLayout(model)
-        self.timeAxisLength = SpinBox()
-        self.timeAxisLength.setRange(GraphicsScene.MIN_WIDTH, GraphicsScene.MAX_WIDTH)
-        self.timeAxisLength.setValue(GraphicsScene.DEFAULT_WIDTH)
-        modelLayout.addWidget(self.timeAxisLength, 1)
-	timeAxisLengthUnits = QtGui.QLabel("px")
-	modelLayout.addWidget(timeAxisLengthUnits)
-        model.setLayout(modelLayout)
-        layout.addWidget(model)
-
         # Add input data control
         model = QtGui.QGroupBox("Input Data", self)
         modelLayout = QtGui.QVBoxLayout(model)
@@ -78,6 +69,33 @@ class Settings(QtGui.QDockWidget):
         model.setLayout(modelLayout)
         layout.addWidget(model)
 
+        # Output
+        model = QtGui.QGroupBox("Output", self)
+        modelLayout = QtGui.QVBoxLayout(model)
+        timeAxisLengthLabel = QtGui.QLabel("Time Axis Length:")
+        modelLayout.addWidget(timeAxisLengthLabel)
+
+        # Add Time Axis Length control
+        timeAxisLengthModel = QtGui.QWidget()
+        timeAxisLengthModelLayout = QtGui.QHBoxLayout(timeAxisLengthModel)
+        self.timeAxisLength = SpinBox()
+        self.timeAxisLength.setRange(GraphicsScene.MIN_WIDTH, GraphicsScene.MAX_WIDTH)
+        self.timeAxisLength.setValue(GraphicsScene.DEFAULT_WIDTH)
+        timeAxisLengthModelLayout.addWidget(self.timeAxisLength, 1)
+	timeAxisLengthUnits = QtGui.QLabel("px")
+	timeAxisLengthModelLayout.addWidget(timeAxisLengthUnits)
+        timeAxisLengthModel.setLayout(timeAxisLengthModelLayout)
+        modelLayout.addWidget(timeAxisLengthModel)
+
+        rateCoeffPrecisionLabel = QtGui.QLabel("Rate Coeff. Precision:") # Coefficient or Constant
+        modelLayout.addWidget(rateCoeffPrecisionLabel)
+        self.rateCoeffPrecision = SpinBox()
+        self.rateCoeffPrecision.setRange(0, 6)
+        self.rateCoeffPrecision.setValue(6)
+        modelLayout.addWidget(self.rateCoeffPrecision)
+        model.setLayout(modelLayout)
+        layout.addWidget(model)
+        
         layout.addStretch()
         self.setWidget(mainWidget)
 

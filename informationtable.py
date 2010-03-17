@@ -2,26 +2,42 @@
 from PyQt4 import QtCore, QtGui
 
 class InformationTable(QtGui.QGraphicsItemGroup):
+    ItemSendsGeometryChanges = 0x800
+
     def __init__(self, data, menuBar, absorbanceGraph, parent=None):
         super(InformationTable, self).__init__(parent)
         self.data = data
         self.menuBar = menuBar
         self.absorbanceGraph = absorbanceGraph
+        self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
+        self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent, True)
+        self.setFlag(self.ItemSendsGeometryChanges, True)
         self.textItem = QtGui.QGraphicsSimpleTextItem("")
         self.textItem.setParentItem(self)
         font = QtGui.QFont()
         font.setPixelSize(26)
         self.textItem.setFont(font)
+
+        # Precision of rate constants.
+        self.rateCoeffPrecision = 6
+
+        # The rectangle around all the text.
         self.rect = QtGui.QGraphicsRectItem()
         self.rect.setVisible(False)
         self.rect.setParentItem(self)
+        self.rect.setCursor(QtCore.Qt.SizeAllCursor)
+
+        # Support data for drag and drop movement
+        self.movingItemsInitialPositions = None
+        self.setCursor(QtCore.Qt.SizeAllCursor)
 
     def recreateFromData(self):
         text = self.textFromData()
         self.textItem.setText(text)
-        self.rect.setRect(self.textItem.boundingRect().normalized().adjusted(-10, -10, 10, 10))
+        BORDER = 16 # pixels
+        self.rect.setRect(self.textItem.boundingRect().normalized().adjusted(-BORDER, -BORDER, BORDER, BORDER))
         self.rect.setVisible(len(text) > 0)
-        self.findPlaceInScene()
+        #self.findPlaceInScene()
 
     def textFromData(self):
         if not self.menuBar.showInformationBoxAct.isChecked():
@@ -38,7 +54,8 @@ class InformationTable(QtGui.QGraphicsItemGroup):
                 text += u"model: %s\n" % self.data.absorbanceFitFunction.name
         if self.menuBar.showRateConstantAct.isChecked():
             for i in range(0, len(self.data.p)):
-                text += u"k(%d) = %e ± %e\n" % (i + 1, self.data.p[i], self.data.sigma_p[i])
+                template = u"k(%%d) = %%.%de ± %%.%de\n" % (self.rateCoeffPrecision,self.rateCoeffPrecision)
+                text += template % (i + 1, self.data.p[i], self.data.sigma_p[i])
         if self.menuBar.showA0Act.isChecked():
             if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
                 text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
@@ -58,3 +75,37 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         #        break
 
         # TODO: change font size when failure occurs
+
+    def mousePressEvent(self, event):
+        if event.buttons() & QtCore.Qt.LeftButton:
+            if not self.isSelected():
+                self.scene().clearSelection()
+                self.setSelected(True)
+            self.clearMovingItemsInitialPositions()
+
+
+    def mouseReleaseEvent(self, event):
+        super(InformationTable, self).mouseReleaseEvent(event)
+        self.clearMovingItemsInitialPositions()
+
+    def clearMovingItemsInitialPositions(self):
+        """
+        Clears movingItemsInitialPositions array that is created on the start of mouse drag.
+        """
+        self.movingItemsInitialPositions = None
+
+    def mouseMoveEvent(self, event):
+        super(InformationTable, self).mouseMoveEvent(event)
+        if event.buttons() & QtCore.Qt.LeftButton:
+            selectedItems = self.scene().selectedItems();
+            if not self.movingItemsInitialPositions:
+                self.movingItemsInitialPositions = {}
+                for item in selectedItems:
+                    self.movingItemsInitialPositions[item] = item.pos()
+
+            for item in selectedItems:
+                currentParentPos = item.mapToParent(item.mapFromScene(event.scenePos()));
+                buttonDownParentPos = item.mapToParent(item.mapFromScene(event.buttonDownScenePos(QtCore.Qt.LeftButton)));
+
+                pos = self.movingItemsInitialPositions[item] + currentParentPos - buttonDownParentPos
+                item.setPos(pos);

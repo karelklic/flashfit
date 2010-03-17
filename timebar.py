@@ -40,6 +40,7 @@ class TimeBar(QtGui.QGraphicsItemGroup):
         self.line = TimeBarLine(height)
         self.line.setParentItem(self)
 
+        # Support data for drag and drop movement
         self.movingItemsInitialPositions = None
 
         self.signals = self.Signals()
