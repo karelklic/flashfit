@@ -6,9 +6,29 @@ import math
 class BaseModel:
     def calculate(self, time, absorbance, implementation, logger):
         """
-        Parameter time is array
-        Parameter absorbance is array
-        Parameter implementation is 0 or 1
+        Calculates the fit, residuals, and reaction rate coefficient
+        from absorbance values.
+
+        Parameters
+        ----------
+        time : array of times when a measurement of absorbance happened
+        absorbance : array of absorbance values
+            Must be the same size as `time`.
+        implementation: 0 or 1
+            0 is the new implementation
+            1 is the old implementation
+
+        Returns
+        -------
+        A tuple containing the following items:
+        p : array of reaction rate coefficients
+        sigma_p : array of p coefficient precisions
+            The array has the same size as array `p`.
+        absorbance_fit : array of *fitted* absorbance values
+            The array has the same size as the input array `time`
+            and `absorbance`
+        residuals : array of differences between measured and fitted absorbances
+            The array has the same size as the `absorbance_fit` array.
         """
         # Prepare initial parameters
         (p, p_firstOrder)  = self.getInitialParameters(time)
@@ -28,6 +48,22 @@ class BaseModel:
             return self.ngml(p, a_0, time, absorbance, logger)
 
     def ngml2(self, p, p_firstOrder, p_fixed, time, absorbance, logger):
+        """
+        Calculates the fit, residuals, and reaction rate coefficients from
+        absorbance values.
+
+        Returns
+        -------
+        A tuple containing the following items:
+        p : array of reaction rate coefficients
+        sigma_p : array of p coefficient precisions
+            The array has the same size as array `p`.
+        absorbance_fit : array of *fitted* absorbance values
+            The array has the same size as the input array `time`
+            and `absorbance`
+        residuals : array of differences between measured and fitted absorbances
+            The array has the same size as the `absorbance_fit` array.
+        """
         # make column vector from y
         y = matrix(absorbance).T
 
@@ -118,7 +154,7 @@ class BaseModel:
                 p, jtr, hessian = p_old, jtr_old, hessian_old
 
             for i in range(0, matlib.size(p)):
-                hessian[i,i] += mp 
+                hessian[i,i] += mp
 
             hessianInv = hessian.I
             shifts = matlib.dot(hessianInv, jtr)
@@ -163,12 +199,28 @@ class BaseModel:
 
     def ngml(self, p, a_0, t, y, logger):
         """
-        Newton-Gauss-Levenberg/Marquardt algorithm
+        Calculates the fit, residuals, and reaction rate coefficients from
+        absorbance values using Newton-Gauss-Levenberg/Marquardt algorithm.
+
         Parameter p is a list of initial parameters.
         a_0 is a number (usually 1e-3)
         Parameter t contains a list of time values.
         Parameter y is a list of measured values.
-        
+
+        Returns
+        -------
+        A tuple containing the following items:
+        p : array of reaction rate coefficients
+        sigma_p : array of p coefficient precisions
+            The array has the same size as array `p`.
+        absorbance_fit : array of *fitted* absorbance values
+            The array has the same size as the input array `time`
+            and `absorbance`
+        residuals : array of differences between measured and fitted absorbances
+            The array has the same size as the `absorbance_fit` array.
+
+        Notes
+        -----
         Also check leastsq in SciPy, as it might be useful:
         http://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.leastsq.html
         Wikipedia:
@@ -206,18 +258,18 @@ class BaseModel:
                     r0_old = r0
             elif conv_crit > mu: # convergence !
                 mp = mp / 3
-                ssq_old = ssq  
+                ssq_old = ssq
                 r0_old = r0
-                for i in range(0, len(p)):					
-                    p[i] = (1 + delta) * p[i]						
-                    r = self.rcalc(p, a_0, t, y)[0];
+                for i in range(0, len(p)):
+                    p[i] = (1 + delta) * p[i]
+                    r = self.rcalc(p, a_0, t, y)[0]
                     j[:,i] = ((r - r0) / (delta * p[i]))[:,0]
-                    p[i] = p[i] / (1 + delta)						
+                    p[i] = p[i] / (1 + delta)
             elif conv_crit < -mu: # divergence !
-                if mp == 0:											
+                if mp == 0:
                     mp = 1 # use Marquardt parameter
                 else:
-                    mp *= 5										 
+                    mp *= 5
                 p = p - delta_p # and take shifts back
 
             # augment Jacobian matrix
@@ -227,9 +279,9 @@ class BaseModel:
             # calculate parameter shifts
             delta_p = linalg.lstsq(-j_mp, r0_mp)[0]
             # add parameter shifts
-            p = p + delta_p 
+            p = p + delta_p
             it += 1
-        
+
         # Curvature matrix
         curv = matlib.dot(j.H, j)
 
@@ -239,13 +291,13 @@ class BaseModel:
         p = p.transpose().tolist()[0]
         sigma_p = sigma_y * numpy.sqrt(matlib.diag(linalg.inv(curv)))
         sigma_p = sigma_p.tolist()
-        
+
         # Set absorbance fit curve
         a_tot = matlib.dot(c, a)
         absorbanceFit = a_tot[:,0].transpose().tolist()[0]
-        
+
         # Set residuals
-        # Should 'r' be used, or maybe 'r0' should be? 
+        # Should 'r' be used, or maybe 'r0' should be?
         residuals = r0.transpose().tolist()[0]
         return (p, sigma_p, absorbanceFit, residuals)
 
@@ -255,7 +307,7 @@ class ModelABC(BaseModel):
     def getInitialParameters(self, time):
         return ([10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])],
                 [True, False])
-    
+
     def rcalc(self, k, a_0, t, y):
         """
         Function used by ngml, but not by ngml2.
@@ -275,16 +327,16 @@ class ModelABC(BaseModel):
         # Third column of C contains concentrations of C
         c2 = a_0 - c0 - c1
         c = matlib.hstack((c0, c1, c2))
-    
+
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = linalg.lstsq(c, y)[0]
 
         # calculate residuals
         # ca = c * a (matrix multiplication)
-        r = y - matlib.dot(c, a)    
+        r = y - matlib.dot(c, a)
         return (r, c, a)
-    
+
 class ModelFirst(BaseModel):
     name = u"Single First Order"
 
@@ -306,13 +358,13 @@ class ModelFirst(BaseModel):
         """
         # First column of C contains concentrations of A
         c = a_0 * matlib.exp(-k[0,0] * t)
-   
+
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = linalg.lstsq(c, y)[0]
 
         # calculate residuals
-        r = y - matlib.dot(c, a)        
+        r = y - matlib.dot(c, a)
         return (r, c, a)
 
 class ModelFirst2(BaseModel):
@@ -337,12 +389,11 @@ class ModelFirst2(BaseModel):
         c0 = a_0 * matlib.exp(-k[0,0] * t)
         c1 = a_0 * matlib.exp(-k[1,0] * t)
         c = matlib.hstack((c0, c1))
-    
+
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = linalg.lstsq(c, y)[0]
 
         # calculate residuals
-        r = y - matlib.dot(c, a)    
+        r = y - matlib.dot(c, a)
         return (r, c, a)
-
