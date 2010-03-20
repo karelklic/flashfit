@@ -338,7 +338,7 @@ class ModelABC(BaseModel):
         return (r, c, a)
 
 class ModelFirst(BaseModel):
-    name = u"Single First Order"
+    name = u"A→B"
 
     def getInitialParameters(self, time):
         return ([10 / (time[len(time) / 2] - time[0])],
@@ -368,7 +368,7 @@ class ModelFirst(BaseModel):
         return (r, c, a)
 
 class ModelFirst2(BaseModel):
-    name = u"Dual First Order"
+    name = u"A→B, C→D"
 
     def getInitialParameters(self, time):
         return ([10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])],
