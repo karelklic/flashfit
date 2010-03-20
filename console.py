@@ -96,7 +96,7 @@ class Console(QtGui.QDockWidget):
     """
     def __init__(self, parentWindow):
         QtGui.QDockWidget.__init__(self, parentWindow)
-        #self.setTitleBarWidget(QtGui.QWidget())
+        self.setTitleBarWidget(QtGui.QWidget())
         self.setAllowedAreas(QtCore.Qt.BottomDockWidgetArea)
         self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
         self.setVisible(False)
