@@ -6,6 +6,7 @@ from data import Data
 from graphicsscene import GraphicsScene
 from graphicsview import GraphicsView
 from settings import Settings
+from console import Console
 from menubar import MenuBar
 from loadfiletask import LoadFileTask
 from changepointcounttask import ChangePointCountTask
@@ -18,9 +19,6 @@ class MainWindow(QtGui.QMainWindow):
         # Set initial value of self.loadFilePath
         self.setLoadedFilePath("")
         
-        # Create the status bar.
-        self.statusBar().showMessage("Ready", 3000)
-
         # Create and connect Main Menu Bar
         self.setMenuBar(MenuBar(self))
         self.menuBar().openAct.triggered.connect(self.openFile)
@@ -33,6 +31,11 @@ class MainWindow(QtGui.QMainWindow):
 
         self.settings = Settings(self)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.settings)
+        self.console = Console(self)
+        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.console)
+        self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+
+        self.createStatusBar()
 
         self.scene = GraphicsScene(self.data, self)
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
@@ -150,6 +153,18 @@ class MainWindow(QtGui.QMainWindow):
             self.setWindowTitle("flashfit")
         else:
             self.setWindowTitle(fileName + " - flashfit")
+
+    def createStatusBar(self):
+        statusBar = QtGui.QStatusBar();
+        self.setStatusBar(statusBar);
+        statusBar.showMessage("Ready", 3000)
+        
+        consoleButton = QtGui.QPushButton("Console");
+        consoleButton.setFlat(True)
+        consoleButton.setCheckable(True)
+        
+        consoleButton.toggled.connect(self.console.setVisible)
+        statusBar.addPermanentWidget(consoleButton)
 
 application = QtGui.QApplication(sys.argv)
 QtCore.QCoreApplication.setOrganizationName("flashfit")
