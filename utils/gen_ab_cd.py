@@ -10,7 +10,7 @@ t_1 = matrix(frange(0, 1.9999500e-6, 5e-11)).transpose()
 k = [2.2e7, 3.124e7] # rate constant
 
 a_0 = 1e-3 # initial concentration of A
-a_1 = 2e-3 # initial concentration of B
+a_1 = 2e-3 # initial concentration of C
 c = matlib.empty([t_1.size, 2])
 c[:,0] = a_0 * matlib.exp(-k[0] * t_1)
 c[:,1] = a_1 * matlib.exp(-k[1] * t_1)
