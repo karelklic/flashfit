@@ -183,7 +183,11 @@ class Data(QtCore.QObject):
         vdiff = self.fullLightVoltage - self.noLightVoltage
         if vdiff != 0: # Divide by zero.
             for v in self.voltage: # v is the voltage in time t
-                absorbance = -math.log10((v - self.noLightVoltage) / vdiff)
+                try:
+                    absorbance = -math.log10((v - self.noLightVoltage) / vdiff)
+                except ValueError as error:
+                    print error
+                    print "Voltage:", v - self.noLightVoltage, "vdiff:", vdiff
                 self.absorbance.append(absorbance)
                 if self.minAbsorbance == None or self.minAbsorbance > absorbance:
                     self.minAbsorbance = absorbance
