@@ -4,3 +4,13 @@ FlashFit version 0.3
 FlashFit interpretes data measured by oscilloscope.
 
 Homepage: http://forge.klic.name/projects/flashfit/
+
+** Nonnegative least squares
+One solution:
+a = nonneglstsq.fnnls(matlib.dot(c.T, c), matlib.dot(c.T, y))[0]
+http://old.nabble.com/python-version-of-nnls-fnnls-tt4569586.html
+http://old.nabble.com/NNLS-in-scipy-tt17853613.html#a17855503
+
+Another solution:
+http://senselab.med.yale.edu/modeldb/showmodel.asp?model=116837&file=\RM_STDP\packages\pyV1\learning\lsqnonneg.py
+a = numpy.matrix(nonneglstsq2.lsqnonneg(c.getA(), y.getA1())[0]).T

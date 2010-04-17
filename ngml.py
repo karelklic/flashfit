@@ -2,6 +2,7 @@
 import numpy
 from numpy import matrix, matlib, linalg
 import math
+import nonneglstsq
 
 class BaseModel:
     def calculate(self, time, absorbance, implementation, logger):
@@ -330,7 +331,9 @@ class ModelABC(BaseModel):
 
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
-        a = linalg.lstsq(c, y)[0]
+        # allows negative results
+        #a = linalg.lstsq(c, y)[0]
+        a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         # ca = c * a (matrix multiplication)

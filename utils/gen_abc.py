@@ -7,7 +7,10 @@ from frange import frange
 
 t_0 = matrix(frange(-1e-6, 0, 5e-11)).transpose()
 t_1 = matrix(frange(0, 1.9999500e-6, 5e-11)).transpose()
-k = [2.2e7, 3.17e7] # rate constant
+#t_1 = matrix(frange(0, 4000, 25)).transpose()
+# the following constants work well
+k = [2.2e7, 3.17e6] # rate constant
+#k = [0.003, 0.0015]
 
 a_0 = 1e-3 # initial concentration of A
 c = matlib.empty([t_1.size, 3])
