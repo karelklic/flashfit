@@ -47,19 +47,19 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.residualsGraph)
         self.informationTable = InformationTable(data, parentWindow.menuBar(), self.absorbanceGraph)
         self.addItem(self.informationTable)
+        self.fullLightBars = FullLightBarPair(GraphicsScene.HEIGHT, self.timeAxis, self)
+        self.fullLightBars.setBarPos(100, 400)
+        self.fullLightBars.setColor(QtGui.QColor("#333366"))
+        self.fitAbsorbanceBars = AbsorbanceFitBarPair(GraphicsScene.HEIGHT, self.timeAxis, self)
+        self.fitAbsorbanceBars.setBarPos(500, 1500)
+        self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
         # Set initial scene properties
         self.__setSceneSize(self.DEFAULT_WIDTH, self.HEIGHT)
         self.timeAxis.setTime(0, 1.0)
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
         self.absorbanceAxis.update()
-        self.fullLightBars = FullLightBarPair(GraphicsScene.HEIGHT, self.timeAxis, self.BORDER_LEFT, self)
-        self.fullLightBars.setPos(100, 400)
-        self.fullLightBars.setColor(QtGui.QColor("#333366"))
-        self.fitAbsorbanceBars = AbsorbanceFitBarPair(GraphicsScene.HEIGHT, self.timeAxis, self.BORDER_LEFT, self)
-        self.fitAbsorbanceBars.setPos(500, 1500)
-        self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
-
+ 
     def autoSetWidth(self):
         """
         Determine the right width and set it
@@ -103,13 +103,15 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # Do nothing when no data are loaded.
         if len(self.data.time) == 0:
             return
-        self.fullLightBars.updatePositionFromData(self.data.fullLightVoltageTime1(), self.data.fullLightVoltageTime2())
+        self.fullLightBars.updatePositionFromData(self.data.fullLightVoltageTime1(),
+                                                  self.data.fullLightVoltageTime2())
 
     def updateFitAbsorbanceBars(self):
         # Do nothing when no data are loaded.
         if len(self.data.time) == 0:
             return
-        self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(), self.data.fitAbsorbanceTime2())
+        self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(),
+                                                      self.data.fitAbsorbanceTime2())
 
     def changeWidth(self, width):
         # Only change the width if it really changed.
@@ -146,6 +148,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.absorbanceResidualSeparatorAxis.setLine(0, 0, width - self.BORDER_LEFT - self.BORDER_RIGHT, 0)
         self.residualsGraph.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM - residualsSize)
         self.residualsGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, residualsSize)
+        self.fullLightBars.setPos(self.BORDER_LEFT, 0)
+        self.fitAbsorbanceBars.setPos(self.BORDER_LEFT, 0)
 
     def onDataChanged(self, change):
         if change & Data.DATA_CHANGED_ABSORBANCE:

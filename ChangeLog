@@ -1,5 +1,25 @@
 2010-04-18  Karel Klíč  <karel@agata>
 
+	* timebarpair.py (TimeBarPair): Make it subclass of QGraphicsItem.
+	Empty QGraphicsLineItem used to avoid NotImplemented exceptions.
+	(TimeBarPair.__init__): All child graphics items belong to
+	the TimeBarPair, as it's now a part of the scene.
+	(TimeBarPair.updatePositionFromData): Start from 0 instead of
+	LEFT_BORDER.
+	(FullLightBarPair.__init__): Remove leftBorder parameter.
+	(AbsorbanceFitBarPair.__init__): Remove leftBorder parameter.
+
+	* timebar.py (TimeBar.__init__): Remove dependency on the left
+	border knowledge. Go from zero to time axis width.
+	(TimeBar.clearMovingItemsInitialPositions): Likewise.
+	(TimeBar.mouseMoveEvent): Likewise.
+
+	* graphicsscene.py (GraphicsScene.__init__): The bars are no longer
+	dependent on BORDER_LEFT since the scene initialization.
+	(GraphicsScene.__setSceneSize): Set actual BORDER_LEFT value to
+	the bars by setting the position of the whole TimeBarPair (newly part
+	of the scene).
+
 	* timeaxis.py (TimeAxis.update): Set text position _after_ font
 	update, because the position depends on text size, which depends
 	on the font.

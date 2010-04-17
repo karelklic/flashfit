@@ -4,6 +4,7 @@ from timebarline import TimeBarLine
 from timebartriangle import TimeBarTriangle
   
 class TimeBar(QtGui.QGraphicsItemGroup):
+    # Defined here until PyQt includes it.
     ItemSendsGeometryChanges = 0x800
 
     class Signals(QtCore.QObject):
@@ -16,19 +17,16 @@ class TimeBar(QtGui.QGraphicsItemGroup):
         # The parameter is time in seconds.
         positionChangeFinished = QtCore.pyqtSignal(float)
 
-    def __init__(self, height, timeAxis, leftBorder, parent=None):
+    def __init__(self, height, timeAxis, parent = None):
         """
         Parameter height is a height of the time bar in pixels.
         Parameter timeAxis points to Time Axis on which the time bars
         are placed.
-        Parameter leftBorder contains the width of free space between
-        the left side of the scene and Time Axis, in pixels.
         Parameter parent is a parent object in scene where time bars 
         will be displayed.
         """
         super(TimeBar, self).__init__(parent)
         self.timeAxis = timeAxis
-        self.leftBorder = leftBorder
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(self.ItemSendsGeometryChanges, True)
 
@@ -78,7 +76,7 @@ class TimeBar(QtGui.QGraphicsItemGroup):
         """
         if self.movingItemsInitialPositions:
             self.movingItemsInitialPositions = None
-            time = self.timeAxis.mapPixelsToTime(self.pos().x() - self.leftBorder)
+            time = self.timeAxis.mapPixelsToTime(self.pos().x())
             self.signals.positionChangeFinished.emit(time)
 
     def mouseMoveEvent(self, event):
@@ -91,14 +89,14 @@ class TimeBar(QtGui.QGraphicsItemGroup):
                     self.movingItemsInitialPositions[item] = item.pos()
 
             for item in selectedItems:
-                currentParentPos = item.mapToParent(item.mapFromScene(event.scenePos()));
-                buttonDownParentPos = item.mapToParent(item.mapFromScene(event.buttonDownScenePos(QtCore.Qt.LeftButton)));
+                currentParentPos = item.mapToParent(item.mapFromScene(event.scenePos()))
+                buttonDownParentPos = item.mapToParent(item.mapFromScene(event.buttonDownScenePos(QtCore.Qt.LeftButton)))
 
                 currentParentPos.setY(0)
                 buttonDownParentPos.setY(0)
                 pos = self.movingItemsInitialPositions[item] + currentParentPos - buttonDownParentPos
-                if pos.x() < self.leftBorder:
-                    pos.setX(self.leftBorder)
-                elif pos.x() >= self.leftBorder + self.timeAxis.width:
-                    pos.setX(self.leftBorder + self.timeAxis.width)
-                item.setPos(pos);
+                if pos.x() < 0:
+                    pos.setX(0)
+                elif pos.x() >= self.timeAxis.width:
+                    pos.setX(self.timeAxis.width)
+                item.setPos(pos)
