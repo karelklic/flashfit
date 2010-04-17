@@ -1,5 +1,10 @@
 2010-04-18  Karel Klíč  <karel@agata>
 
+	* timeaxis.py (TimeAxis.update): Set text position _after_ font
+	update, because the position depends on text size, which depends
+	on the font.
+	* absorbanceaxis.py (AbsorbanceAxis.update): Likewise.
+
 	* timebarpair.py (TimeBarPair.__init__): Update appearance on init.
 	New variable legendTextVisible controls the visibility of caption.
 	(FullLightBarPair): New class based on TimeBarPair, implements

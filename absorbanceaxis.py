@@ -3,7 +3,7 @@ import math
 import variables
 
 class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super(AbsorbanceAxis, self).__init__(parent)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
@@ -53,9 +53,9 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
                     absorbance = absorbance - ticSpan
 
                 text = QtGui.QGraphicsTextItem(str(absorbance))
+                text.setFont(variables.absorbanceAxisValuesFont.value())
                 text.setPos(-12 - text.boundingRect().width(), ticy - text.boundingRect().height() / 2)
                 text.setParentItem(self.child)
-                text.setFont(variables.absorbanceAxisValuesFont.value())
 
                 ticlen = 15
 
@@ -67,7 +67,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         # Draw the caption
         if variables.absorbanceAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.absorbanceAxisCaption.value())
+            text.setFont(variables.absorbanceAxisCaptionFont.value())
             text.setPos(-74, 175)
             text.rotate(-90)
-            text.setFont(variables.absorbanceAxisCaptionFont.value())
             text.setParentItem(self.child)

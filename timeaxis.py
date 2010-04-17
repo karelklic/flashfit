@@ -3,7 +3,7 @@ import math
 import variables
 
 class TimeAxis(QtGui.QGraphicsItemGroup):
-    def __init__(self, parent=None):
+    def __init__(self, parent = None):
         super(TimeAxis, self).__init__(parent)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
@@ -89,9 +89,9 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
                     time = time - ticSpan
 
                 text = QtGui.QGraphicsTextItem(str(time))
+                text.setFont(variables.timeAxisValuesFont.value())
                 text.setPos(ticx - text.boundingRect().width() / 2, 13)
                 text.setParentItem(self.child)
-                text.setFont(variables.timeAxisValuesFont.value())
 
                 ticlen = 15
 
@@ -103,8 +103,6 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         # Sets and displays axis label.
         if variables.timeAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.timeAxisCaption.value())
-            text.setPos(self.width - 75, 24)
-            font = QtGui.QFont()
-            font.setPixelSize(28)
             text.setFont(variables.timeAxisCaptionFont.value())
+            text.setPos(self.width - 75, 24)
             text.setParentItem(self.child)
