@@ -1,0 +1,7 @@
+2010-04-17  Karel Klíč  <karel@agata>
+
+	* ngml.py (ModelABC.rcalc): Use nonneglstsq instead of linalg.lstsq
+	from numpy.
+	(ModelFirst.rcalc): Likewise.
+	(ModelFirst2.rcalc): Likewise.
+

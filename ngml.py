@@ -334,7 +334,7 @@ class ModelABC(BaseModel):
         # allows negative results
         #a = linalg.lstsq(c, y)[0]
         a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
-
+ 
         # calculate residuals
         # ca = c * a (matrix multiplication)
         r = y - matlib.dot(c, a)
@@ -364,7 +364,7 @@ class ModelFirst(BaseModel):
 
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
-        a = linalg.lstsq(c, y)[0]
+        a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         r = y - matlib.dot(c, a)
@@ -395,7 +395,7 @@ class ModelFirst2(BaseModel):
 
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
-        a = linalg.lstsq(c, y)[0]
+        a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         r = y - matlib.dot(c, a)
