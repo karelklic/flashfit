@@ -1,17 +1,8 @@
 from PyQt4 import QtCore, QtGui
 from graphicsscene import GraphicsScene
 from ngml import ModelABC, ModelFirst, ModelFirst2
+from spinbox import SpinBox
 import types
-
-class SpinBox(QtGui.QSpinBox):
-    valueChangeFinished = QtCore.pyqtSignal(int)
-
-    def __init__(self, parent=None):
-        QtGui.QDockWidget.__init__(self, parent)
-        self.editingFinished.connect(self.onEditingFinished)
-        
-    def onEditingFinished(self):
-        self.valueChangeFinished.emit(self.value())
 
 class Settings(QtGui.QDockWidget):
     """
@@ -86,16 +77,8 @@ class Settings(QtGui.QDockWidget):
 	timeAxisLengthModelLayout.addWidget(timeAxisLengthUnits)
         timeAxisLengthModel.setLayout(timeAxisLengthModelLayout)
         modelLayout.addWidget(timeAxisLengthModel)
-
-        rateCoeffPrecisionLabel = QtGui.QLabel("Rate Coeff. Precision:") # Coefficient or Constant
-        modelLayout.addWidget(rateCoeffPrecisionLabel)
-        self.rateCoeffPrecision = SpinBox()
-        self.rateCoeffPrecision.setRange(0, 6)
-        self.rateCoeffPrecision.setValue(6)
-        modelLayout.addWidget(self.rateCoeffPrecision)
-        model.setLayout(modelLayout)
         layout.addWidget(model)
-        
+
         layout.addStretch()
         self.setWidget(mainWidget)
 

@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import math
+import variables
 
 class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
     def __init__(self, parent=None):
@@ -21,7 +22,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         self.scene().removeItem(self.child)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
-
+        
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, 0, self.height))
         line.setParentItem(self.child)
 
@@ -54,16 +55,19 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
                 text = QtGui.QGraphicsTextItem(str(absorbance))
                 text.setPos(-12 - text.boundingRect().width(), ticy - text.boundingRect().height() / 2)
                 text.setParentItem(self.child)
+                text.setFont(variables.absorbanceAxisValuesFont.value())
+
                 ticlen = 15
+
             tic = QtGui.QGraphicsLineItem(QtCore.QLineF(-ticlen, ticy, 0, ticy))
             tic.setParentItem(self.child)
             absorbance += ticSpan
             count += 1
 
-        text = QtGui.QGraphicsTextItem("absorbance")
-        text.setPos(-74, 175)
-        text.rotate(-90)
-        font = QtGui.QFont()
-        font.setPixelSize(28)
-        text.setFont(font)
-        text.setParentItem(self.child)
+        # Draw the caption
+        if variables.absorbanceAxisCaptionEnabled.value():
+            text = QtGui.QGraphicsTextItem(variables.absorbanceAxisCaption.value())
+            text.setPos(-74, 175)
+            text.rotate(-90)
+            text.setFont(variables.absorbanceAxisCaptionFont.value())
+            text.setParentItem(self.child)

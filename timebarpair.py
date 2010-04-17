@@ -1,8 +1,9 @@
 from PyQt4 import QtCore, QtGui
 from timebar import TimeBar
+import variables
 
 class TimeBarPair:
-    def __init__(self, barHeight, text, timeAxis, leftBorder, parent):
+    def __init__(self, barHeight, timeAxis, leftBorder, parent):
         """
         Parameter barHeight is a height of time bars in pixels.
         Parameter text is displayed as a label between the time bars.
@@ -27,12 +28,10 @@ class TimeBarPair:
         self.legendLine = QtGui.QGraphicsLineItem()
         self.legendLine.setPen(QtGui.QPen(QtCore.Qt.DotLine))
         parent.addItem(self.legendLine)
-        self.legendText = QtGui.QGraphicsSimpleTextItem(text)
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self.legendText.setFont(font)
+        self.legendText = QtGui.QGraphicsSimpleTextItem()
+        self.legendTextVisible = True
         parent.addItem(self.legendText)
-        self.updateLegend()
+        self.updateAppearance()
 
     def setPos(self, bar1, bar2):
         self.bar1.setPos(bar1, 0)
@@ -54,14 +53,14 @@ class TimeBarPair:
         self.updateLegend()
 
     def updateLegend(self):
-        line = QtCore.QLineF( \
-            self.bar1.pos().x(), 40, \
-            self.bar2.pos().x(), 40)
+        line = QtCore.QLineF(self.bar1.pos().x(), 40,
+                             self.bar2.pos().x(), 40)
         self.legendLine.setLine(line)
         textX = abs(line.dx()) / 2 + min(line.x1(), line.x2())
         textX -= self.legendText.boundingRect().width() / 2
         self.legendText.setPos(textX, 12)
-        self.legendText.setVisible(abs(line.dx()) > self.legendText.boundingRect().width() + 5)
+        self.legendText.setVisible(self.legendTextVisible and 
+                                   abs(line.dx()) > self.legendText.boundingRect().width() + 5)
         
     def updatePositionFromData(self, time1, time2):
         """
@@ -70,6 +69,29 @@ class TimeBarPair:
         self.bar1.setPos(self.leftBorder + self.timeAxis.mapTimeToPixels(time1), 0)
         self.bar2.setPos(self.leftBorder + self.timeAxis.mapTimeToPixels(time2), 0)
 
+    def updateAppearance(self):
+        raise NotImplemented
+
     def setEnabled(self, enabled):
         self.bar1.setEnabled(enabled)
         self.bar2.setEnabled(enabled)
+
+class FullLightBarPair(TimeBarPair):
+    def __init__(self, barHeight, timeAxis, leftBorder, parent):
+        TimeBarPair.__init__(self, barHeight, timeAxis, leftBorder, parent)
+
+    def updateAppearance(self):
+        self.legendText.setFont(variables.fullLightBarsFont.value())
+        self.legendTextVisible = variables.fullLightBarsCaptionEnabled.value()
+        self.legendText.setText(variables.fullLightBarsCaption.value())
+        self.updateLegend()
+
+class AbsorbanceFitBarPair(TimeBarPair):
+    def __init__(self, barHeight, timeAxis, leftBorder, parent):
+        TimeBarPair.__init__(self, barHeight, timeAxis, leftBorder, parent)
+
+    def updateAppearance(self):
+        self.legendText.setFont(variables.absorbanceFitBarsFont.value())
+        self.legendTextVisible = variables.absorbanceFitBarsCaptionEnabled.value()
+        self.legendText.setText(variables.absorbanceFitBarsCaption.value())
+        self.updateLegend()

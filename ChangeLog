@@ -1,7 +1,49 @@
+2010-04-18  Karel Klíč  <karel@agata>
+
+	* timebarpair.py (TimeBarPair.__init__): Update appearance on init.
+	New variable legendTextVisible controls the visibility of caption.
+	(FullLightBarPair): New class based on TimeBarPair, implements
+	updateAppearance for the full light bars.
+	(AbsorbanceFitBarPair): New class based on TimeBarPair, implements
+	updateAppearance for the absorbance fit bars.
+
+	* settings.py (Settings.__init__): Removed rateCoeffPrecision
+	control. The precision can now be changed in the Appearance dialog.
+
 2010-04-17  Karel Klíč  <karel@agata>
+
+	* main.py (MainWindow.editAppearance): Run appearance dialog.
+
+	* informationtable.py (InformationTable.updateAppearance): New method
+	which updates the table after changing appearance in the new Appearance
+	dialog.
+	(InformationTable.textFromData): Use global variable to read the k()
+	precision.
+	(InformationTable.__init__): Update appearance on init.
+
+	* graphicsscene.py (GraphicsScene.__init__): Use specific classes for
+	fullLightBars and fitAbsorbanceBars.
+	(GraphicsScene.updateAppearance): New method which updates the graphics
+	interface after running Appearance dialog.
+	(GraphicsScene.changeRateCoeffPrecision): Removed method. The precision
+	is now changeable in Appearance dialog and update is made by
+	updateAppearance.
+
+	* absorbanceaxis.py (AbsorbanceAxis.update): Use global variables
+	for fonts and caption.
+	* timeaxis.py (TimeAxis.update): Likewise.
+
+	* variables.py: New file. List of application global, persistent
+	variables.
+
+	* spinbox.py: SpinBox class was moved to separate file from settings.py
+	as it's used on multiple places now.
+
+	* font.py: New file. Contains an extension to QFont.
+
+	* appearance.py: New file. Contains Appearance dialog (Edit->Appearance).
 
 	* ngml.py (ModelABC.rcalc): Use nonneglstsq instead of linalg.lstsq
 	from numpy.
 	(ModelFirst.rcalc): Likewise.
 	(ModelFirst2.rcalc): Likewise.
-

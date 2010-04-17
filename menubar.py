@@ -1,10 +1,15 @@
 from PyQt4 import QtCore, QtGui
 
 class MenuBar(QtGui.QMenuBar):
+    """
+    Main menu bar.
+    This class must not implement actions, the onTrigger implementation
+    belongs elsewhere (main.py?).
+    """
     def __init__(self, parent=None):
         super(MenuBar, self).__init__(parent)
 
-        # File menu
+        ### File menu
         self.fileMenu = self.addMenu("&File")
         
         self.openAct = QtGui.QAction("&Open", self)
@@ -32,7 +37,12 @@ class MenuBar(QtGui.QMenuBar):
         self.quitAct.setShortcut("Ctrl+Q")
         self.fileMenu.addAction(self.quitAct)
 
-        # Show menu
+        ### Edit menu
+        self.editMenu = self.addMenu("&Edit")
+        self.appearanceAct = QtGui.QAction("&Appearance", self)
+        self.editMenu.addAction(self.appearanceAct)
+
+        ### Show menu
         self.showMenu = self.addMenu("&Show")
 
         self.showInformationBoxAct = QtGui.QAction("&Show information box", self)

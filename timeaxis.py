@@ -1,5 +1,6 @@
 from PyQt4 import QtCore, QtGui
 import math
+import variables
 
 class TimeAxis(QtGui.QGraphicsItemGroup):
     def __init__(self, parent=None):
@@ -90,16 +91,20 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
                 text = QtGui.QGraphicsTextItem(str(time))
                 text.setPos(ticx - text.boundingRect().width() / 2, 13)
                 text.setParentItem(self.child)
+                text.setFont(variables.timeAxisValuesFont.value())
+
                 ticlen = 15
+
             tic = QtGui.QGraphicsLineItem(QtCore.QLineF(ticx, 0, ticx, ticlen))
             tic.setParentItem(self.child)
             time += ticSpan
             count += 1
 
         # Sets and displays axis label.
-        text = QtGui.QGraphicsTextItem("time")
-        text.setPos(self.width - 75, 24)
-        font = QtGui.QFont()
-        font.setPixelSize(28)
-        text.setFont(font)
-        text.setParentItem(self.child)
+        if variables.timeAxisCaptionEnabled.value():
+            text = QtGui.QGraphicsTextItem(variables.timeAxisCaption.value())
+            text.setPos(self.width - 75, 24)
+            font = QtGui.QFont()
+            font.setPixelSize(28)
+            text.setFont(variables.timeAxisCaptionFont.value())
+            text.setParentItem(self.child)

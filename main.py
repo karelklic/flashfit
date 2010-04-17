@@ -11,6 +11,7 @@ from menubar import MenuBar
 from loadfiletask import LoadFileTask
 from changepointcounttask import ChangePointCountTask
 from fittask import FitTask
+from appearance import Appearance
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -26,6 +27,7 @@ class MainWindow(QtGui.QMainWindow):
         for act in self.menuBar().recentFileActs:
             act.triggered.connect(self.openRecentFile)
         self.menuBar().quitAct.triggered.connect(self.close)
+        self.menuBar().appearanceAct.triggered.connect(self.editAppearance)
 
         self.data = Data()
 
@@ -41,7 +43,6 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
-        self.settings.rateCoeffPrecision.valueChanged.connect(self.scene.changeRateCoeffPrecision)
         self.settings.fit.clicked.connect(self.fitAbsorbances)
         self.menuBar().showMenuToggleConnect(self.scene.informationTable.recreateFromData)
         self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
@@ -51,6 +52,14 @@ class MainWindow(QtGui.QMainWindow):
         self.data.dataChanged.connect(self.scene.onDataChanged)
         self.view = GraphicsView(self.scene)
         self.setCentralWidget(self.view)
+
+    def editAppearance(self):
+        """
+        Opens Appearance editor, where user can select font sizes, format details etc.
+        """
+        dialog = Appearance(self)
+        if dialog.exec_() == QtGui.QDialog.Accepted:
+            self.scene.updateAppearance()
 
     def openFile(self, bool):
         name = QtGui.QFileDialog.getOpenFileName(self, "Open file", "", "Oscilloscope Data (*.csv)")

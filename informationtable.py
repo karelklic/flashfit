@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*- (Python reads this)
 from PyQt4 import QtCore, QtGui
+import variables
 
 class InformationTable(QtGui.QGraphicsItemGroup):
     ItemSendsGeometryChanges = 0x800
@@ -14,12 +15,6 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         self.setFlag(self.ItemSendsGeometryChanges, True)
         self.textItem = QtGui.QGraphicsSimpleTextItem("")
         self.textItem.setParentItem(self)
-        font = QtGui.QFont()
-        font.setPixelSize(26)
-        self.textItem.setFont(font)
-
-        # Precision of rate constants.
-        self.rateCoeffPrecision = 6
 
         # The rectangle around all the text.
         self.rect = QtGui.QGraphicsRectItem()
@@ -27,9 +22,15 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         self.rect.setParentItem(self)
         self.rect.setCursor(QtCore.Qt.SizeAllCursor)
 
+        self.updateAppearance()
+
         # Support data for drag and drop movement
         self.movingItemsInitialPositions = None
         self.setCursor(QtCore.Qt.SizeAllCursor)
+
+    def updateAppearance(self):
+        self.textItem.setFont(variables.legendFont.value())
+        self.recreateFromData()
 
     def recreateFromData(self):
         text = self.textFromData()
@@ -54,7 +55,8 @@ class InformationTable(QtGui.QGraphicsItemGroup):
                 text += u"model: %s\n" % self.data.absorbanceFitFunction.name
         if self.menuBar.showRateConstantAct.isChecked():
             for i in range(0, len(self.data.p)):
-                template = u"k(%%d) = %%.%de ± %%.%de\n" % (self.rateCoeffPrecision,self.rateCoeffPrecision)
+                prec = variables.legendDisplayedPrecision.value()
+                template = u"k(%%d) = %%.%de ± %%.%de\n" % (prec, prec)
                 text += template % (i + 1, self.data.p[i], self.data.sigma_p[i])
         if self.menuBar.showA0Act.isChecked():
             if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
@@ -66,15 +68,6 @@ class InformationTable(QtGui.QGraphicsItemGroup):
 
     def findPlaceInScene(self):
         self.setPos(self.absorbanceGraph.pos().x() + 400, self.absorbanceGraph.pos().y() + 80)
-        #MIN_WIDTH = self.boundingRect().width()
-        #success = False
-        #for x in range(10, int(self.absorbanceGraph.width - MIN_WIDTH), int(self.absorbanceGraph.width / 10)):
-        #    self.setPos(self.absorbanceGraph.pos().x() + x, self.absorbanceGraph.pos().y() + 80)
-        #    if not self.collidesWithItem(self.absorbanceGraph):
-        #        success = True
-        #        break
-
-        # TODO: change font size when failure occurs
 
     def mousePressEvent(self, event):
         if event.buttons() & QtCore.Qt.LeftButton:
@@ -82,7 +75,6 @@ class InformationTable(QtGui.QGraphicsItemGroup):
                 self.scene().clearSelection()
                 self.setSelected(True)
             self.clearMovingItemsInitialPositions()
-
 
     def mouseReleaseEvent(self, event):
         super(InformationTable, self).mouseReleaseEvent(event)
@@ -104,8 +96,8 @@ class InformationTable(QtGui.QGraphicsItemGroup):
                     self.movingItemsInitialPositions[item] = item.pos()
 
             for item in selectedItems:
-                currentParentPos = item.mapToParent(item.mapFromScene(event.scenePos()));
-                buttonDownParentPos = item.mapToParent(item.mapFromScene(event.buttonDownScenePos(QtCore.Qt.LeftButton)));
+                currentParentPos = item.mapToParent(item.mapFromScene(event.scenePos()))
+                buttonDownParentPos = item.mapToParent(item.mapFromScene(event.buttonDownScenePos(QtCore.Qt.LeftButton)))
 
                 pos = self.movingItemsInitialPositions[item] + currentParentPos - buttonDownParentPos
-                item.setPos(pos);
+                item.setPos(pos)

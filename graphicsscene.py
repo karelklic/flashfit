@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui
 from timeaxis import TimeAxis
 from absorbanceaxis import AbsorbanceAxis
 from absorbancegraph import AbsorbanceGraph
-from timebarpair import TimeBarPair
+from timebarpair import FullLightBarPair, AbsorbanceFitBarPair
 from absorbancefit import AbsorbanceFit
 from residualsgraph import ResidualsGraph
 from informationtable import InformationTable
@@ -53,14 +53,10 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
         self.absorbanceAxis.update()
-        self.fullLightBars = TimeBarPair(
-            GraphicsScene.HEIGHT, "Full light",
-            self.timeAxis, self.BORDER_LEFT, self)
+        self.fullLightBars = FullLightBarPair(GraphicsScene.HEIGHT, self.timeAxis, self.BORDER_LEFT, self)
         self.fullLightBars.setPos(100, 400)
         self.fullLightBars.setColor(QtGui.QColor("#333366"))
-        self.fitAbsorbanceBars = TimeBarPair(
-            GraphicsScene.HEIGHT, "Absorbance Fit",
-            self.timeAxis, self.BORDER_LEFT, self)
+        self.fitAbsorbanceBars = AbsorbanceFitBarPair(GraphicsScene.HEIGHT, self.timeAxis, self.BORDER_LEFT, self)
         self.fitAbsorbanceBars.setPos(500, 1500)
         self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
 
@@ -86,6 +82,13 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.updateFitAbsorbanceBars()
         self.informationTable.recreateFromData()
         self.informationTable.findPlaceInScene()
+
+    def updateAppearance(self):
+        self.absorbanceAxis.update()
+        self.timeAxis.update()
+        self.fullLightBars.updateAppearance()
+        self.fitAbsorbanceBars.updateAppearance()
+        self.informationTable.updateAppearance()
 
     def updateAbsorbanceGraph(self):
         self.absorbanceGraph.recreateFromData()
@@ -158,7 +161,3 @@ class GraphicsScene(QtGui.QGraphicsScene):
             
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
             self.updateFitAbsorbanceBars()
-
-    def changeRateCoeffPrecision(self, precision):
-        self.informationTable.rateCoeffPrecision = precision
-        self.informationTable.recreateFromData()
