@@ -104,5 +104,5 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         if variables.timeAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.timeAxisCaption.value())
             text.setFont(variables.timeAxisCaptionFont.value())
-            text.setPos(self.width - 75, 24)
+            text.setPos(self.width - text.boundingRect().width(), 24)
             text.setParentItem(self.child)

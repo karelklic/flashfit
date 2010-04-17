@@ -68,6 +68,6 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         if variables.absorbanceAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.absorbanceAxisCaption.value())
             text.setFont(variables.absorbanceAxisCaptionFont.value())
-            text.setPos(-74, 175)
+            text.setPos(-74, text.boundingRect().width())
             text.rotate(-90)
             text.setParentItem(self.child)
