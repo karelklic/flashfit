@@ -1,5 +1,21 @@
 2010-04-18  Karel Klíč  <karel@agata>
 
+	* settings.py (Settings.onSceneRectChanged): Do not trust the rect,
+	read the width directly from the scene (the rect includes the
+	borders, which are now not a part of scene width).
+
+	* graphicsscene.py (GraphicsScene): Scene width does not include
+	left and right borders.
+	(GraphicsScene.updateAppearance): Adjust left border depending on
+	the absorbance axis bounding rect. Update scene using __setSceneSize
+	to tell every item in the scene about the left border change.
+	(GraphicsScene.__setSceneSize): Scene width does not include
+	left and right borders.
+	Do not pass height as a variable, as height is always constant.
+
+	* absorbanceaxis.py (AbsorbanceAxis.update): Position depends on
+	caption text height.
+
 	* timebarpair.py (TimeBarPair): Make it subclass of QGraphicsItem.
 	Empty QGraphicsLineItem used to avoid NotImplemented exceptions.
 	(TimeBarPair.__init__): All child graphics items belong to

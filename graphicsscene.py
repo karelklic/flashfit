@@ -11,7 +11,7 @@ from data import Data
 class GraphicsScene(QtGui.QGraphicsScene):
     """
     The scene containing graph. It's 1000 points high and 1000 or more 
-    points wide.
+    points wide. The width does not include BORDER_LEFT and BORDER_RIGHT.
     """
     DEFAULT_WIDTH = 2000
     MIN_WIDTH = 800
@@ -54,7 +54,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.fitAbsorbanceBars.setBarPos(500, 1500)
         self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
         # Set initial scene properties
-        self.__setSceneSize(self.DEFAULT_WIDTH, self.HEIGHT)
+        self.__setSceneSize(self.DEFAULT_WIDTH)
         self.timeAxis.setTime(0, 1.0)
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(0, 1.0)
@@ -64,8 +64,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         """
         Determine the right width and set it
         """
-        width = min(max(self.MIN_WIDTH, len(self.data.time)), self.MAX_WIDTH)
-        self.__setSceneSize(width, self.HEIGHT)        
+        newWidth = min(max(self.MIN_WIDTH, len(self.data.time)), self.MAX_WIDTH)
+        self.__setSceneSize(newWidth)
 
     def updateFromData(self):
         """
@@ -85,10 +85,12 @@ class GraphicsScene(QtGui.QGraphicsScene):
 
     def updateAppearance(self):
         self.absorbanceAxis.update()
+        self.BORDER_LEFT = self.absorbanceAxis.childrenBoundingRect().width()
         self.timeAxis.update()
         self.fullLightBars.updateAppearance()
         self.fitAbsorbanceBars.updateAppearance()
         self.informationTable.updateAppearance()
+        self.__setSceneSize(self.sceneWidth)
 
     def updateAbsorbanceGraph(self):
         self.absorbanceGraph.recreateFromData()
@@ -114,10 +116,10 @@ class GraphicsScene(QtGui.QGraphicsScene):
                                                       self.data.fitAbsorbanceTime2())
 
     def changeWidth(self, width):
-        # Only change the width if it really changed.
-        if self.width() == width:
+        # Only change the scene width if it really changed.
+        if self.sceneWidth == width:
             return        
-        self.__setSceneSize(width, self.HEIGHT)
+        self.__setSceneSize(width)
         self.timeAxis.update()
         self.absorbanceAxis.update()
         self.absorbanceGraph.resizeFromData()
@@ -126,28 +128,31 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.updateFullLightBars()
         self.updateFitAbsorbanceBars()
         
-    def __setSceneSize(self, width, height):
+    def __setSceneSize(self, width):
         """
         Not to be called from outside.
         """
-        residualsSize = int(height * 0.15)
-        self.setSceneRect(QtCore.QRectF(0, 0, width, height))
-        self.timeAxis.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM)
-        self.timeAxis.setWidth(width - self.BORDER_LEFT - self.BORDER_RIGHT)
+        self.sceneWidth = width
+        residualsSize = int(self.HEIGHT * 0.15)
+        self.setSceneRect(QtCore.QRectF(0, 0,
+                                        width + self.BORDER_LEFT + self.BORDER_RIGHT,
+                                        self.HEIGHT))
+        self.timeAxis.setPos(self.BORDER_LEFT, self.HEIGHT - self.BORDER_BOTTOM)
+        self.timeAxis.setWidth(width)
         self.absorbanceAxis.setPos(self.BORDER_LEFT, self.BORDER_TOP)
-        self.absorbanceAxis.setHeights(height - self.BORDER_TOP - self.BORDER_BOTTOM,
-                                       height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceAxis.setHeights(self.HEIGHT - self.BORDER_TOP - self.BORDER_BOTTOM,
+                                       self.HEIGHT - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceGraph.setPos(self.BORDER_LEFT, self.BORDER_TOP)
-        self.absorbanceGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT,
-                                     height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceGraph.setSize(width,
+                                     self.HEIGHT - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceFit.setPos(self.BORDER_LEFT, self.BORDER_TOP)
-        self.absorbanceFit.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT,
-                                   height - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceFit.setSize(width,
+                                   self.HEIGHT - self.BORDER_TOP - self.BORDER_BOTTOM - residualsSize)
         self.absorbanceResidualSeparatorAxis.setPos(self.BORDER_LEFT, 
-                                                    height - self.BORDER_BOTTOM - residualsSize)
-        self.absorbanceResidualSeparatorAxis.setLine(0, 0, width - self.BORDER_LEFT - self.BORDER_RIGHT, 0)
-        self.residualsGraph.setPos(self.BORDER_LEFT, height - self.BORDER_BOTTOM - residualsSize)
-        self.residualsGraph.setSize(width - self.BORDER_LEFT - self.BORDER_RIGHT, residualsSize)
+                                                    self.HEIGHT - self.BORDER_BOTTOM - residualsSize)
+        self.absorbanceResidualSeparatorAxis.setLine(0, 0, width, 0)
+        self.residualsGraph.setPos(self.BORDER_LEFT, self.HEIGHT - self.BORDER_BOTTOM - residualsSize)
+        self.residualsGraph.setSize(width, residualsSize)
         self.fullLightBars.setPos(self.BORDER_LEFT, 0)
         self.fitAbsorbanceBars.setPos(self.BORDER_LEFT, 0)
 

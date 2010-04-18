@@ -83,7 +83,7 @@ class Settings(QtGui.QDockWidget):
         self.setWidget(mainWidget)
 
     def onSceneRectChanged(self, rect):
-        self.timeAxisLength.setValue(rect.width())
+        self.timeAxisLength.setValue(self.parent().scene.sceneWidth)
 
     def onDataLoaded(self, data):
         self.measuredPoints.setText(str(len(data.originalData.time)))
