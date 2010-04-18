@@ -6,9 +6,8 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
     # Defined here until PyQt includes it.
     ItemHasNoContents = 0x400
 
-    def __init__(self, barHeight, timeAxis, parent):
+    def __init__(self, timeAxis, parent):
         """
-        Parameter barHeight is a height of time bars in pixels.
         Parameter text is displayed as a label between the time bars.
         Parameter timeAxis points to Time Axis on which the time bars
         are placed.
@@ -19,10 +18,11 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
         """
         super(TimeBarPair, self).__init__(scene = parent)
         self.timeAxis = timeAxis
+        self.height = 0
         # Should this really be set? If bars stop to draw, delete this.
         self.setFlag(self.ItemHasNoContents, True)
-        self.bar1 = TimeBar(barHeight, timeAxis)
-        self.bar2 = TimeBar(barHeight, timeAxis)
+        self.bar1 = TimeBar(timeAxis)
+        self.bar2 = TimeBar(timeAxis)
         self.setBarPos(100, 200)
         self.bar1.setParentItem(self)
         self.bar2.setParentItem(self)
@@ -36,6 +36,13 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
         self.legendTextVisible = True
         self.legendText.setParentItem(self)
         self.updateAppearance()
+
+    def setHeight(self, height):
+        if self.height == height:
+            return
+        self.height = height
+        self.bar1.setHeight(height)
+        self.bar2.setHeight(height)
 
     def setBarPos(self, bar1, bar2):
         self.bar1.setPos(bar1, 0)
@@ -81,8 +88,8 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
         self.bar2.setEnabled(enabled)
 
 class FullLightBarPair(TimeBarPair):
-    def __init__(self, barHeight, timeAxis, parent):
-        TimeBarPair.__init__(self, barHeight, timeAxis, parent)
+    def __init__(self, timeAxis, parent):
+        TimeBarPair.__init__(self, timeAxis, parent)
 
     def updateAppearance(self):
         self.legendText.setFont(variables.fullLightBarsFont.value())
@@ -91,8 +98,8 @@ class FullLightBarPair(TimeBarPair):
         self.updateLegend()
 
 class AbsorbanceFitBarPair(TimeBarPair):
-    def __init__(self, barHeight, timeAxis, parent):
-        TimeBarPair.__init__(self, barHeight, timeAxis, parent)
+    def __init__(self, timeAxis, parent):
+        TimeBarPair.__init__(self, timeAxis, parent)
 
     def updateAppearance(self):
         self.legendText.setFont(variables.absorbanceFitBarsFont.value())

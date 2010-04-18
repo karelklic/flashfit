@@ -7,6 +7,8 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         super(AbsorbanceAxis, self).__init__(parent)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
+        self.height = 800 # random initial value
+        self.residualStart = 200 # random initial value
 
     def setHeights(self, height, residualStart):
         self.height = height

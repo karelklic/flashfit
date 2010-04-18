@@ -60,6 +60,7 @@ class MainWindow(QtGui.QMainWindow):
         dialog = Appearance(self)
         if dialog.exec_() == QtGui.QDialog.Accepted:
             self.scene.updateAppearance()
+            self.view.fitSceneInView()
 
     def openFile(self, bool):
         name = QtGui.QFileDialog.getOpenFileName(self, "Open file", "", "Oscilloscope Data (*.csv)")

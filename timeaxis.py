@@ -7,6 +7,7 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         super(TimeAxis, self).__init__(parent)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
+        self.width = 100 # random initial value
 
     def setWidth(self, width):
         """

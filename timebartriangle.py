@@ -3,19 +3,10 @@ from PyQt4 import QtCore, QtGui
 class TimeBarTriangle(QtGui.QGraphicsPolygonItem):
     SIZE = 20
 
-    def __init__(self, barHeight, top, parent=None):
-        # Create polygon.
-        poly = QtGui.QPolygonF()
-        if top:
-            poly.append(QtCore.QPointF(-self.SIZE/2, 0))
-            poly.append(QtCore.QPointF(self.SIZE/2, 0))
-            poly.append(QtCore.QPointF(0, self.SIZE))
-        else:
-            poly.append(QtCore.QPointF(-self.SIZE/2, barHeight))
-            poly.append(QtCore.QPointF(self.SIZE/2, barHeight))
-            poly.append(QtCore.QPointF(0, barHeight - self.SIZE))
-
-        super(TimeBarTriangle, self).__init__(poly, parent)
+    def __init__(self, top, parent = None):
+        super(TimeBarTriangle, self).__init__(parent)
+        self.top = top
+        self.height = 0
         self.setCursor(QtCore.Qt.SizeHorCursor)
 
         # Setup pens.
@@ -24,6 +15,23 @@ class TimeBarTriangle(QtGui.QGraphicsPolygonItem):
         self.selectedPen = QtGui.QPen()
         self.selectedPen.setWidth(5)
         self.setPen(self.normalPen)
+
+    def setHeight(self, height):
+        if self.height == height:
+            return
+        self.height = height
+
+        # Create polygon.
+        poly = QtGui.QPolygonF()
+        if self.top:
+            poly.append(QtCore.QPointF(-self.SIZE / 2, 0))
+            poly.append(QtCore.QPointF(self.SIZE / 2, 0))
+            poly.append(QtCore.QPointF(0, self.SIZE))
+        else:
+            poly.append(QtCore.QPointF(-self.SIZE / 2, height))
+            poly.append(QtCore.QPointF(self.SIZE / 2, height))
+            poly.append(QtCore.QPointF(0, height - self.SIZE))
+        self.setPolygon(poly)
 
     def setSelectedPen(self, selected):
         if selected:

@@ -15,7 +15,9 @@ class GraphicsView(QtGui.QGraphicsView):
 
     def resizeEvent(self, event):
         "Overrides parent implementation"
+        self.fitSceneInView()
 
+    def fitSceneInView(self):
         def getScrollBarValue(sb):
             size = sb.maximum() - sb.minimum()
             value = 0

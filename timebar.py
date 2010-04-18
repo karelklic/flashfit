@@ -17,9 +17,8 @@ class TimeBar(QtGui.QGraphicsItemGroup):
         # The parameter is time in seconds.
         positionChangeFinished = QtCore.pyqtSignal(float)
 
-    def __init__(self, height, timeAxis, parent = None):
+    def __init__(self, timeAxis, parent = None):
         """
-        Parameter height is a height of the time bar in pixels.
         Parameter timeAxis points to Time Axis on which the time bars
         are placed.
         Parameter parent is a parent object in scene where time bars 
@@ -31,17 +30,22 @@ class TimeBar(QtGui.QGraphicsItemGroup):
         self.setFlag(self.ItemSendsGeometryChanges, True)
 
         # Create graphical subcomponents.
-        self.topTriangle = TimeBarTriangle(height, True)
+        self.topTriangle = TimeBarTriangle(True)
         self.topTriangle.setParentItem(self)
-        self.bottomTriangle = TimeBarTriangle(height, False)
+        self.bottomTriangle = TimeBarTriangle(False)
         self.bottomTriangle.setParentItem(self)
-        self.line = TimeBarLine(height)
+        self.line = TimeBarLine()
         self.line.setParentItem(self)
 
         # Support data for drag and drop movement
         self.movingItemsInitialPositions = None
 
         self.signals = self.Signals()
+
+    def setHeight(self, height):
+        self.topTriangle.setHeight(height)
+        self.bottomTriangle.setHeight(height)
+        self.line.setHeight(height)
 
     def setColor(self, color):
         for item in [self.line, self.topTriangle, self.bottomTriangle]:

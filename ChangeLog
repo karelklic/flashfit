@@ -1,5 +1,29 @@
 2010-04-18  Karel Klíč  <karel@agata>
 
+	* graphicsscene.py (GraphicsScene.__setSceneSize): Scene does not
+	include top and bottom borders.
+	(GraphicsScene.recalculateBorders): New function.
+	(GraphicsScene.updateAppearance): Changed ordering to propagate
+	top and bottom border changes to bars.
+
+	* timebar.py (TimeBar.__init__): No height needed for
+	the initialization.
+	(TimeBar.setHeight): New function.
+
+	* loadfiletask.py (LoadFileTask.postRun): updateFromData should
+	set the best width.
+
+	* timeaxis.py (TimeAxis.__init__): Set some initial width.
+
+	* absorbanceaxis.py (AbsorbanceAxis.__init__): Set some initial
+	height and residualStart values.
+
+	* main.py (MainWindow.editAppearance): Fit scene in view after
+	updating scene size.
+
+	* graphicsview.py (GraphicsView.fitSceneInView): New function.
+	Better name for resizeEvent(), when called from outside.
+
 	* settings.py (Settings.onSceneRectChanged): Do not trust the rect,
 	read the width directly from the scene (the rect includes the
 	borders, which are now not a part of scene width).

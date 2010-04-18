@@ -5,24 +5,32 @@ from timebartriangle import TimeBarTriangle
 class TimeBarLine(QtGui.QGraphicsLineItem):
     SELECTION_X_MARGIN = 15
 
-    def __init__(self, barHeight, parent=None):
-        # Create line.
-        line = QtCore.QLineF()
-        line.setP1(QtCore.QPointF(0, TimeBarTriangle.SIZE))
-        line.setP2(QtCore.QPointF(0, barHeight - TimeBarTriangle.SIZE))
-        super(TimeBarLine, self).__init__(line, parent)
+    def __init__(self, parent = None):
+        super(TimeBarLine, self).__init__(parent)
+        self.height = 0
         self.setCursor(QtCore.Qt.SizeHorCursor)
-        self.boundingRect = QtCore.QRectF( \
-            line.x1() - self.SELECTION_X_MARGIN / 2, line.y1(), \
-                self.SELECTION_X_MARGIN, line.y2() - line.y1())
-        self.shape = super(TimeBarLine, self).shape()
-        self.shape.addRect(self.boundingRect)
+        self.boundingRect = QtCore.QRectF()
 
         # Setup pens.
         self.normalPen = QtGui.QPen(QtCore.Qt.DashLine)
         self.selectedPen = QtGui.QPen(QtCore.Qt.DashLine)
         self.selectedPen.setWidth(3)
         self.setPen(self.normalPen)
+
+    def setHeight(self, height):
+        if self.height == height:
+            return
+        self.height = height
+
+        # Create line.
+        line = QtCore.QLineF()
+        line.setP1(QtCore.QPointF(0, TimeBarTriangle.SIZE))
+        line.setP2(QtCore.QPointF(0, self.height - TimeBarTriangle.SIZE))
+        self.setLine(line)
+        self.boundingRect = QtCore.QRectF(line.x1() - self.SELECTION_X_MARGIN / 2, line.y1(),
+                                          self.SELECTION_X_MARGIN, line.y2() - line.y1())
+        self.shape = super(TimeBarLine, self).shape()
+        self.shape.addRect(self.boundingRect)
 
     def setSelectedPen(self, selected):
         if selected:
