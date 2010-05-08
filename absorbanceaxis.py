@@ -24,7 +24,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         self.scene().removeItem(self.child)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
-        
+
         line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, 0, 0, self.height))
         line.setParentItem(self.child)
 
@@ -42,6 +42,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         bigTicAbsorbance = self.minAbsorbance + bigTicSpan - math.fmod(self.minAbsorbance, bigTicSpan)
         count = 10 - int((bigTicAbsorbance - self.minAbsorbance) / ticSpan)
         absorbance = ticAbsorbance
+        maxValuesWidth = 0
         while absorbance < self.maxAbsorbance:
             ticlen = 10
             ticy = self.residualStart - ((absorbance - self.minAbsorbance) * self.residualStart) / absorbanceSpan
@@ -57,6 +58,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
                 text = QtGui.QGraphicsTextItem(str(absorbance))
                 text.setFont(variables.absorbanceAxisValuesFont.value())
                 text.setPos(-12 - text.boundingRect().width(), ticy - text.boundingRect().height() / 2)
+                maxValuesWidth = max(maxValuesWidth, text.boundingRect().width())
                 text.setParentItem(self.child)
 
                 ticlen = 15
@@ -70,6 +72,6 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
         if variables.absorbanceAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.absorbanceAxisCaption.value())
             text.setFont(variables.absorbanceAxisCaptionFont.value())
-            text.setPos(-text.boundingRect().height() - 20, text.boundingRect().width())
+            text.setPos(-text.boundingRect().height() - maxValuesWidth, text.boundingRect().width())
             text.rotate(-90)
             text.setParentItem(self.child)

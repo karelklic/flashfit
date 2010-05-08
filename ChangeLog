@@ -1,3 +1,11 @@
+2010-05-09  Karel Klíč  <kklic@redhat.com>
+
+	* absorbanceaxis.py (AbsorbanceAxis.update): Position of the caption
+	depends on the width of displayed absorbance values.
+
+	* timeaxis.py (TimeAxis.update): Position of the caption depends on
+	the height of displayed time values.
+
 2010-04-18  Karel Klíč  <karel@agata>
 
 	* graphicsscene.py (GraphicsScene.__setSceneSize): Scene does not

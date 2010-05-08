@@ -21,14 +21,14 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         """
         self.minTime = minTime
         self.maxTime = maxTime
-    
+
     def mapTimeToPixels(self, time):
         """
         The only parameter is a time value in seconds.
         From input time, minimum and maximum time displayed on the axis,
         and from axis width in pixels, calculates the position of certain
         time on axis in pixels. This pixel offset is returned.
-        
+
         Note that the returned value is not the X offset in the scene,
         because there is a free space (padding) on the left of the axis.
         The width of this space must be added to the returned value
@@ -52,7 +52,7 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         assert(percents >= 0 and percents <= 1)
         # Map to time
         return self.minTime + percents * (self.maxTime - self.minTime)
-        
+
     def update(self):
         # Remove the old axis.
         self.removeFromGroup(self.child)
@@ -77,6 +77,7 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         bigTicTime = self.minTime + bigTicSpan - math.fmod(self.minTime, bigTicSpan)
         count = 10 - int((bigTicTime - self.minTime) / ticSpan)
         time = ticTime
+        maxValuesHeight = 0
         while time < self.maxTime:
             ticlen = 10
             ticx = ((time - self.minTime) * self.width) / timeSpan
@@ -92,6 +93,7 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
                 text = QtGui.QGraphicsTextItem(str(time))
                 text.setFont(variables.timeAxisValuesFont.value())
                 text.setPos(ticx - text.boundingRect().width() / 2, 13)
+                maxValuesHeight = max(maxValuesHeight, text.boundingRect().height())
                 text.setParentItem(self.child)
 
                 ticlen = 15
@@ -105,5 +107,5 @@ class TimeAxis(QtGui.QGraphicsItemGroup):
         if variables.timeAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.timeAxisCaption.value())
             text.setFont(variables.timeAxisCaptionFont.value())
-            text.setPos(self.width - text.boundingRect().width(), 24)
+            text.setPos(self.width - text.boundingRect().width(), maxValuesHeight)
             text.setParentItem(self.child)
