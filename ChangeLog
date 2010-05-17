@@ -1,5 +1,9 @@
 2010-05-17  Karel Klíč  <kklic@redhat.com>
 
+	* ngml.py (BaseModel.ngml2.calcHessianJtrA): Guess fixes.
+	(BaseModel.ngml2): Likewise.
+	(ModelFirst.rcalc): Added concentration c1.
+
 	* main.py (MainWindow.runTask): Show messages also in console
 	alongside the status bar.
 	Remove trailing whitespaces.

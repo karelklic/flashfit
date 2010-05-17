@@ -80,12 +80,17 @@ class BaseModel:
         # Marquardt parameter
         mp = 0
         # convergence limit
-        mu = 1e-4
+        mu = 1e-6
 
         def calcHessianJtrA(dc, c, y):
-            ctc = matlib.dot(c.T, c)
+            """
+            Hessian matrix = square matrix of secnd order partial derivatives
+            c = matrix of concentrations of various components (depends on parameter count)
+            """
+            ct = c.T
+            ctc = matlib.dot(ct, c)
             ctcinv = ctc.I
-            aux = matlib.dot(ctcinv, c.T)
+            aux = matlib.dot(ctcinv, ct)
             a = matlib.dot(aux, y)
             aux = matlib.dot(c, a)
             r = aux - y
@@ -93,12 +98,14 @@ class BaseModel:
             for i in range(0, r.shape[0]):
                 for j in range(0, r.shape[1]):
                     ssq += r[i,j] * r[i,j]
-            j = matlib.empty([dc[0].shape[0], len(dc)])
+            j = matlib.zeros([dc[0].shape[0], len(dc)]) # 1 = y dimension
             dq = []
             for p in range(0, len(dc)):
-                dct = dc[p].T
-                dctc = matlib.dot(dct, c)
+                dctc = matlib.dot(dc[p].T, c)
                 dq.append(dctc + dctc.T)
+
+            hessian = matlib.zeros([j.shape[1], j.shape[1]])
+            jtr = matlib.zeros([j.shape[1], 1])
             for p in range(0, len(dc)):
                 dqa = matlib.dot(dq[p], a)
                 dct = dc[p].T
@@ -109,27 +116,33 @@ class BaseModel:
                 aux1 = matlib.dot(c, aux)
                 jvec = dca - aux1
                 j[:,p] = jvec
-            hessian = matlib.dot(j.T, j)
-            jtr = matlib.dot(j.T, r)
+            hessian += matlib.dot(j.T, j)
+            jtr += matlib.dot(j.T, r)
             return (hessian, jtr, a, ssq)
 
         it = 0 # iteration
         end = False
         while it < 50 and not end:
-            # Calculate C and dC
-            c = matlib.empty([len(time), matlib.size(p)])
+            # Calculate C and dC for some parameters p
+            c = matlib.zeros([len(time), matlib.size(p)])
             dc = []
             for i in range(0, matlib.size(p)):
-                dci = matlib.empty([len(time), matlib.size(p)])
+                dci = matlib.zeros([len(time), matlib.size(p)])
                 for j in range(0, len(time)):
                     kt = p[i] * time[j]
                     if p_firstOrder[i]:
+                        if abs(kt) >= 5E3:
+                            raise "Numeric error"
+
                         c[j,i] = math.exp(-kt)
                         if p_fixed[i]:
                             dci[j,i] = 1
                         else:
                             dci[j,i] = -c[j,i] * time[j]
                     else:
+                        if abs(kt) <= -1:
+                            raise "Numeric error"
+
                         c[j,i] = 1 / (kt + 1)
                         if p_fixed[i]:
                             dci[j,i] = 1
@@ -154,7 +167,7 @@ class BaseModel:
                 mp *= 5
                 p, jtr, hessian = p_old, jtr_old, hessian_old
 
-            for i in range(0, matlib.size(p)):
+            for i in range(0, hessian.shape[0]):
                 hessian[i,i] += mp
 
             hessianInv = hessian.I
@@ -307,7 +320,7 @@ class ModelABC(BaseModel):
 
     def getInitialParameters(self, time):
         return ([10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])],
-                [True, False])
+                [True, True])
 
     def rcalc(self, k, a_0, t, y):
         """
@@ -334,7 +347,7 @@ class ModelABC(BaseModel):
         # allows negative results
         #a = linalg.lstsq(c, y)[0]
         a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
- 
+
         # calculate residuals
         # ca = c * a (matrix multiplication)
         r = y - matlib.dot(c, a)
@@ -357,10 +370,13 @@ class ModelFirst(BaseModel):
         Returns tuple of three values:
         - first value is a list of residuals 'r'
         - second value is a matrix of concentrations 'c'
-        - third value is a matrix 'a'
+        - third value is a absorbance matrix 'a'
         """
         # First column of C contains concentrations of A
-        c = a_0 * matlib.exp(-k[0,0] * t)
+        c0 = a_0 * matlib.exp(-k[0,0] * t)
+        # Second column concentrations of B
+        c1 = a_0 - c0
+        c = matlib.hstack((c0, c1))
 
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
