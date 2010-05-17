@@ -1,7 +1,11 @@
 2010-05-17  Karel Klíč  <kklic@redhat.com>
 
+	* main.py (MainWindow.runTask): Show messages also in console
+	alongside the status bar.
+	Remove trailing whitespaces.
+
 	* console.py (Console.showMessage): New function.
-	Removed trailing whitespaces.
+	Remove trailing whitespaces.
 
 2010-05-09  Karel Klíč  <kklic@redhat.com>
 

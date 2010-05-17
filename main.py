@@ -19,7 +19,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # Set initial value of self.loadFilePath
         self.setLoadedFilePath("")
-        
+
         # Create and connect Main Menu Bar
         self.setMenuBar(MenuBar(self))
         self.menuBar().openAct.triggered.connect(self.openFile)
@@ -101,7 +101,7 @@ class MainWindow(QtGui.QMainWindow):
         painter = QtGui.QPainter(pixmap)
         self.scene.render(painter, targetRect)
         painter.end()
-        
+
         pixmap.save(image)
 
     def loadFile(self, name):
@@ -146,6 +146,7 @@ class MainWindow(QtGui.QMainWindow):
 
         task.finished.connect(self.onTaskFinished)
         task.messageAdded.connect(self.statusBar().showMessage)
+        task.messageAdded.connect(self.console.showMessage)
         task.start()
 
     def onTaskFinished(self):
@@ -168,11 +169,11 @@ class MainWindow(QtGui.QMainWindow):
         statusBar = QtGui.QStatusBar();
         self.setStatusBar(statusBar);
         statusBar.showMessage("Ready", 3000)
-        
+
         consoleButton = QtGui.QPushButton("Console");
         consoleButton.setFlat(True)
         consoleButton.setCheckable(True)
-        
+
         consoleButton.toggled.connect(self.console.setVisible)
         statusBar.addPermanentWidget(consoleButton)
 
