@@ -29,7 +29,7 @@ class ConsoleEdit(QtGui.QTextEdit):
     def isInEditionZone(self):
         return self.promptBlockNumber == self.textCursor().blockNumber() and \
                self.promptColumnNumber <= self.textCursor().columnNumber()
-        
+
     def keyPressEvent(self, event):
         # Run the command if enter was pressed.
         if event.key() == QtCore.Qt.Key_Enter or event.key() == QtCore.Qt.Key_Return:
@@ -42,7 +42,7 @@ class ConsoleEdit(QtGui.QTextEdit):
                     #exec str(command) in globals(), locals()
                 except Exception as error:
                     result = str(error)
-                self.append(str(result));            
+                self.append(str(result));
                 self.moveCursor(QtGui.QTextCursor.End)
             self.displayPrompt()
             return
@@ -52,7 +52,7 @@ class ConsoleEdit(QtGui.QTextEdit):
             if not self.isInEditionZone():
                 self.moveCursor(QtGui.QTextCursor.End)
                 # First backspace just moves the cursor.
-                return 
+                return
             # If there is something to be deleted, delete it.
             if self.promptColumnNumber < self.textCursor().columnNumber():
                 self.textCursor().deletePreviousChar()
@@ -63,7 +63,7 @@ class ConsoleEdit(QtGui.QTextEdit):
             if not self.isInEditionZone():
                 self.moveCursor(QtGui.QTextCursor.End)
                 # First backspace just moves the cursor.
-                return 
+                return
             if self.promptColumnNumber < self.textCursor().columnNumber():
                 mode = QtGui.QTextCursor.MoveAnchor
                 if event.modifiers() & QtCore.Qt.ShiftModifier:
@@ -76,13 +76,13 @@ class ConsoleEdit(QtGui.QTextEdit):
             if not self.isInEditionZone():
                 self.moveCursor(QtGui.QTextCursor.End)
                 # First backspace just moves the cursor.
-                return 
+                return
             mode = QtGui.QTextCursor.MoveAnchor
             if event.modifiers() & QtCore.Qt.ShiftModifier:
                 mode = QtGui.QTextCursor.KeepAnchor
             self.moveCursor(QtGui.QTextCursor.Right, mode)
             return
-            
+
         if len(event.text()) > 0:
             event.accept()
             if not self.isInEditionZone():
@@ -105,7 +105,7 @@ class Console(QtGui.QDockWidget):
         self.consoleEdit = ConsoleEdit()
         self.consoleEdit.displayPrompt()
         self.setWidget(self.consoleEdit)
-        
+
     def setVisible(self, visible):
         """
         Override to set proper focus.
@@ -113,3 +113,6 @@ class Console(QtGui.QDockWidget):
         QtGui.QDockWidget.setVisible(self, visible)
         if visible:
             self.consoleEdit.setFocus(QtCore.Qt.OtherFocusReason)
+
+    def showMessage(self, message):
+        self.consoleEdit.append(message);

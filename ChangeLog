@@ -1,3 +1,8 @@
+2010-05-17  Karel Klíč  <kklic@redhat.com>
+
+	* console.py (Console.showMessage): New function.
+	Removed trailing whitespaces.
+
 2010-05-09  Karel Klíč  <kklic@redhat.com>
 
 	* absorbanceaxis.py (AbsorbanceAxis.update): Position of the caption
