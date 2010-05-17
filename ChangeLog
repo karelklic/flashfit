@@ -1,5 +1,14 @@
 2010-05-17  Karel Klíč  <kklic@redhat.com>
 
+	* data.py: Remove trailing whitespace.
+
+	* changepointcounttask.py (ChangePointCountTask): Inherit from Task.
+	* fittask.py (FitTask): Likewise.
+	* loadfiletask.py (LoadFileTask): Likewise.
+	Remove trailing whitespaces.
+
+	* task.py (Task): New base class for all tasks.
+
 	* ngml.py (BaseModel.ngml2.calcHessianJtrA): Guess fixes.
 	(BaseModel.ngml2): Likewise.
 	(ModelFirst.rcalc): Added concentration c1.

@@ -1,12 +1,10 @@
 from PyQt4 import QtCore, QtGui
 from data import Data
+from task import Task
 
-class FitTask(QtCore.QThread):
-    messageAdded = QtCore.pyqtSignal(QtCore.QString)
+class FitTask(Task):
     def __init__(self, mainWindow, parent = None):
-        super(FitTask, self).__init__(parent)
-        self.mainWindow = mainWindow
-        self.finished.connect(self.postRun)
+        super(FitTask, self).__init__(mainWindow, parent)
 
     def run(self):
         """

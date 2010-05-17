@@ -2,6 +2,7 @@ from PyQt4 import QtCore, QtGui
 from numpy import matrix, matlib, linalg
 import numpy
 import math
+import sys
 from ngml import ModelABC
 
 class OriginalData:
@@ -14,7 +15,7 @@ class OriginalData:
         # The array might contain several million values.
         # It is used as a source of data.
         self.time = []
-        
+
         # The voltage values measired in time.
         # The array might contain several million values.
         # It is used just as a source of data.
@@ -59,7 +60,7 @@ class OriginalData:
         # Calculate voltageSpan only if some data were present in the input.
         if self.minVoltage != None and self.maxVoltage != None:
             self.voltageSpan = self.maxVoltage - self.minVoltage
-                    
+
 class Data(QtCore.QObject):
 
     DEFAULT_USED_POINTS_COUNT = 2000
@@ -82,7 +83,7 @@ class Data(QtCore.QObject):
         self.maxPoints = self.DEFAULT_USED_POINTS_COUNT
         self.fileName = "" # Full Path
         self.fileCreated = QtCore.QDateTime()
-        
+
         # Subset of originalData.time
         self.time = []
         self.minTime = None
@@ -126,10 +127,10 @@ class Data(QtCore.QObject):
         self.minResiduals = None
         self.maxResiduals = None
         self.residualsSpan = None
-        
+
     def copyFromOriginalData(self):
         """
-        numberOfPoints is a maximum number of points to be copied 
+        numberOfPoints is a maximum number of points to be copied
         from original data
         """
         maxPoints = len(self.originalData.time)
@@ -167,7 +168,7 @@ class Data(QtCore.QObject):
         self.fullLightVoltage = None
         self.fullLightVoltagePointer = None
         self.fitAbsorbanceTimePointer = None
-        
+
     def recalculateAbsorbances(self):
         """
         Recalculates all absorbance values!
@@ -214,7 +215,7 @@ class Data(QtCore.QObject):
             sum += self.voltage[i]
         if end == start:
             end = len(self.voltage) / 2
-            
+
         self.setFullLightVoltagePointer(start, end)
 
     def guessFitAbsorbanceTimePointer(self):
@@ -229,7 +230,7 @@ class Data(QtCore.QObject):
         for i in range(0, end - 1):
             if self.voltage[i] > highest:
                 highest = self.voltage[i]
-                start = i        
+                start = i
         self.setFitAbsorbanceTimePointer(start, end)
 
     def setFullLightVoltagePointer(self, start, stop):
@@ -240,7 +241,7 @@ class Data(QtCore.QObject):
             start, stop = stop, start
 
         self.fullLightVoltagePointer = [start, stop]
-        
+
         # Calculate the arithmetic mean voltage from it.
         sum = 0.0
         for i in range(start, stop):
@@ -322,7 +323,7 @@ class Data(QtCore.QObject):
         """
         if start > stop:
             start, stop = stop, start
-        
+
         self.fitAbsorbanceTimePointer = [start, stop]
         self.clearAbsorbanceFit()
 
@@ -375,8 +376,8 @@ class Data(QtCore.QObject):
     def setAbsorbanceFitImplementation(self, implementation):
         self.absorbanceFitImplementation = implementation
         self.clearAbsorbanceFit()
-        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)        
-                
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)
+
     def fitAbsorbances(self, logger):
         # Do nothing if no data is loaded.
         if self.fitAbsorbanceTimePointer == None:
@@ -386,11 +387,11 @@ class Data(QtCore.QObject):
         time = self.time[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
         absorbance = self.absorbance[self.fitAbsorbanceTimePointer[0]:(self.fitAbsorbanceTimePointer[1] + 1)]
 
-        (self.p, self.sigma_p, 
-         self.absorbanceFit, self.residuals) = self.absorbanceFitFunction.calculate(time, 
-                                                                                    absorbance, 
-                                                                                    self.absorbanceFitImplementation, 
-                                                                                    logger)
+        (self.p, self.sigma_p, self.absorbanceFit,
+         self.residuals) = self.absorbanceFitFunction.calculate(time,
+                                                                absorbance,
+                                                                self.absorbanceFitImplementation,
+                                                                logger)
 
         self.minResiduals = min(self.residuals)
         self.maxResiduals = max(self.residuals)

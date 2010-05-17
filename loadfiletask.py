@@ -1,18 +1,16 @@
 import csv
 from PyQt4 import QtCore, QtGui
 from data import Data
+from task import Task
 
-class LoadFileTask(QtCore.QThread):
-    messageAdded = QtCore.pyqtSignal(QtCore.QString)
+class LoadFileTask(Task):
     def __init__(self, name, mainWindow, parent = None):
         """
         Parameters
         name: name of the opened file.
         """
-        super(LoadFileTask, self).__init__(parent)
+        super(LoadFileTask, self).__init__(mainWindow, parent)
         self.name = name
-        self.mainWindow = mainWindow
-        self.finished.connect(self.postRun)
 
     def run(self):
         """
@@ -47,4 +45,4 @@ class LoadFileTask(QtCore.QThread):
         self.mainWindow.setLoadedFilePath(self.name)
         self.mainWindow.settings.onDataLoaded(self.mainWindow.data)
         # Update Recent files in the Main Menu
-        self.mainWindow.menuBar().addRecentFile(self.name)        
+        self.mainWindow.menuBar().addRecentFile(self.name)

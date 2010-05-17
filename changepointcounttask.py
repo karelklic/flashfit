@@ -1,15 +1,13 @@
 from PyQt4 import QtCore, QtGui
 from data import Data
+from task import Task
 
-class ChangePointCountTask(QtCore.QThread):
-    messageAdded = QtCore.pyqtSignal(QtCore.QString)
+class ChangePointCountTask(Task):
     def __init__(self, pointCount, mainWindow, parent = None):
         """
         """
-        super(ChangePointCountTask, self).__init__(parent)
+        super(ChangePointCountTask, self).__init__(mainWindow, parent)
         self.pointCount = pointCount
-        self.mainWindow = mainWindow
-        self.finished.connect(self.postRun)
 
         # Set the maxPoints _now_, otherwise two threads are started.
         self.mainWindow.data.maxPoints = self.pointCount
