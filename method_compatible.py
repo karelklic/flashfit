@@ -12,7 +12,7 @@ class Parameter(data_fit_parameter.Parameter):
     def __str__(self):
         result = data_fit_parameter.Parameter.__str__(self)
         result += " firstOrder:" +  str(self.firstOrder)
-        return result        
+        return result
 
 def ngml(time, absorbance, parameters, logger):
     """
@@ -157,7 +157,7 @@ def ngml(time, absorbance, parameters, logger):
         if parameters[i].fixed:
             parameters[i].sigma = 0
         else:
-            parameters[i].sigma = sigma * hessianInv[i,i]
+            parameters[i].sigma = sigma * math.sqrt(hessianInv[i,i])
 
     ainf = a[len(parameters) - 1, 0]
     a0 = 0
