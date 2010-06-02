@@ -32,14 +32,14 @@ def ngml(time, absorbance, parameters, logger):
     # make column vector from y
     y = numpy.matrix(absorbance).T
 
-    val = 10
+    val = 10 / (time[len(time) / 2] - time[0])
     for parameter in parameters:
         if parameter.fixed:
             continue
         if parameter.value > 0:
             continue
-        parameter.value = val / (time[len(time) / 2] - time[0])
-        val -= 2
+        parameter.value = val
+        val /= 2
 
     # Add another parameter containing linear part.
     linearParam = Parameter()
@@ -94,7 +94,7 @@ def ngml(time, absorbance, parameters, logger):
 
     it = 0 # iteration
     end = False
-    while it < 50 and not end:
+    while it < 200 and not end:
         # Calculate C and dC for some parameters p
         c = numpy.matlib.zeros([len(time), len(parameters)])
         dc = []
@@ -132,10 +132,10 @@ def ngml(time, absorbance, parameters, logger):
                 mp = 0 # set to 0 , another iteration
         elif conv_crit > 0:
             mp = mp / 3
-            ssq_old = copy.deepcopy(ssq)
+            ssq_old = ssq
             p_old = copy.deepcopy(parameters)
-            jtr_old = copy.deepcopy(jtr)
-            hessian_old = copy.deepcopy(hessian)
+            jtr_old = jtr
+            hessian_old = hessian
         else:
             if mp == 0:
                 mp = hessian[0,0]
@@ -159,28 +159,15 @@ def ngml(time, absorbance, parameters, logger):
         else:
             parameters[i].sigma = sigma * math.sqrt(hessianInv[i,i])
 
-    ainf = a[len(parameters) - 1, 0]
-    a0 = 0
-    for i in range(0, len(parameters) - 1):
-        parameters[i].a0minusAinf = a[i,0]
-        a0 += parameters[i].a0minusAinf
-    a0 += ainf
+    for i in range(0, len(parameters)):
+        parameters[i].a0minusAinf = c[0, i] * a[i,0]
+    ainf = parameters[len(parameters) - 1].a0minusAinf
 
-    absorbanceFit = []
-    residualsValues = []
-    for t in range(0, len(time)):
-        afit = ainf
-        for i in range(0, len(parameters) - 1):
-            a0minusainf = a[i,0]
-            if parameters[i].firstOrder:
-                afit += parameters[i].a0minusAinf * math.exp(-parameters[i].value * (time[t]))
-            else:
-                afit += parameters[i].a0minusAinf / (parameters[i].value * (time[t]) + 1)
-        absorbanceFit.append(afit)
-        residualsValues.append(absorbance[t] - afit)
+    a_tot = numpy.matlib.dot(c, a)
+    absorbanceFit = a_tot[:,0].transpose().tolist()[0]
+    r = y - a_tot
+    residuals = data_fit.Residuals(r.transpose().tolist()[0])
 
     # Remove the last p we added in this function.
     parameters = parameters[0:-1]
-
-    residuals = data_fit.Residuals(residualsValues)
     return (parameters, absorbanceFit, residuals, ainf)

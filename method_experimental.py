@@ -116,12 +116,12 @@ def ngml(time, absorbance, model, logger):
     """
     Calculates the fit, residuals, and reaction rate coefficients from
     absorbance values using Newton-Gauss-Levenberg/Marquardt algorithm.
-    
+
     Parameter p is a list of initial parameters.
     a_0 is a number (usually 1e-3)
     Parameter t contains a list of time values.
     Parameter y is a list of measured values.
-    
+
     Returns
     -------
     A tuple containing the following items:
@@ -133,7 +133,7 @@ def ngml(time, absorbance, model, logger):
     and `absorbance`
     residuals : array of differences between measured and fitted absorbances
     The array has the same size as the `absorbance_fit` array.
-    
+
     Notes
     -----
     Also check leastsq in SciPy, as it might be useful:
@@ -220,7 +220,7 @@ def ngml(time, absorbance, model, logger):
 
     # Calculate Ainf
     ainf = c[0, c.shape[1] - 1] * a[a.shape[0] - 1, 0]
-    
+
     # Set absorbance fit curve
     a_tot = numpy.matlib.dot(c, a)
     absorbanceFit = a_tot[:,0].transpose().tolist()[0]
