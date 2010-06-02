@@ -25,10 +25,6 @@ class Residuals:
 class Fit(PyQt4.QtCore.QObject):
     """
     Absorbance fit.
-    == Calculated values
-    self.absorbanceFit
-    self.parameters
-    self.residuals
     """
     changed = PyQt4.QtCore.pyqtSignal()
 
@@ -42,6 +38,8 @@ class Fit(PyQt4.QtCore.QObject):
     def clear(self):
         self.values = []
         self.parameters = [] # also called "k"
+        self.ainf = None
+        self.modelName = None
         self.residuals.clear()
 
     def setInput(self, _input):
@@ -66,18 +64,21 @@ class Fit(PyQt4.QtCore.QObject):
         absorbanceSpan = absorbance[fitAbsorbanceTimePointer[0]:(fitAbsorbanceTimePointer[1] + 1)]
 
         if self.model == self.MODEL_COMPATIBLE:
-            out = method_compatible.ngml(time,
-                                         absorbance,
+            out = method_compatible.ngml(timeSpan,
+                                         absorbanceSpan,
                                          self.input,
                                          logger)
             self.parameters = out[0]
             self.values = out[1]
             self.residuals = out[2]
+            self.ainf = out[3]
         elif self.model == self.MODEL_EXPERIMENTAL:
-            out = method_experimental.ngml(time,
-                                           absorbance,
+            self.modelName = self.input.NAME
+            out = method_experimental.ngml(timeSpan,
+                                           absorbanceSpan,
                                            self.input,
                                            logger)
             self.parameters = out[0]
             self.values = out[1]
             self.residuals = out[2]
+            self.ainf = out[3]

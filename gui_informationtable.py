@@ -45,22 +45,46 @@ class InformationTable(QtGui.QGraphicsItemGroup):
             return ""
 
         text = ""
+        #
+        # Display FILE NAME and DATE
+        #
         if len(self.data.fileName) > 0:
             if self.menuBar.showNameAct.isChecked():
                 text += u"name: %s\n" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
             if self.menuBar.showDateAct.isChecked():
                 text += u"measured: %s\n" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
+        #
+        # Display MODEL
+        #
         if self.menuBar.showModelAct.isChecked():
-            if self.data.fitdata.model == self.data.fitdata.MODEL_EXPERIMENTAL:
-                text += u"model: %s\n" % self.data.fitdata.input.NAME
+            if self.data.fitdata.modelName != None:
+                text += u"model: %s\n" % self.data.fitdata.modelName
+        #
+        # Display A0
+        #
+        if self.menuBar.showA0Act.isChecked():
+            if len(self.data.fitdata.values) > 0:
+                text += u"A0 = %.4e\n" % self.data.fitdata.values[0]
+        #
+        # Display Ainf
+        #
+        if self.data.fitdata.ainf != None:
+            text += u"Ainf = %.4e\n" % self.data.fitdata.ainf
+        #
+        # Display Amax
+        #
+        if self.data.maxAbsorbance != None:
+            text += u"Amax = %.4e\n" % self.data.maxAbsorbance       
+        #
+        # Display CONSTANTS
+        #
         if self.menuBar.showRateConstantAct.isChecked():
             for i in range(0, len(self.data.fitdata.parameters)):
                 prec = variables.legendDisplayedPrecision.value()
                 template = u"k(%%d) = %%.%de ± %%.%de\n" % (prec, prec)
                 text += template % (i + 1, self.data.fitdata.parameters[i].value, self.data.fitdata.parameters[i].sigma)
-        if self.menuBar.showA0Act.isChecked():
-            if self.data.fitAbsorbanceTimePointer and len(self.data.absorbance) > self.data.fitAbsorbanceTimePointer[0]:
-                text += "A0 = %e\n" % self.data.absorbance[self.data.fitAbsorbanceTimePointer[0]]
+            for i in range(0, len(self.data.fitdata.parameters)):
+                text += u"A0 - Ainf(%d) = %.4e\n" % (i + 1, self.data.fitdata.parameters[i].a0minusAinf)
         # remove the last newline
         if text.endswith("\n"):
             text = text[0:-1]

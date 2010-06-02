@@ -1,15 +1,15 @@
 import csv
-from PyQt4 import QtCore, QtGui
-from data import Data
-from task import Task
+import PyQt4
+import data
+import task
 
-class LoadFileTask(Task):
+class Task(task.Task):
     def __init__(self, name, mainWindow, parent = None):
         """
         Parameters
         name: name of the opened file.
         """
-        super(LoadFileTask, self).__init__(mainWindow, parent)
+        super(Task, self).__init__(mainWindow, parent)
         self.name = name
 
     def run(self):
@@ -21,14 +21,14 @@ class LoadFileTask(Task):
         try:
             self.mainWindow.data.originalData.readFromCsvReader(reader, self.messageAdded.emit)
         except (StopIteration, csv.Error):
-            QtGui.QMessageBox.critical(self, "Error while loading file",
+            PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
                                        "Error occured when loading " + name)
             return
 
-        self.mainWindow.data.maxPoints = Data.DEFAULT_USED_POINTS_COUNT
+        self.mainWindow.data.maxPoints = data.Data.DEFAULT_USED_POINTS_COUNT
         self.messageAdded.emit("Copying %d points from loaded data..." % self.mainWindow.data.maxPoints)
         self.mainWindow.data.fileName = self.name # full path
-        self.mainWindow.data.fileCreated = QtCore.QFileInfo(self.name).lastModified()
+        self.mainWindow.data.fileCreated = PyQt4.QtCore.QFileInfo(self.name).lastModified()
         self.mainWindow.data.copyFromOriginalData()
         self.messageAdded.emit("Computing absorbance...")
         self.mainWindow.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage

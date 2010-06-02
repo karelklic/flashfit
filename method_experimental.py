@@ -37,8 +37,7 @@ class ModelAtoBtoC:
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         # allows negative results
-        #a = numpy.linalg.lstsq(c, y)[0]
-        a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
+        a = numpy.linalg.lstsq(c, y)[0]
 
         # calculate residuals
         # ca = c * a (matrix multiplication)
@@ -72,7 +71,8 @@ class ModelAtoB:
 
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
-        a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
+        a = numpy.linalg.lstsq(c, y)[0]
+        #a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         r = y - numpy.matlib.dot(c, a)
@@ -105,7 +105,8 @@ class ModelAtoBCtoD:
 
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
-        a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
+        a = numpy.linalg.lstsq(c, y)[0]
+        #a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         r = y - numpy.matlib.dot(c, a)
@@ -214,8 +215,11 @@ def ngml(time, absorbance, model, logger):
         param = data_fit_parameter.Parameter()
         param.value = p[i]
         param.sigma = sigma_p[i]
-        param.a0minusAinf = 12345
+        param.a0minusAinf = c[0, i] * a[i, 0]
         parameters.append(param)
+
+    # Calculate Ainf
+    ainf = c[0, c.shape[1] - 1] * a[a.shape[0] - 1, 0]
     
     # Set absorbance fit curve
     a_tot = numpy.matlib.dot(c, a)
@@ -224,4 +228,4 @@ def ngml(time, absorbance, model, logger):
     # Set residuals
     # Should 'r' be used, or maybe 'r0' should be?
     residuals = data_fit.Residuals(r0.transpose().tolist()[0])
-    return (parameters, absorbanceFit, residuals)
+    return (parameters, absorbanceFit, residuals, ainf)

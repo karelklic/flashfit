@@ -114,7 +114,7 @@ class MainWindow(QtGui.QMainWindow):
 
         # The task must be stored in self to prevent Python from
         # deleting it.
-        self.task = task_loadfile.LoadFileTask(name, self)
+        self.task = task_loadfile.Task(name, self)
         self.runTask(self.task)
 
     def reloadFromOriginalData(self, pointCount):
