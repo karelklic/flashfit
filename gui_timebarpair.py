@@ -1,5 +1,5 @@
 from PyQt4 import QtCore, QtGui
-from timebar import TimeBar
+from gui_timebar import TimeBar
 import variables
 
 class TimeBarPair(QtGui.QGraphicsLineItem):

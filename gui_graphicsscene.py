@@ -1,11 +1,11 @@
 from PyQt4 import QtCore, QtGui
-from timeaxis import TimeAxis
-from absorbanceaxis import AbsorbanceAxis
-from absorbancegraph import AbsorbanceGraph
-from timebarpair import FullLightBarPair, AbsorbanceFitBarPair
-from absorbancefit import AbsorbanceFit
-from residualsgraph import ResidualsGraph
-from informationtable import InformationTable
+from gui_timeaxis import TimeAxis
+from gui_absorbanceaxis import AbsorbanceAxis
+from gui_absorbancegraph import AbsorbanceGraph
+from gui_timebarpair import FullLightBarPair, AbsorbanceFitBarPair
+from gui_absorbancefit import AbsorbanceFit
+from gui_residualsgraph import ResidualsGraph
+from gui_informationtable import InformationTable
 from data import Data
 
 class GraphicsScene(QtGui.QGraphicsScene):

@@ -1,12 +1,9 @@
 from PyQt4 import QtCore, QtGui
 
-class AbsorbanceFit(QtGui.QGraphicsItemGroup):
+class ResidualsGraph(QtGui.QGraphicsItemGroup):
     def __init__(self, data, parent=None):
-        super(AbsorbanceFit, self).__init__(parent)
+        super(ResidualsGraph, self).__init__(parent)
         self.data = data
-        self.pen = QtGui.QPen()
-        self.pen.setWidth(3)
-        self.pen.setColor(QtGui.QColor("#882222"))
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
 
@@ -24,40 +21,50 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
         # Do nothing if no data are loaded.
         if self.data.timeSpan == None:
             return
-        if len(self.data.absorbanceFit) == 0:
+        if len(self.data.fitdata.residuals.values) == 0:
             return
 
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceSpan)
+        residualsModifier = self.height / float(self.data.fitdata.residuals.span)
         lastTime = None
-        lastAbsorbance = None
+        lastResidual = None
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
-            fit = self.height - (self.data.absorbanceFit[t] - self.data.minAbsorbance) * absorbanceModifier
-            if lastTime != None and lastFit != None:
-                line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastFit, time, fit))
-                line.setPen(self.pen)
+            residual = self.height - (self.data.fitdata.residuals.values[t] - self.data.fitdata.residuals.min) * residualsModifier
+            if lastTime != None and lastResidual != None:
+                line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastResidual, time, residual))
                 line.setParentItem(self.child)
             lastTime = time
-            lastFit = fit
+            lastResidual = residual
+
+        # Draw zero line
+        zeroResidualY = self.height + self.data.fitdata.residuals.min * residualsModifier
+        if zeroResidualY >= 0 and zeroResidualY < self.height:
+            line = QtGui.QGraphicsLineItem(QtCore.QLineF(0, zeroResidualY, self.width, zeroResidualY))
+            line.setParentItem(self.child)
 
     def resizeFromData(self):
         # Do nothing if no data are loaded.
         if self.data.timeSpan == None:
             return
-        if len(self.data.absorbanceFit) == 0:
+        if len(self.data.residuals) == 0:
             return
 
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceSpan)
+        residualsModifier = self.height / float(self.data.residualsSpan)
         lastTime = None
-        lastAbsorbance = None
+        lastResidual = None
         children = self.child.children()
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
-            fit = self.height - (self.data.absorbanceFit[t] - self.data.minAbsorbance) * absorbanceModifier
-            if lastTime != None and lastFit != None:
-                line = QtCore.QLineF(lastTime, lastFit, time, fit)
+            residual = self.height - (self.data.residuals[t] - self.data.minResiduals) * residualsModifier
+            if lastTime != None and lastResidual != None:
+                line = QtCore.QLineF(lastTime, lastResidual, time, residual)
                 children[t - 1].setLine(line)
             lastTime = time
-            lastFit = fit
+            lastResidual = residual
+
+        # Update zero line
+        oldLine = children[-1].line()
+        line = QtCore.QLineF(oldLine.x1(), oldLine.y1(), self.width, oldLine.y2())
+        children[-1].setLine(line)

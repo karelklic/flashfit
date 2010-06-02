@@ -1,7 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import math
-from timebarline import TimeBarLine
-from timebartriangle import TimeBarTriangle
+from gui_timebarline import TimeBarLine
+from gui_timebartriangle import TimeBarTriangle
   
 class TimeBar(QtGui.QGraphicsItemGroup):
     # Defined here until PyQt includes it.

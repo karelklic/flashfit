@@ -1,6 +1,6 @@
 from PyQt4 import QtCore, QtGui
 # The triangle size is read here.
-from timebartriangle import TimeBarTriangle
+from gui_timebartriangle import TimeBarTriangle
 
 class TimeBarLine(QtGui.QGraphicsLineItem):
     SELECTION_X_MARGIN = 15

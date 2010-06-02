@@ -1,9 +1,9 @@
 from PyQt4 import QtCore, QtGui
-from graphicsscene import GraphicsScene
-from ngml import ModelABC, ModelFirst, ModelFirst2
-from spinbox import SpinBox
-import types
-
+from gui_graphicsscene import GraphicsScene
+from gui_spinbox import SpinBox
+import gui_settings_experimental
+import gui_settings_compatible
+ 
 class Settings(QtGui.QDockWidget):
     """
     Settings panel docked on the left side of the main window.
@@ -20,28 +20,18 @@ class Settings(QtGui.QDockWidget):
 
         # Add model settings
         model = QtGui.QGroupBox("Model", self)
-        modelLayout = QtGui.QVBoxLayout(model)
-        self.abc = QtGui.QRadioButton(ModelABC.name, self)
-        self.abc.setChecked(True)
-        self.sfo = QtGui.QRadioButton(ModelFirst.name, self)
-        self.dfo = QtGui.QRadioButton(ModelFirst2.name, self)
-        for m in [self.abc, self.sfo, self.dfo]:
-            m.toggled.connect(self.onModelFunctionChanged)
-            modelLayout.addWidget(m)
-
-        self.implementation = QtGui.QCheckBox("Alt. impl.", self)
-        self.implementation.setChecked(False)
-        self.implementation.toggled.connect(self.onImplementationChanged)
-        modelLayout.addWidget(self.implementation)
-        self.fit = QtGui.QPushButton("Fit")
-        modelLayout.addWidget(self.fit)
+        (left, top, right, bottom) = model.getContentsMargins()
+        model.setContentsMargins(0, top, 0, bottom)
+        modelLayout = QtGui.QVBoxLayout()
+        tab = QtGui.QTabWidget(self)
+        # Add tabs
+        self.experimental = gui_settings_experimental.Tab(parentWindow)
+        tab.addTab(self.experimental, "Experimental")
+        self.compatible = gui_settings_compatible.Tab(parentWindow)
+        tab.addTab(self.compatible, "Compatible")
+        modelLayout.addWidget(tab)
         model.setLayout(modelLayout)
         layout.addWidget(model)
-
-        #k1 = QtGui.QDoubleSpinBox(self)
-        #layout.addWidget(k1)
-        #k2 = QtGui.QDoubleSpinBox(self)
-        #layout.addWidget(k2)
 
         # Add input data control
         model = QtGui.QGroupBox("Input Data", self)
@@ -90,19 +80,3 @@ class Settings(QtGui.QDockWidget):
         self.usedPoints.setValue(data.maxPoints)
         self.usedPoints.setRange(10, len(data.originalData.time))
         self.usedPoints.setEnabled(True)
-
-    def onModelFunctionChanged(self):
-        if self.abc.isChecked():
-            self.parent().data.setAbsorbanceFitFunction(ModelABC())
-        elif self.sfo.isChecked():
-            self.parent().data.setAbsorbanceFitFunction(ModelFirst())
-        elif self.dfo.isChecked():
-            self.parent().data.setAbsorbanceFitFunction(ModelFirst2())
-        else:
-            print "Error while selecting model function."
-
-    def onImplementationChanged(self):
-        impl = 0
-        if self.implementation.isChecked():
-            impl = 1
-        self.parent().data.setAbsorbanceFitImplementation(impl)

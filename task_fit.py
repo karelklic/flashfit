@@ -1,17 +1,15 @@
-from PyQt4 import QtCore, QtGui
-from data import Data
-from task import Task
+import task
 
-class FitTask(Task):
+class Task(task.Task):
     def __init__(self, mainWindow, parent = None):
-        super(FitTask, self).__init__(mainWindow, parent)
+        super(Task, self).__init__(mainWindow, parent)
 
     def run(self):
         """
         The code in this method is run in another thread.
         """
         self.messageAdded.emit("Fitting absorbance")
-        self.mainWindow.data.fitAbsorbances(self.messageAdded.emit)
+        self.mainWindow.data.fit(self.messageAdded.emit)
 
     def postRun(self):
         """

@@ -1,6 +1,6 @@
 # -*- coding: utf-8-unix -*- (Python reads this)
 from PyQt4 import QtCore, QtGui
-from spinbox import SpinBox
+from gui_spinbox import SpinBox
 from font import Font
 import variables
 import sip
