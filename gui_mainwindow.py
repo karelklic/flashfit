@@ -1,5 +1,6 @@
-import sys, math
-from PyQt4 import QtCore, QtGui
+import sys
+import math
+import PyQt4
 import data
 import gui_graphicsscene
 import gui_graphicsview
@@ -11,7 +12,7 @@ import task_changepointcount
 import task_fit
 import gui_appearance
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(PyQt4.QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
@@ -30,11 +31,11 @@ class MainWindow(QtGui.QMainWindow):
         self.data = data.Data()
 
         self.settings = gui_settings.Settings(self)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.settings)
+        self.addDockWidget(PyQt4.QtCore.Qt.LeftDockWidgetArea, self.settings)
 
         self.console = gui_console.Console(self)
-        self.addDockWidget(QtCore.Qt.BottomDockWidgetArea, self.console)
-        self.setCorner(QtCore.Qt.BottomLeftCorner, QtCore.Qt.LeftDockWidgetArea)
+        self.addDockWidget(PyQt4.QtCore.Qt.BottomDockWidgetArea, self.console)
+        self.setCorner(PyQt4.QtCore.Qt.BottomLeftCorner, PyQt4.QtCore.Qt.LeftDockWidgetArea)
 
         self.createStatusBar()
 
@@ -57,13 +58,13 @@ class MainWindow(QtGui.QMainWindow):
         """
         Opens Appearance editor, where user can select font sizes, format details etc.
         """
-        dialog = Appearance(self)
-        if dialog.exec_() == QtGui.QDialog.Accepted:
+        dialog = gui_appearance.Appearance(self)
+        if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
             self.scene.updateAppearance()
             self.view.fitSceneInView()
 
     def openFile(self, bool):
-        name = QtGui.QFileDialog.getOpenFileName(self, "Open file", "", "Oscilloscope Data (*.csv)")
+        name = PyQt4.QtGui.QFileDialog.getOpenFileName(self, "Open file", "", "Oscilloscope Data (*.csv)")
         self.loadFile(name)
 
     def openRecentFile(self):
@@ -74,31 +75,32 @@ class MainWindow(QtGui.QMainWindow):
         """
         TODO: Design Save image Dialog
         """
-        fileName = QtCore.QFileInfo(self.loadedFilePath).completeBaseName() 
-        image = QtGui.QFileDialog.getSaveFileName(self, "Save file", fileName, "PNG Image (*.png)")
+        fileName = PyQt4.QtCore.QFileInfo(self.loadedFilePath).completeBaseName() 
+        image = PyQt4.QtGui.QFileDialog.getSaveFileName(self, "Save file", fileName, "PNG Image (*.png)")
         if len(image) == 0:
             return
 
         if not image.endsWith(".png") and not image.endsWith(".PNG"):
             image = image + ".png"
 
-        if QtCore.QFileInfo(image).exists():
-            fileName = QtCore.QFileInfo(image).fileName() 
-            result = QtGui.QMessageBox.question(self, "Image file already exists", 
-                                       "Image file {0} already exists. Overwrite?".format(fileName),
-                                       QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.Yes)
-            if result != QtGui.QMessageBox.Yes:
+        if PyQt4.QtCore.QFileInfo(image).exists():
+            fileName = PyQt4.QtCore.QFileInfo(image).fileName() 
+            result = PyQt4.QtGui.QMessageBox.question(self, "Image file already exists", 
+                                                      "Image file {0} already exists. Overwrite?".format(fileName),
+                                                      PyQt4.QtGui.QMessageBox.Yes | PyQt4.QtGui.QMessageBox.No,
+                                                      PyQt4.QtGui.QMessageBox.Yes)
+            if result != PyQt4.QtGui.QMessageBox.Yes:
                 return
 
         BORDER_WIDTH = 50 # pixels
         imageWidth = self.scene.width() + 2 * BORDER_WIDTH
         imageHeight = self.scene.height() + 2 * BORDER_WIDTH
-        pixmap = QtGui.QPixmap(imageWidth, imageHeight)
+        pixmap = PyQt4.QtGui.QPixmap(imageWidth, imageHeight)
         pixmap.fill() # White background.
-        targetRect = QtCore.QRectF(BORDER_WIDTH, BORDER_WIDTH, \
-                                       self.scene.width(), \
-                                       self.scene.height())
-        painter = QtGui.QPainter(pixmap)
+        targetRect = PyQt4.QtCore.QRectF(BORDER_WIDTH, BORDER_WIDTH,
+                                         self.scene.width(),
+                                         self.scene.height())
+        painter = PyQt4.QtGui.QPainter(pixmap)
         self.scene.render(painter, targetRect)
         painter.end()
 
@@ -108,7 +110,7 @@ class MainWindow(QtGui.QMainWindow):
         """
         Loads input file and displays its content in graph.
         """
-        fi = QtCore.QFileInfo(name)
+        fi = PyQt4.QtCore.QFileInfo(name)
         if not fi.isFile() or not fi.isReadable():
             return
 
@@ -142,7 +144,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menuBar().setEnabled(False)
         self.scene.fullLightBars.setEnabled(False)
         self.scene.fitAbsorbanceBars.setEnabled(False)
-        self.scene.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("#d0d0d0")));
+        self.scene.setBackgroundBrush(PyQt4.QtGui.QBrush(PyQt4.QtGui.QColor("#d0d0d0")));
 
         task.finished.connect(self.onTaskFinished)
         task.messageAdded.connect(self.statusBar().showMessage)
@@ -155,22 +157,22 @@ class MainWindow(QtGui.QMainWindow):
         self.scene.fullLightBars.setEnabled(True)
         self.scene.fitAbsorbanceBars.setEnabled(True)
         self.statusBar().showMessage("Done", 3000)
-        self.scene.setBackgroundBrush(QtGui.QBrush(QtCore.Qt.NoBrush));
+        self.scene.setBackgroundBrush(PyQt4.QtGui.QBrush(PyQt4.QtCore.Qt.NoBrush));
 
     def setLoadedFilePath(self, path):
         self.loadedFilePath = path
-        fileName = QtCore.QFileInfo(path).fileName()
+        fileName = PyQt4.QtCore.QFileInfo(path).fileName()
         if len(fileName) == 0:
             self.setWindowTitle("flashfit")
         else:
             self.setWindowTitle(fileName + " - flashfit")
 
     def createStatusBar(self):
-        statusBar = QtGui.QStatusBar();
+        statusBar = PyQt4.QtGui.QStatusBar();
         self.setStatusBar(statusBar);
         statusBar.showMessage("Ready", 3000)
 
-        consoleButton = QtGui.QPushButton("Console");
+        consoleButton = PyQt4.QtGui.QPushButton("Console");
         consoleButton.setFlat(True)
         consoleButton.setCheckable(True)
 

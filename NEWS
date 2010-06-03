@@ -1,3 +1,16 @@
+== FlashFit 0.4
+Released 2010-06-03.
+
+- Fixes in both fitting algorithms (now both new and old/compatible
+  algorithms provide same results).
+- Compatible algorithm allows parameter fixing, first/second
+  order parameters, setting startup parameter value.
+- Fixed precision calculation (sigma) in compat algorithm.
+- Ainf, A0-AInf(x) are calculated and displayed to user.
+- A0 is calculated from the the fitting curve, not read from input data.
+- New appearance dialog.
+- Fitting messages appear in Console.
+
 == FlashFit 0.3
 Released 2010-03-22.
 

@@ -1,3 +1,14 @@
+2010-06-03  Karel Klic  <kklic@redhat.com>
+
+	* gui_mainwindow.py: Use prefix PyQt4 every time instead of
+	"from PyQt4 import QtCore, QtGui".
+	Fixed call of Appearance dialog.
+
+	* NEWS: Added news for FlashFit 0.4.
+
+	* README: Update version to 0.4.
+	* flashfit.nsis: Likewise.
+
 2010-05-17  Karel Klíč  <kklic@redhat.com>
 
 	* data.py: Remove trailing whitespace.
