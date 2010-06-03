@@ -9,6 +9,44 @@
 	* README: Update version to 0.4.
 	* flashfit.nsis: Likewise.
 
+2010-06-02  Karel Klíč  <kklic@redhat.com>
+
+	* method_compatible.py (ngml): Parameter precision (sigma)
+	depends on *square root* of hessianInv[i,i], not directly on it.
+
+	Calculate a0minusAinf and ainf as C * A, do not return only A.
+
+	* method_experimental.py (ModelAtoBtoC.rcalc): Include linear
+	part to C.
+	(ModelAtoBCtoD.rcalc, ModelAtoB.rcalc): Likewise.
+
+	* gui_settings_experimental.py (Tab): New file, new class.
+	Good old A->B->C (A->B+C->D, A->B) radio buttons, and Fit button.
+
+	* gui_settings_compatible.py: New file. Parameters with
+	initial values, fixable. First order/second order select box.
+	Parameters can be enabled and disabled.
+
+	* gui_settings.py: Split model code to files
+	gui_settings_compatible.py and gui_settings_experimental.py.
+
+	* absorbanceaxis.py: Add gui_ prefix to the filename.
+	* absorbancefit.py, absorbancegraph.py, appearance.py: Likewise.
+	* console.py, graphicsscene.py, graphicsview.py: Likewise.
+	* informationtable.py, residualsgraph.py, spinbox.py: Likewise.
+	* settings.py, timeaxis.py, timebar.py, timebarline.py: Likewise.
+	* timebarpair.py, timebartriangle.py, menubar.py: Likewise.
+
+	* changepointcounttask.py: Rename to task_changepointcount.py.
+	* loadfiletask.py: Rename to task_loadfile.py.
+
+	* fittask.py: Rename to task_fit.py.
+	Rename class from FitTask to Task.
+
+	* main.py: Move MainWindow to separate file gui_mainwindow.py.
+
+	* ngml.py: Split to method_experimental.py and method_compatible.py.
+
 2010-05-17  Karel Klíč  <kklic@redhat.com>
 
 	* data.py: Remove trailing whitespace.
