@@ -8,11 +8,19 @@ import nonneglstsq
 class ModelAtoBtoC:
     NAME = u"A→B→C"
 
-    def initialParameters(self, time):
-        return [10 / (time[len(time) / 2] - time[0]),
-                3 / (time[len(time) / 2] - time[0])]
+    def __init__(self):
+        self.parameters = [ data_fit_parameter.Parameter(), data_fit_parameter.Parameter() ]
 
-    def rcalc(self, k, a_0, t, y):
+    def assureInitialParameters(self, time):
+        """
+        Checks if parameters have some initial value and if not, set some.
+        """
+        if not self.parameters[0].fixed and self.parameters[0].value == 0:
+            self.parameters[0].value = 10 / (time[len(time) / 2] - time[0])
+        if not self.parameters[1].fixed and self.parameters[1].value == 0:
+            self.parameters[1].value = 3 / (time[len(time) / 2] - time[0])
+
+    def rcalc(self, a_0, t, y):
         """
         Parameter k (=parameter) is a column vector.
         Parameter a_0 is a number.
@@ -24,9 +32,10 @@ class ModelAtoBtoC:
         - third value is a matrix 'a'
         """
         # First column of C contains concentrations of A
-        c0 = a_0 * numpy.matlib.exp(-k[0,0] * t)
+        c0 = a_0 * numpy.matlib.exp(t * -self.parameters[0].value)
         # Second column of C contains concetrations of B
-        c1 = a_0 * (k[0,0] / (k[1,0] - k[0,0])) * (numpy.matlib.exp(-k[0,0] * t) - numpy.matlib.exp(-k[1,0] * t))
+        c1 = a_0 * (self.parameters[0].value / (self.parameters[1].value - self.parameters[0].value))
+        c1 *= numpy.matlib.exp(t * -self.parameters[0].value) - numpy.matlib.exp(t * -self.parameters[1].value)
         # Third column of C contains concentrations of C
         c2 = a_0 - c0 - c1
         # Fourth column for the linear part
@@ -47,10 +56,17 @@ class ModelAtoBtoC:
 class ModelAtoB:
     NAME = u"A→B"
 
-    def initialParameters(self, time):
-        return [10 / (time[len(time) / 2] - time[0])]
+    def __init__(self):
+        self.parameters = [ data_fit_parameter.Parameter() ]
 
-    def rcalc(self, k, a_0, t, y):
+    def assureInitialParameters(self, time):
+        """
+        Checks if parameters have some initial value and if not, set some.
+        """
+        if not self.parameters[0].fixed and self.parameters[0].value == 0:
+            self.parameters[0].value = 10 / (time[len(time) / 2] - time[0])
+
+    def rcalc(self, a_0, t, y):
         """
         Function used by ngml, but not by ngml2.
         Parameter k (=parameter) is a column vector.
@@ -63,7 +79,7 @@ class ModelAtoB:
         - third value is a absorbance matrix 'a'
         """
         # First column of C contains concentrations of A
-        c0 = a_0 * numpy.matlib.exp(-k[0,0] * t)
+        c0 = a_0 * numpy.matlib.exp(t * -self.parameters[0].value)
         # Second column for the linear part.
         c1 = numpy.empty(t.shape)
         c1.fill(1)
@@ -81,10 +97,19 @@ class ModelAtoB:
 class ModelAtoBCtoD:
     NAME = u"A→B, C→D"
 
-    def initialParameters(self, time):
-        return [10 / (time[len(time) / 2] - time[0]), 3 / (time[len(time) / 2] - time[0])]
+    def __init__(self):
+        self.parameters = [ data_fit_parameter.Parameter(), data_fit_parameter.Parameter() ]
 
-    def rcalc(self, k, a_0, t, y):
+    def assureInitialParameters(self, time):
+        """
+        Checks if parameters have some initial value and if not, set some.
+        """
+        if not self.parameters[0].fixed and self.parameters[0].value == 0:
+            self.parameters[0].value = 10 / (time[len(time) / 2] - time[0])
+        if not self.parameters[1].fixed and self.parameters[1].value == 0:
+            self.parameters[1].value = 3 / (time[len(time) / 2] - time[0])
+
+    def rcalc(self, a_0, t, y):
         """
         Function used by ngml, but not by ngml2.
         Parameter k (=parameter) is a column vector.
@@ -96,8 +121,8 @@ class ModelAtoBCtoD:
         - second value is a matrix of concentrations 'c'
         - third value is a matrix 'a'
         """
-        c0 = a_0 * numpy.matlib.exp(-k[0,0] * t)
-        c1 = a_0 * numpy.matlib.exp(-k[1,0] * t)
+        c0 = a_0 * numpy.matlib.exp(t * -self.parameters[0].value)
+        c1 = a_0 * numpy.matlib.exp(t * -self.parameters[1].value)
         # Linear part
         c2 = numpy.empty(t.shape)
         c2.fill(1) # or a_0?
@@ -143,12 +168,10 @@ def ngml(time, absorbance, model, logger):
     http://en.wikipedia.org/wiki/Non-linear_least_squares
     """
     a_0 = 1e-3
-    parameters = model.initialParameters(time)
+    model.assureInitialParameters(time)
 
     # make column vector from y
     y = numpy.matrix(absorbance).transpose()
-    # make column vector from p
-    p = numpy.matrix(parameters).transpose()
     # make column vector from t
     t = numpy.matrix(time).transpose()
 
@@ -161,10 +184,10 @@ def ngml(time, absorbance, model, logger):
     delta = 1e-6
 
     it = 0 # iteration
-    j = numpy.matlib.empty([len(t), len(p)]) # Jacobian
+    j = numpy.matlib.empty([len(t), len(model.parameters)]) # Jacobian
     while it < 50:
         # call calc of residuals
-        (r0, c, a) = model.rcalc(p, a_0, t, y)
+        (r0, c, a) = model.rcalc(a_0, t, y)
         ssq = numpy.matlib.sum(numpy.matlib.multiply(r0, r0))
         conv_crit = (ssq_old - ssq) / ssq_old
         logger("Fitting absorbance: it=%i, ssq=%g, mp=%g, conv_crit=%g" % (it, ssq, mp, conv_crit))
@@ -178,26 +201,33 @@ def ngml(time, absorbance, model, logger):
             mp = mp / 3
             ssq_old = ssq
             r0_old = r0
-            for i in range(0, len(p)):
-                p[i] = (1 + delta) * p[i]
-                r = model.rcalc(p, a_0, t, y)[0]
-                j[:,i] = ((r - r0) / (delta * p[i]))[:,0]
-                p[i] = p[i] / (1 + delta)
+            for i in range(0, len(model.parameters)):
+                model.parameters[i].value *= (1 + delta);
+                r = model.rcalc(a_0, t, y)[0]
+                j[:,i] = ((r - r0) / (delta * model.parameters[i].value))[:,0]
+                model.parameters[i].value /= (1 + delta)
         elif conv_crit < -mu: # divergence !
             if mp == 0:
                 mp = 1 # use Marquardt parameter
             else:
                 mp *= 5
-            p = p - delta_p # and take shifts back
+            # and take shifts back
+            for i in range(0, len(model.parameters)):
+                if model.parameters[i].fixed:
+                    continue
+                model.parameters[i].value -= delta_p[i, 0]
 
         # augment Jacobian matrix
-        j_mp = numpy.matlib.vstack((j, mp * numpy.matlib.eye(len(p))))
+        j_mp = numpy.matlib.vstack((j, mp * numpy.matlib.eye(len(model.parameters))))
         # augment residual vector
-        r0_mp = numpy.matlib.vstack((r0_old, numpy.matlib.zeros(p.shape)))
+        r0_mp = numpy.matlib.vstack((r0_old, numpy.matlib.zeros(len(model.parameters)).T))
         # calculate parameter shifts
         delta_p = numpy.linalg.lstsq(-j_mp, r0_mp)[0]
         # add parameter shifts
-        p = p + delta_p
+        for i in range(0, len(model.parameters)):
+            if model.parameters[i].fixed:
+                continue
+            model.parameters[i].value += delta_p[i, 0]
         it += 1
 
     # Curvature matrix
@@ -205,18 +235,17 @@ def ngml(time, absorbance, model, logger):
 
     # Set parameters (speed constants?) and sigma for parameters
     logger("Fitting absorbance: final calculations")
-    sigma_y = math.sqrt(ssq / (numpy.matlib.size(y) - numpy.matlib.size(p) - numpy.matlib.size(a)))
-    p = p.transpose().tolist()[0]
+    sigma_y = math.sqrt(ssq / (numpy.matlib.size(y) - len(model.parameters) - numpy.matlib.size(a)))
     sigma_p = sigma_y * numpy.sqrt(numpy.matlib.diag(numpy.linalg.inv(curv)))
     sigma_p = sigma_p.tolist()
 
-    parameters = []
-    for i in range(0, len(p)):
-        param = data_fit_parameter.Parameter()
-        param.value = p[i]
-        param.sigma = sigma_p[i]
-        param.a0minusAinf = c[0, i] * a[i, 0]
-        parameters.append(param)
+    for i in range(0, len(model.parameters)):
+        if model.parameters[i].fixed:
+            model.parameters[i].sigma = 0
+        else:
+            model.parameters[i].sigma = sigma_p[i]
+
+        model.parameters[i].a0minusAinf = c[0, i] * a[i, 0]
 
     # Calculate Ainf
     ainf = c[0, c.shape[1] - 1] * a[a.shape[0] - 1, 0]
@@ -228,4 +257,4 @@ def ngml(time, absorbance, model, logger):
     # Set residuals
     # Should 'r' be used, or maybe 'r0' should be?
     residuals = data_fit.Residuals(r0.transpose().tolist()[0])
-    return (parameters, absorbanceFit, residuals, ainf)
+    return (model.parameters, absorbanceFit, residuals, ainf)
