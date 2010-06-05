@@ -38,7 +38,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)
         lastTime = None
         lastAbsorbance = None
-        children = self.child.children()
+        children = self.child.childItems()
         if len(children) < len(self.data.time) - 1:
             print "Error in absorbance graph resize", len(children), len(self.data.time) - 1
         for t in range(0, len(self.data.time)):

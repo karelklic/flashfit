@@ -1,3 +1,22 @@
+2010-06-05  Karel Klíč  <kklic@redhat.com>
+
+	* gui_residualsgraph.py (ResidualsGraph.resizeFromData): Update to keep up with other code changes.
+	Makes Time Axis Length setting to work again.
+	* gui_absorbancegraph.py (AbsorbanceGraph.resizeFromData): Likewise.
+	* gui_absorbancefit.py (AbsorbanceFit.resizeFromData): Likewise.
+
+	* method_experimental.py (ModelAtoBtoC.__init__, ModelAtoB.__init__, ModelAtoBCtoD.__init__):
+	New array self.parameters contains parameters settings.
+	(ModelAtoBtoC.assureInitialParameters, ModelAtoB.assureInitialParameters): initialParameters
+	renamed to assureInitialParameters. Set initial values only if they are not set by
+	user (so only if == 0).
+	(ModelAtoBCtoD.assureInitialParameters): Likewise.
+	(ModelAtoBtoC.rcalc, ModelAtoB.rcalc, ModelAtoBCtoD.rcalc): Use self.parameters instead
+	of a parameter.
+
+	* gui_settings_experimental.py: Implement GUI for fixable parameters.
+	Allow to setup start values for parameters.
+
 2010-06-03  Karel Klic  <kklic@redhat.com>
 
 	* gui_mainwindow.py: Use prefix PyQt4 every time instead of

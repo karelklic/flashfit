@@ -45,17 +45,17 @@ class AbsorbanceFit(QtGui.QGraphicsItemGroup):
         # Do nothing if no data are loaded.
         if self.data.timeSpan == None:
             return
-        if len(self.data.absorbanceFit) == 0:
+        if len(self.data.fitdata.values) == 0:
             return
 
         timeModifier = self.width / float(self.data.timeSpan)
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)
         lastTime = None
         lastAbsorbance = None
-        children = self.child.children()
+        children = self.child.childItems()
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
-            fit = self.height - (self.data.absorbanceFit[t] - self.data.minAbsorbance) * absorbanceModifier
+            fit = self.height - (self.data.fitdata.values[t] - self.data.minAbsorbance) * absorbanceModifier
             if lastTime != None and lastFit != None:
                 line = QtCore.QLineF(lastTime, lastFit, time, fit)
                 children[t - 1].setLine(line)

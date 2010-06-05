@@ -47,17 +47,17 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         # Do nothing if no data are loaded.
         if self.data.timeSpan == None:
             return
-        if len(self.data.residuals) == 0:
+        if len(self.data.fitdata.residuals.values) == 0:
             return
 
         timeModifier = self.width / float(self.data.timeSpan)
-        residualsModifier = self.height / float(self.data.residualsSpan)
+        residualsModifier = self.height / float(self.data.fitdata.residuals.span)
         lastTime = None
         lastResidual = None
-        children = self.child.children()
+        children = self.child.childItems()
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
-            residual = self.height - (self.data.residuals[t] - self.data.minResiduals) * residualsModifier
+            residual = self.height - (self.data.fitdata.residuals.values[t] - self.data.fitdata.residuals.min) * residualsModifier
             if lastTime != None and lastResidual != None:
                 line = QtCore.QLineF(lastTime, lastResidual, time, residual)
                 children[t - 1].setLine(line)

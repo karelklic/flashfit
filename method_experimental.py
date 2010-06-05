@@ -22,7 +22,6 @@ class ModelAtoBtoC:
 
     def rcalc(self, a_0, t, y):
         """
-        Parameter k (=parameter) is a column vector.
         Parameter a_0 is a number.
         Parameter t is a list of time values.
         Parameter y is a column vector of measured values.
@@ -69,7 +68,6 @@ class ModelAtoB:
     def rcalc(self, a_0, t, y):
         """
         Function used by ngml, but not by ngml2.
-        Parameter k (=parameter) is a column vector.
         Parameter a_0 is a number.
         Parameter t is a list of time values.
         Parameter y is a column vector of measured values.
@@ -140,12 +138,9 @@ class ModelAtoBCtoD:
 def ngml(time, absorbance, model, logger):
     """
     Calculates the fit, residuals, and reaction rate coefficients from
-    absorbance values using Newton-Gauss-Levenberg/Marquardt algorithm.
-
-    Parameter p is a list of initial parameters.
-    a_0 is a number (usually 1e-3)
-    Parameter t contains a list of time values.
-    Parameter y is a list of measured values.
+    absorbance values using Newton-Gauss-Levenberg/Marquardt algorithm
+    Parameter time contains a list of time values.
+    Parameter absorbance is a list of measured values.
 
     Returns
     -------
