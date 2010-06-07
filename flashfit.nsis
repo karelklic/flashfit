@@ -7,7 +7,7 @@
 !include "LogicLib.nsh"
 !include "WordFunc.nsh"
 
-!define VERSION "0.4"
+!define VERSION "0.5"
 
 ; The name of the installer
 Name "FlashFit ${VERSION}"
