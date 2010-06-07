@@ -16,7 +16,7 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
         Parameter parent is a parent object in scene where time bars 
         will be displayed.
         """
-        super(TimeBarPair, self).__init__(scene = parent)
+        super(TimeBarPair, self).__init__(parent)
         self.timeAxis = timeAxis
         self.height = 0
         # Should this really be set? If bars stop to draw, delete this.

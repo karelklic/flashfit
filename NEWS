@@ -1,3 +1,10 @@
+== FlashFit 0.5
+Released 2010-06-07.
+
+- Works again on Microsoft Windows.
+- Experimental method allows parameter fixing and setting
+  initial parameter values.
+
 == FlashFit 0.4
 Released 2010-06-03.
 
