@@ -1,5 +1,12 @@
 2010-06-07  Karel Klíč  <kklic@redhat.com>
 
+	* main.py: renamed to flashfit.py
+
+	* Makefile.am, configure.ac, autogen.sh: New files.
+	Autotools infrastructure.
+
+2010-06-07  Karel Klíč  <kklic@redhat.com>
+
 	* gui_timebarpair.py (TimeBarPair.__init__): Do not use named parameters.
 	This flaw blocked Windows Python from running FlashFit.
 
