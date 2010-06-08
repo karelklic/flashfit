@@ -1,5 +1,9 @@
 2010-06-08  Karel Klíč  <kklic@redhat.com>
 
+	* nonneglstsq.py: Removed, as it's no longer used.
+
+	* method_experimental.py: Remove the mentions of nonneglstsq.
+
 	* NEWS: Added changes from version 0.6
 
 2010-06-07  Karel Klíč  <kklic@redhat.com>

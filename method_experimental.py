@@ -3,7 +3,6 @@ import data_fit
 import data_fit_parameter
 import numpy
 import math
-import nonneglstsq
 
 class ModelAtoBtoC:
     NAME = u"A→B→C"
@@ -86,7 +85,6 @@ class ModelAtoB:
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = numpy.linalg.lstsq(c, y)[0]
-        #a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         r = y - numpy.matlib.dot(c, a)
@@ -129,7 +127,6 @@ class ModelAtoBCtoD:
         # elimination of linear parameters
         # [0] because we just need the result, not the residuals etc.
         a = numpy.linalg.lstsq(c, y)[0]
-        #a = numpy.matrix(nonneglstsq.nonneglstsq(c.getA(), y.getA1())[0]).T
 
         # calculate residuals
         r = y - numpy.matlib.dot(c, a)
