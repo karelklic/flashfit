@@ -4,10 +4,17 @@
 
 2010-06-07  Karel Klíč  <kklic@redhat.com>
 
+	* gui_timebarpair.py (TimeBarPair.__init__): Fix constructor
+	call again.
+
 	* main.py: renamed to flashfit.py
 
-	* Makefile.am, configure.ac, autogen.sh: New files.
-	Autotools infrastructure.
+	* Makefile.am, configure.ac, autogen.sh, utils/Makefile.am:
+	* docs/Makefile.am: New autotools infrastructure.
+
+	* flashfit.nsis: Use version provided by autotools from
+	command line.
+	Use flashfit.py instead of main.py.
 
 2010-06-07  Karel Klíč  <kklic@redhat.com>
 
