@@ -58,8 +58,10 @@ $(INSTALLERFILE): flashfit.nsis
 	$(MAKENSIS) -DPACKAGE="$(PACKAGE)" -DPACKAGE_NAME="$(PACKAGE_NAME)" -DPACKAGE_VERSION="$(PACKAGE_VERSION)" -DPACKAGE_BUGREPORT="$(PACKAGE_BUGREPORT)" $<
 
 upload: $(INSTALLERFILE) dist-gzip dist-xz
-	scp $(distdir).tar.gz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
-	scp $(distdir).tar.xz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
 	scp $(INSTALLERFILE) klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit/windows
+	make dist-gzip
+	scp $(distdir).tar.gz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
+	make dist-xz
+	scp $(distdir).tar.xz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
 
 #scp $(distdir).zip klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit

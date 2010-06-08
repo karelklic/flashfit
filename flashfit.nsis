@@ -81,7 +81,7 @@ Section "Start Menu Shortcuts"
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\FlashFit ${PACKAGE_VERSION}"
   CreateShortCut  "$SMPROGRAMS\FlashFit ${PACKAGE_VERSION}\Uninstall.lnk" "$INSTDIR\uninstall.exe"
-  CreateShortCut  "$SMPROGRAMS\FlashFit ${PACKAGE_VERSION}\FlashFit.lnk" "$INSTDIR\main.pyw"
+  CreateShortCut  "$SMPROGRAMS\FlashFit ${PACKAGE_VERSION}\FlashFit.lnk" "$INSTDIR\flashfit.pyw"
 SectionEnd
 
 ;===============================================================================
