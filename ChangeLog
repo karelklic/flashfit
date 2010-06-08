@@ -1,3 +1,7 @@
+2010-06-08  Karel Klíč  <kklic@redhat.com>
+
+	* NEWS: Added changes from version 0.6
+
 2010-06-07  Karel Klíč  <kklic@redhat.com>
 
 	* main.py: renamed to flashfit.py

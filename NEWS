@@ -1,3 +1,10 @@
+== FlashFit 0.6
+Released 2010-06-08.
+
+- Fixed link in Start menu in Microsoft Windows.
+- Autotools used for automating tasks such as releasing new versions.
+- Fixed a regression from FlashFit 0.5 in TimeBarPair.
+
 == FlashFit 0.5
 Released 2010-06-07.
 
