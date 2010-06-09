@@ -61,7 +61,7 @@ upload: $(INSTALLERFILE) dist-gzip dist-xz
 	scp $(INSTALLERFILE) klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit/windows
 	make dist-gzip
 	scp $(distdir).tar.gz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
+	make dist-zip
+	scp $(distdir).zip klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
 	make dist-xz
 	scp $(distdir).tar.xz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
-
-#scp $(distdir).zip klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit

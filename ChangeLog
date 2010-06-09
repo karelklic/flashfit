@@ -1,3 +1,8 @@
+2010-06-09  Karel Klíč  <kklic@redhat.com>
+
+	* Makefile.am (upload): Provide also zip archive with
+	FlashFit release.
+
 2010-06-08  Karel Klíč  <kklic@redhat.com>
 
 	* nonneglstsq.py: Removed, as it's no longer used.
