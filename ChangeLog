@@ -1,5 +1,8 @@
 2010-06-09  Karel Klíč  <kklic@redhat.com>
 
+	* README: Removed version information, so it does not need to
+	be updated every time there.
+
 	* Makefile.am (upload): Provide also zip archive with
 	FlashFit release.
 
