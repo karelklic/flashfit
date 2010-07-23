@@ -1,5 +1,7 @@
 2010-07-23  Karel Klíč  <kklic@redhat.com>
 
+	* NEWS: Include recent changes.
+
 	* gui_settings_bars.py (SettingsBars): New dialog.
 
 	* gui_settings_axes.py (SettingsAxes): New dialog.
