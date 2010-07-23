@@ -13,10 +13,10 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
         are placed.
         Parameter leftBorder contains the width of free space between
         the left side of the scene and Time Axis, in pixels.
-        Parameter parent is a parent object in scene where time bars 
+        Parameter parent is a parent object in scene where time bars
         will be displayed.
         """
-        # QGraphicsLineItem(QGraphicsItem parent=None, 
+        # QGraphicsLineItem(QGraphicsItem parent=None,
         #                   QGraphicsScene scene=None)
         super(TimeBarPair, self).__init__(None, parent)
         self.timeAxis = timeAxis
@@ -72,9 +72,9 @@ class TimeBarPair(QtGui.QGraphicsLineItem):
         textX = abs(line.dx()) / 2 + min(line.x1(), line.x2())
         textX -= self.legendText.boundingRect().width() / 2
         self.legendText.setPos(textX, 12)
-        self.legendText.setVisible(self.legendTextVisible and 
+        self.legendText.setVisible(self.legendTextVisible and
                                    abs(line.dx()) > self.legendText.boundingRect().width() + 5)
-        
+
     def updatePositionFromData(self, time1, time2):
         """
         Parameters are time values in seconds.
@@ -98,6 +98,7 @@ class FullLightBarPair(TimeBarPair):
         self.legendTextVisible = variables.fullLightBarsCaptionEnabled.value()
         self.legendText.setText(variables.fullLightBarsCaption.value())
         self.updateLegend()
+        self.setVisible(variables.fullLightBarsVisible.value())
 
 class AbsorbanceFitBarPair(TimeBarPair):
     def __init__(self, timeAxis, parent):
@@ -108,3 +109,4 @@ class AbsorbanceFitBarPair(TimeBarPair):
         self.legendTextVisible = variables.absorbanceFitBarsCaptionEnabled.value()
         self.legendText.setText(variables.absorbanceFitBarsCaption.value())
         self.updateLegend()
+        self.setVisible(variables.absorbanceFitBarsVisible.value())

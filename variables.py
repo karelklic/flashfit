@@ -39,7 +39,7 @@ class Variable:
             return value.toInt()[0]
 
         return value.toPyObject()
-    
+
     def setValue(self, value):
         settings = QtCore.QSettings()
         if self.type == "font":
@@ -54,11 +54,16 @@ timeAxisValuesFont = Variable("timeAxisValuesFont", Font())
 timeAxisCaptionFont = Variable("timeAxisCaptionFont", Font(pointSize = 30))
 timeAxisCaptionEnabled = Variable("timeAxisCaptionEnabled", True)
 timeAxisCaption = Variable("timeAxisCaption", "time")
+
+fullLightBarsVisible = Variable("fullLightBarsVisible", True)
 fullLightBarsFont = Variable("fullLightBarsFont", Font(pointSize = 18))
 fullLightBarsCaptionEnabled = Variable("fullLightBarsCaptionEnabled", True)
 fullLightBarsCaption = Variable("fullLightBarsCaption", "Full light")
+
+absorbanceFitBarsVisible = Variable("absorbanceFitBarsVisible", True)
 absorbanceFitBarsFont = Variable("absorbanceFitBarsFont", Font(pointSize = 18))
 absorbanceFitBarsCaptionEnabled = Variable("absorbanceFitBarsCaptionEnabled", True)
 absorbanceFitBarsCaption = Variable("absorbanceFitBarsCaption", "Absorbance fit")
+
 legendFont = Variable("legendFont", Font(pointSize = 26))
 legendDisplayedPrecision = Variable("legendDisplayedPrecision", 6)

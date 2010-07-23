@@ -10,11 +10,44 @@
   <part>
     <title>Algorithms</title>
     <partintro>
-      <para>This part describes the algorithms and equations used in FlashFit to fit, process, and convert measured data.</para>
+      <para>
+	This part describes the algorithms and equations used in
+	FlashFit to fit, process, and convert measured data.
+      </para>
     </partintro>
     <chapter>
       <title>Fitting algorithm</title>
-      <para>FlashFit uses Newton-Gauss-Levenberg/Marquardt algorithm. It solves non-linear least squares problem.</para>
+      <para>
+	FlashFit uses Newton-Gauss-Levenberg/Marquardt algorithm. It
+	solves non-linear least squares problem.
+      </para>
+    </chapter>
+  </part>
+  <part>
+    <title>Future Work</title>
+    <partintro>
+      <para>
+	This part describes the work which should be done.
+      </para>
+    </partintro>
+    <chapter>
+      <title>Settings Dialogs Unification</title>
+      <para>
+	The Appearance Dialog must be splitted into Axes Settings
+	dialog and Information Header and Box Settings dialog.
+      </para>
+      <para>
+	The Axes Settings dialog allows to set Time axis and
+	Absorbance axis values.
+      </para>
+      <para>
+	The Information Header and Box Settings dialog allows to set
+	the font of the information box, k(x) precision, and the place
+	where various values should be visible (header, box, none).
+	It also allows to show/hide the information header and box.
+	These possibilities replace the Show menu entry in the main
+	window's menu bar. The Show menu entry must be removed.
+      </para>
     </chapter>
   </part>
 </book>

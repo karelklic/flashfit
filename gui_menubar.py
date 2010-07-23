@@ -2,16 +2,15 @@ from PyQt4 import QtCore, QtGui
 
 class MenuBar(QtGui.QMenuBar):
     """
-    Main menu bar.
-    This class must not implement actions, the onTrigger implementation
-    belongs elsewhere (main.py?).
+    The menu bar for the main application window.
+    This class must not implement actions.
     """
     def __init__(self, parent=None):
         super(MenuBar, self).__init__(parent)
 
         ### File menu
         self.fileMenu = self.addMenu("&File")
-        
+
         self.openAct = QtGui.QAction("&Open", self)
         self.openAct.setShortcut("Ctrl+O")
         self.fileMenu.addAction(self.openAct)
@@ -38,9 +37,13 @@ class MenuBar(QtGui.QMenuBar):
         self.fileMenu.addAction(self.quitAct)
 
         ### Edit menu
-        self.editMenu = self.addMenu("&Edit")
-        self.appearanceAct = QtGui.QAction("&Appearance", self)
+        self.editMenu = self.addMenu("&Settings")
+        self.appearanceAct = QtGui.QAction("&Appearance...", self)
         self.editMenu.addAction(self.appearanceAct)
+        self.axesSettingsAct = QtGui.QAction("A&xes...", self)
+        self.editMenu.addAction(self.axesSettingsAct)
+        self.barsSettingsAct = QtGui.QAction("&Bars...", self)
+        self.editMenu.addAction(self.barsSettingsAct)
 
         ### Show menu
         self.showMenu = self.addMenu("&Show")
@@ -102,14 +105,14 @@ class MenuBar(QtGui.QMenuBar):
             files.removeAt(len(files) - 1)
         settings.setValue("recentFileList", files)
         self.updateRecentFileActions()
-        
+
     def setEnabled(self, enabled):
         for item in [self.openAct, self.saveAct, self.separatorAct, self.showMenu] + self.recentFileActs:
             item.setEnabled(enabled)
 
     def showMenuToggleConnect(self, function):
         """
-        Connects function to signal invoked when an check box in 
+        Connects function to signal invoked when an check box in the
         Show menu is checked or unchecked.
         """
         for act in self.showMenu.actions():

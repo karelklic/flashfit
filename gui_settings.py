@@ -3,7 +3,7 @@ from gui_graphicsscene import GraphicsScene
 from gui_spinbox import SpinBox
 import gui_settings_experimental
 import gui_settings_compatible
- 
+
 class Settings(QtGui.QDockWidget):
     """
     Settings panel docked on the left side of the main window.
@@ -13,7 +13,7 @@ class Settings(QtGui.QDockWidget):
         self.setTitleBarWidget(QtGui.QWidget())
         self.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
         self.setFeatures(QtGui.QDockWidget.NoDockWidgetFeatures)
-        
+
         mainWidget = QtGui.QWidget(self)
         layout = QtGui.QVBoxLayout(mainWidget)
         mainWidget.setLayout(layout)

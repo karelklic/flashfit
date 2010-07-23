@@ -1,3 +1,38 @@
+2010-07-23  Karel Klíč  <kklic@redhat.com>
+
+	* gui_settings_bars.py (SettingsBars): New dialog.
+
+	* gui_settings_axes.py (SettingsAxes): New dialog.
+
+	* gui_appearance.py (Appearance): Moved most of the code to
+	gui_settings_axes.py and gui_settings_bars.py.
+
+	* gui_mainwindow.py: Removed trailing whitespaces.
+	(MenuBarWithActions): New class representing the menu bar with
+	menu actions implemented.  This class knows both the menu bar
+	class and the main window class and serves as a bridge between
+	them.
+
+	* gui_menubar.py (MenuBar.__init__): Renamed Edit menu entry to
+	Settings.  Added Settings->Axes and Settings->Bars.
+
+	* gui_settings.py: Removed trailing whitespaces.
+
+	* variables.py: Added new variables fullLightBarsVisible and
+	absorbanceFitBarsVisible.  Removed trailing whitespaces.
+
+	* gui_timebarpair.py: Remove trailing whitespaces.  Use
+	fullLightBarsVisible and absorbanceFitBarsVisible variable values.
+
+2010-07-22  Karel Klíč  <kklic@redhat.com>
+
+	* docs/manual.xml: Added new part Future Work describing what
+	should be improved in future releases and how it should be done.
+
+2010-07-18  Karel Klíč  <kklic@redhat.com>
+
+	* gui_appearance.py: Removed trailing whitespaces.
+
 2010-06-09  Karel Klíč  <kklic@redhat.com>
 
 	* README: Removed version information, so it does not need to

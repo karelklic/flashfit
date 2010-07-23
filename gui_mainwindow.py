@@ -5,12 +5,64 @@ import data
 import gui_graphicsscene
 import gui_graphicsview
 import gui_settings
+import gui_settings_bars
+import gui_settings_axes
 import gui_console
 import gui_menubar
 import task_loadfile
 import task_changepointcount
 import task_fit
 import gui_appearance
+
+class MenuBarWithActions(gui_menubar.MenuBar):
+    """
+    Provides the menu bar for the main window. This class connects the
+    internals of gui_menubar.MenuBar class with the internals of
+    MainWindow class.
+    """
+    def __init__(self, parent):
+        gui_menubar.MenuBar.__init__(self, parent)
+        self.openAct.triggered.connect(self.openFile)
+        self.saveAct.triggered.connect(parent.saveAsImage)
+        for act in self.recentFileActs:
+            act.triggered.connect(self.openRecentFile)
+        self.quitAct.triggered.connect(self.close)
+        self.appearanceAct.triggered.connect(self.editAppearance)
+        self.barsSettingsAct.triggered.connect(self.editBarsSettings)
+        self.axesSettingsAct.triggered.connect(self.editAxesSettings)
+
+    def editAppearance(self):
+        """
+        Opens the Appearance editor, where user can select font sizes,
+        format details etc.
+        """
+        dialog = gui_appearance.Appearance(self.parent())
+        if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
+            self.parent().scene.updateAppearance()
+            self.parent().view.fitSceneInView()
+
+    def editBarsSettings(self):
+        dialog = gui_settings_bars.SettingsBars(self.parent())
+        if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
+            self.parent().scene.updateAppearance()
+            self.parent().view.fitSceneInView()
+
+    def editAxesSettings(self):
+        dialog = gui_settings_axes.SettingsAxes(self.parent())
+        if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
+            self.parent().scene.updateAppearance()
+            self.parent().view.fitSceneInView()
+
+    def openFile(self, bool):
+        name = PyQt4.QtGui.QFileDialog.getOpenFileName(self.parent(),
+                                                       "Open file",
+                                                       "",
+                                                       "Oscilloscope Data (*.csv)")
+        self.parent().loadFile(name)
+
+    def openRecentFile(self):
+        if self.sender():
+            self.loadFile(self.sender().data().toString())
 
 class MainWindow(PyQt4.QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -20,13 +72,7 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.setLoadedFilePath("")
 
         # Create and connect Main Menu Bar
-        self.setMenuBar(gui_menubar.MenuBar(self))
-        self.menuBar().openAct.triggered.connect(self.openFile)
-        self.menuBar().saveAct.triggered.connect(self.saveAsImage)
-        for act in self.menuBar().recentFileActs:
-            act.triggered.connect(self.openRecentFile)
-        self.menuBar().quitAct.triggered.connect(self.close)
-        self.menuBar().appearanceAct.triggered.connect(self.editAppearance)
+        self.setMenuBar(MenuBarWithActions(self))
 
         self.data = data.Data()
 
@@ -54,28 +100,11 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.view = gui_graphicsview.GraphicsView(self.scene)
         self.setCentralWidget(self.view)
 
-    def editAppearance(self):
-        """
-        Opens Appearance editor, where user can select font sizes, format details etc.
-        """
-        dialog = gui_appearance.Appearance(self)
-        if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
-            self.scene.updateAppearance()
-            self.view.fitSceneInView()
-
-    def openFile(self, bool):
-        name = PyQt4.QtGui.QFileDialog.getOpenFileName(self, "Open file", "", "Oscilloscope Data (*.csv)")
-        self.loadFile(name)
-
-    def openRecentFile(self):
-        if self.sender():
-            self.loadFile(self.sender().data().toString())
-
     def saveAsImage(self):
         """
         TODO: Design Save image Dialog
         """
-        fileName = PyQt4.QtCore.QFileInfo(self.loadedFilePath).completeBaseName() 
+        fileName = PyQt4.QtCore.QFileInfo(self.loadedFilePath).completeBaseName()
         image = PyQt4.QtGui.QFileDialog.getSaveFileName(self, "Save file", fileName, "PNG Image (*.png)")
         if len(image) == 0:
             return
@@ -84,8 +113,8 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
             image = image + ".png"
 
         if PyQt4.QtCore.QFileInfo(image).exists():
-            fileName = PyQt4.QtCore.QFileInfo(image).fileName() 
-            result = PyQt4.QtGui.QMessageBox.question(self, "Image file already exists", 
+            fileName = PyQt4.QtCore.QFileInfo(image).fileName()
+            result = PyQt4.QtGui.QMessageBox.question(self, "Image file already exists",
                                                       "Image file {0} already exists. Overwrite?".format(fileName),
                                                       PyQt4.QtGui.QMessageBox.Yes | PyQt4.QtGui.QMessageBox.No,
                                                       PyQt4.QtGui.QMessageBox.Yes)
