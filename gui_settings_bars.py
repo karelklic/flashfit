@@ -4,7 +4,7 @@ from font import Font
 import variables
 import sip
 
-class SettingsBars(QtGui.QDialog):
+class Dialog(QtGui.QDialog):
     """
     Allows user to change Full Light bars settings and Absorbance Fit
     bars settings.

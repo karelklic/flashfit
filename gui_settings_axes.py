@@ -4,7 +4,7 @@ from font import Font
 import variables
 import sip
 
-class SettingsAxes(QtGui.QDialog):
+class Dialog(QtGui.QDialog):
     """
     Allows user to change Absorbance Axis settings and Time Axis
     settings.

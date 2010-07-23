@@ -7,12 +7,12 @@ import gui_graphicsview
 import gui_settings
 import gui_settings_bars
 import gui_settings_axes
+import gui_settings_textualdata
 import gui_console
 import gui_menubar
 import task_loadfile
 import task_changepointcount
 import task_fit
-import gui_appearance
 
 class MenuBarWithActions(gui_menubar.MenuBar):
     """
@@ -27,28 +27,28 @@ class MenuBarWithActions(gui_menubar.MenuBar):
         for act in self.recentFileActs:
             act.triggered.connect(self.openRecentFile)
         self.quitAct.triggered.connect(self.close)
-        self.appearanceAct.triggered.connect(self.editAppearance)
+        self.textualDataSettingsAct.triggered.connect(self.editTextualDataSettings)
         self.barsSettingsAct.triggered.connect(self.editBarsSettings)
         self.axesSettingsAct.triggered.connect(self.editAxesSettings)
 
-    def editAppearance(self):
+    def editTextualDataSettings(self):
         """
         Opens the Appearance editor, where user can select font sizes,
         format details etc.
         """
-        dialog = gui_appearance.Appearance(self.parent())
+        dialog = gui_settings_textualdata.Dialog(self.parent())
         if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
             self.parent().scene.updateAppearance()
             self.parent().view.fitSceneInView()
 
     def editBarsSettings(self):
-        dialog = gui_settings_bars.SettingsBars(self.parent())
+        dialog = gui_settings_bars.Dialog(self.parent())
         if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
             self.parent().scene.updateAppearance()
             self.parent().view.fitSceneInView()
 
     def editAxesSettings(self):
-        dialog = gui_settings_axes.SettingsAxes(self.parent())
+        dialog = gui_settings_axes.Dialog(self.parent())
         if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
             self.parent().scene.updateAppearance()
             self.parent().view.fitSceneInView()

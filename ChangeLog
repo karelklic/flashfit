@@ -5,12 +5,14 @@
 
 	* NEWS: Include recent changes.
 
-	* gui_settings_bars.py (SettingsBars): New dialog.
+	* gui_settings_bars.py (Dialog): New dialog.
 
-	* gui_settings_axes.py (SettingsAxes): New dialog.
+	* gui_settings_axes.py (Dialog): New dialog.
 
 	* gui_appearance.py (Appearance): Moved most of the code to
-	gui_settings_axes.py and gui_settings_bars.py.
+	gui_settings_axes.py and gui_settings_bars.py.  Renamed the file
+	to gui_settings_textualdata.py and renamed the class to
+	Dialog.
 
 	* gui_mainwindow.py: Removed trailing whitespaces.
 	(MenuBarWithActions): New class representing the menu bar with

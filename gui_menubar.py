@@ -38,8 +38,8 @@ class MenuBar(QtGui.QMenuBar):
 
         ### Edit menu
         self.editMenu = self.addMenu("&Settings")
-        self.appearanceAct = QtGui.QAction("&Appearance...", self)
-        self.editMenu.addAction(self.appearanceAct)
+        self.textualDataSettingsAct = QtGui.QAction("&Textual Data...", self)
+        self.editMenu.addAction(self.textualDataSettingsAct)
         self.axesSettingsAct = QtGui.QAction("A&xes...", self)
         self.editMenu.addAction(self.axesSettingsAct)
         self.barsSettingsAct = QtGui.QAction("&Bars...", self)

@@ -5,18 +5,18 @@ from font import Font
 import variables
 import sip
 
-class Appearance(QtGui.QDialog):
+class Dialog(QtGui.QDialog):
     """
     Appearance dialog sets fonts, captions, printed precision.
     Loads from QSettings, saves to QSettings.
     """
     def __init__(self, parentWindow):
         QtGui.QDialog.__init__(self, parentWindow)
-        self.setWindowTitle("Appearance")
+        self.setWindowTitle("Textual Data Settings")
         self.create(False)
 
     def create(self, default):
-        legend = self.createLegendBox("Measured Values box", variables.legendFont.value(default))
+        legend = self.createLegendBox("Text Box", variables.legendFont.value(default))
         legend.prec.setValue(variables.legendDisplayedPrecision.value(default))
 
         self.gridWidget = QtGui.QWidget()
