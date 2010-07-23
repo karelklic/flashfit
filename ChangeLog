@@ -1,5 +1,8 @@
 2010-07-23  Karel Klíč  <kklic@redhat.com>
 
+	* gui_mainwindow.py (MenuBarWithActions.openRecentFile): Call
+	parent's loadFile method. Makes recent files to work again.
+
 	* NEWS: Include recent changes.
 
 	* gui_settings_bars.py (SettingsBars): New dialog.

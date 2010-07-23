@@ -62,7 +62,7 @@ class MenuBarWithActions(gui_menubar.MenuBar):
 
     def openRecentFile(self):
         if self.sender():
-            self.loadFile(self.sender().data().toString())
+            self.parent().loadFile(self.sender().data().toString())
 
 class MainWindow(PyQt4.QtGui.QMainWindow):
     def __init__(self, parent=None):
