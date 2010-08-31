@@ -74,7 +74,7 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         # Display Amax
         #
         if self.data.maxAbsorbance != None:
-            text += u"Amax = %.4e\n" % self.data.maxAbsorbance       
+            text += u"Amax = %.4e\n" % self.data.maxAbsorbance
         #
         # Display CONSTANTS
         #
@@ -85,7 +85,7 @@ class InformationTable(QtGui.QGraphicsItemGroup):
                 text += template % (i + 1, self.data.fitdata.parameters[i].value, self.data.fitdata.parameters[i].sigma)
             for i in range(0, len(self.data.fitdata.parameters)):
                 text += u"A0 - Ainf(%d) = %.4e\n" % (i + 1, self.data.fitdata.parameters[i].a0minusAinf)
-        # remove the last newline
+        # Remove the last newline
         if text.endswith("\n"):
             text = text[0:-1]
         return text

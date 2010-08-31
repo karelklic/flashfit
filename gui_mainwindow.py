@@ -10,6 +10,7 @@ import gui_settings_axes
 import gui_settings_textualdata
 import gui_console
 import gui_menubar
+import gui_textitems
 import task_loadfile
 import task_changepointcount
 import task_fit
@@ -75,6 +76,8 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.setMenuBar(MenuBarWithActions(self))
 
         self.data = data.Data()
+
+        self.textItems = gui_textitems.List(self.data)
 
         self.settings = gui_settings.Settings(self)
         self.addDockWidget(PyQt4.QtCore.Qt.LeftDockWidgetArea, self.settings)

@@ -16,7 +16,9 @@ class Dialog(QtGui.QDialog):
         self.create(False)
 
     def create(self, default):
-        legend = self.createLegendBox("Text Box", variables.legendFont.value(default))
+        legend = self.createBox("Information Box",
+                                variables.legendFont.value(default),
+                                variables.legendTable.value(default))
         legend.prec.setValue(variables.legendDisplayedPrecision.value(default))
 
         self.gridWidget = QtGui.QWidget()
@@ -54,7 +56,7 @@ class Dialog(QtGui.QDialog):
         layout.addWidget(self.gridWidget)
         layout.addWidget(self.buttonWidget)
 
-    def createLegendBox(self, groupName, font):
+    def createBox(self, groupName, font, visibleItems):
         group = QtGui.QGroupBox(groupName)
         group.font = font
         layout = QtGui.QFormLayout(group)
@@ -85,4 +87,119 @@ class Dialog(QtGui.QDialog):
 
         group.prec.valueChanged.connect(precValueChanged)
         group.prec.setValue(6)
+
+        itemsLabel = QtGui.QLabel("Items:")
+
+        def itemWidgetList(items):
+            widgetItems = []
+            for item in items:
+                textItem = self.parent().textItems.all[str(item)]
+                widgetItem = QtGui.QTreeWidgetItem([ textItem.label ])
+                widgetItems.append(widgetItem)
+            return widgetItems
+
+        itemsLayout = QtGui.QHBoxLayout()
+        availableItemsWidget = QtGui.QTreeWidget()
+        availableItemsWidget.setColumnCount(1)
+        availableItemsWidget.setHeaderLabels(["Available"])
+        availableItems = self.parent().textItems.available(visibleItems)
+        availableItemsWidget.addTopLevelItems(itemWidgetList(availableItems))
+        itemsLayout.addWidget(availableItemsWidget)
+
+        leftRightArrowsLayout = QtGui.QVBoxLayout()
+        leftArrow = QtGui.QPushButton("<-")
+        leftRightArrowsLayout.addWidget(leftArrow)
+        rightArrow = QtGui.QPushButton("->")
+        leftRightArrowsLayout.addWidget(rightArrow)
+        leftRightArrows = QtGui.QWidget(self)
+        leftRightArrows.setLayout(leftRightArrowsLayout)
+        itemsLayout.addWidget(leftRightArrows)
+
+        visibleItemsPackLayout = QtGui.QVBoxLayout()
+        visibleItemsWidget = QtGui.QTreeWidget()
+        visibleItemsWidget.setColumnCount(1)
+        visibleItemsWidget.setHeaderLabels(["Visible"])
+        visibleItemsWidget.addTopLevelItems(itemWidgetList(visibleItems))
+        visibleItemsPackLayout.addWidget(visibleItemsWidget)
+
+        upDownArrowsLayout = QtGui.QHBoxLayout()
+        upArrow = QtGui.QPushButton("Up")
+        upDownArrowsLayout.addWidget(upArrow)
+        downArrow = QtGui.QPushButton("Down")
+        upDownArrowsLayout.addWidget(downArrow)
+        upDownArrows = QtGui.QWidget(self)
+        upDownArrows.setLayout(upDownArrowsLayout)
+        visibleItemsPackLayout.addWidget(upDownArrows)
+
+        def updateUpDownArrowsEnable():
+            selectedItems = visibleItemsWidget.selectedItems()
+            if len(selectedItems) != 1:
+                upArrow.setEnabled(False)
+                downArrow.setEnabled(False)
+                return
+            modelIndex = visibleItemsWidget.indexFromItem(selectedItems[0])
+            upArrow.setEnabled(modelIndex.row() > 0)
+            downArrow.setEnabled(modelIndex.row() < visibleItemsWidget.topLevelItemCount() - 1)
+
+        visibleItemsWidget.itemSelectionChanged.connect(updateUpDownArrowsEnable)
+        updateUpDownArrowsEnable()
+
+        def updateLeftArrowEnable():
+            leftArrow.setEnabled(len(visibleItemsWidget.selectedItems()) > 0)
+
+        visibleItemsWidget.itemSelectionChanged.connect(updateLeftArrowEnable)
+        updateLeftArrowEnable()
+
+        def updateRightArrowEnable():
+            rightArrow.setEnabled(len(availableItemsWidget.selectedItems()) > 0)
+
+        availableItemsWidget.itemSelectionChanged.connect(updateRightArrowEnable)
+        updateRightArrowEnable()
+
+        def upArrowClicked():
+            item = visibleItemsWidget.selectedItems()[0]
+            index = visibleItemsWidget.indexOfTopLevelItem(item)
+            visibleItemsWidget.takeTopLevelItem(index)
+            visibleItemsWidget.insertTopLevelItem(index - 1, item)
+            visibleItemsWidget.setCurrentItem(item)
+            updateUpDownArrowsEnable()
+
+        upArrow.clicked.connect(upArrowClicked)
+
+        def downArrowClicked():
+            item = visibleItemsWidget.selectedItems()[0]
+            index = visibleItemsWidget.indexOfTopLevelItem(item)
+            visibleItemsWidget.takeTopLevelItem(index)
+            visibleItemsWidget.insertTopLevelItem(index + 1, item)
+            visibleItemsWidget.setCurrentItem(item)
+            updateUpDownArrowsEnable()
+
+        downArrow.clicked.connect(downArrowClicked)
+
+        def leftArrowClicked():
+            item = visibleItemsWidget.selectedItems()[0]
+            index = visibleItemsWidget.indexOfTopLevelItem(item)
+            visibleItemsWidget.takeTopLevelItem(index)
+            availableItemsWidget.addTopLevelItem(item)
+            updateUpDownArrowsEnable()
+
+        leftArrow.clicked.connect(leftArrowClicked)
+
+        def rightArrowClicked():
+            item = availableItemsWidget.selectedItems()[0]
+            index = availableItemsWidget.indexOfTopLevelItem(item)
+            availableItemsWidget.takeTopLevelItem(index)
+            visibleItemsWidget.addTopLevelItem(item)
+            updateUpDownArrowsEnable()
+
+        rightArrow.clicked.connect(rightArrowClicked)
+
+        visibleItemsPack = QtGui.QWidget()
+        visibleItemsPack.setLayout(visibleItemsPackLayout)
+        itemsLayout.addWidget(visibleItemsPack)
+
+        items = QtGui.QWidget(self)
+        items.setLayout(itemsLayout)
+
+        layout.addRow(itemsLabel, items)
         return group

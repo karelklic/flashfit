@@ -10,7 +10,7 @@ from data import Data
 
 class GraphicsScene(QtGui.QGraphicsScene):
     """
-    The scene containing graph. It's 1000 points high and 1000 or more 
+    The scene containing graph. It's 1000 points high and 1000 or more
     points wide. The width and height does not include borders.
     """
     DEFAULT_WIDTH = 2000
@@ -21,7 +21,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
     def __init__(self, data, parentWindow):
         super(GraphicsScene, self).__init__(parentWindow)
         self.data = data
-        # Create basic objects in the scene 
+        # Create basic objects in the scene
         self.timeAxis = TimeAxis()
         self.addItem(self.timeAxis)
         self.absorbanceAxis = AbsorbanceAxis()
@@ -59,17 +59,17 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # Redraw the axes with proper values set by __setSceneSize
         self.timeAxis.update()
         self.absorbanceAxis.update()
- 
+
     def updateFromData(self, autoSetWidth=False):
         """
-        Updates all parts of the scene.
-        If autoSetWidth is set to True, this method calculates the best width for 
-        the data and set it. Otherwise the old (previous) width is preserved.
+        Updates all parts of the scene.  If autoSetWidth is set to
+        True, this method calculates the best width for the data and
+        set it. Otherwise the old (previous) width is preserved.
         """
         if autoSetWidth:
             newWidth = min(max(self.MIN_WIDTH, len(self.data.time)), self.MAX_WIDTH)
             self.__setSceneSize(newWidth)
-           
+
         self.timeAxis.setTime(self.data.minTime, self.data.maxTime)
         self.timeAxis.update()
         self.absorbanceAxis.setAbsorbance(self.data.minAbsorbance, self.data.maxAbsorbance)
@@ -90,8 +90,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.borderLeft = self.absorbanceAxis.childrenBoundingRect().width() + 8
         # Border on the top of the scene, in pixels.
         self.borderTop = 10
-        # Border between the time axis line and the bottom of the scene, in pixels.
-        # Time axis label and tics must fit here.
+        # Border between the time axis line and the bottom of the
+        # scene, in pixels.  Time axis label and tics must fit here.
         self.borderBottom = self.timeAxis.childrenBoundingRect().height()
 
     def updateAppearance(self):
@@ -102,8 +102,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # Get the new borders based on axes width height.
         self.recalculateBorders()
         self.informationTable.updateAppearance()
-        # Adjust the scene with the new borders.
-        # Sets a new height to the bars.
+        # Adjust the scene with the new borders.  Sets a new height to
+        # the bars.
         self.__setSceneSize(self.sceneWidth)
 
         self.fullLightBars.updateAppearance()
@@ -135,7 +135,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
     def changeWidth(self, width):
         # Only change the scene width if it really changed.
         if self.sceneWidth == width:
-            return        
+            return
         self.__setSceneSize(width)
         self.timeAxis.update()
         self.absorbanceAxis.update()
@@ -144,7 +144,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.residualsGraph.resizeFromData()
         self.updateFullLightBars()
         self.updateFitAbsorbanceBars()
-        
+
     def __setSceneSize(self, width):
         """
         Not to be called from outside.
@@ -182,6 +182,6 @@ class GraphicsScene(QtGui.QGraphicsScene):
             self.updateAbsorbanceFit()
             self.updateResidualsGraph()
             self.informationTable.recreateFromData()
-            
+
         if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
             self.updateFitAbsorbanceBars()

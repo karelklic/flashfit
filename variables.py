@@ -2,17 +2,23 @@ from PyQt4 import QtCore, QtGui
 from font import Font
 import pickle
 import numbers
+import gui_textitems
 
 class Variable:
+    """
+    A named variable (key-value pair) accessible from whole
+    application. Its value can be stored in user's settings and
+    preserved between application runs.
+    """
     def __init__(self, key, defaultValue):
         self._key = key
         self._defaultValue = defaultValue
         self.type = "normal"
-        if isinstance(self._defaultValue, Font):
+        if isinstance(defaultValue, Font):
             self.type = "font"
         elif defaultValue == True or defaultValue == False:
             self.type = "bool"
-        elif isinstance(self._defaultValue, numbers.Integral):
+        elif isinstance(defaultValue, numbers.Integral):
             self.type = "int"
 
     def key(self):
@@ -67,3 +73,12 @@ absorbanceFitBarsCaption = Variable("absorbanceFitBarsCaption", "Absorbance fit"
 
 legendFont = Variable("legendFont", Font(pointSize = 26))
 legendDisplayedPrecision = Variable("legendDisplayedPrecision", 6)
+legendTable = Variable("legendTable",
+                       [ gui_textitems.Name.__name__,
+                         gui_textitems.MeasureDate.__name__,
+                         gui_textitems.Model.__name__,
+                         gui_textitems.A0.__name__,
+                         gui_textitems.Ainf.__name__,
+                         gui_textitems.Amax.__name__,
+                         gui_textitems.RateConstants.__name__,
+                         gui_textitems.A0minusAinf.__name__ ])

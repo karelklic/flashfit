@@ -1,4 +1,19 @@
+2010-08-31  Karel Klíč  <kklic@redhat.com>
+
+	* variables.py: New variable legendTable.
+
+	* gui_textitems.py: New file.
+
+	* gui_settings_textualdata.py (Dialog.createBox): New UI.
+
+	* gui_mainwindow.py (MainWindow.__init__): Initialize the new
+	variable textItems.
+
 2010-07-23  Karel Klíč  <kklic@redhat.com>
+
+	* gui_informationtable.py: Removed trailing whitespaces.
+
+	* gui_graphicsscene.py: Removed trailing whitespaces.
 
 	* gui_mainwindow.py (MenuBarWithActions.openRecentFile): Call
 	parent's loadFile method. Makes recent files to work again.
