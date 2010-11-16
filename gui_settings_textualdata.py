@@ -5,9 +5,14 @@ from font import Font
 import variables
 import sip
 
+def itemListFromWidget(widget):
+    # TODO
+    pass
+
+
 class Dialog(QtGui.QDialog):
     """
-    Appearance dialog sets fonts, captions, printed precision.
+    Textual Data dialog sets fonts, captions, printed precision.
     Loads from QSettings, saves to QSettings.
     """
     def __init__(self, parentWindow):
@@ -18,8 +23,8 @@ class Dialog(QtGui.QDialog):
     def create(self, default):
         legend = self.createBox("Information Box",
                                 variables.legendFont.value(default),
-                                variables.legendTable.value(default))
-        legend.prec.setValue(variables.legendDisplayedPrecision.value(default))
+                                variables.legendTable.value(default),
+                                variables.legendDisplayedPrecision.value(default))
 
         self.gridWidget = QtGui.QWidget()
         gridLayout = QtGui.QGridLayout(self.gridWidget)
@@ -28,6 +33,7 @@ class Dialog(QtGui.QDialog):
         def okPushed():
             variables.legendFont.setValue(legend.font)
             variables.legendDisplayedPrecision.setValue(legend.prec.value())
+            variables.legendTable.setValue(itemListFromWidget(legend.visibleItemsWidget))
             self.done(QtGui.QDialog.Accepted)
 
         def cancelPushed():
@@ -56,7 +62,7 @@ class Dialog(QtGui.QDialog):
         layout.addWidget(self.gridWidget)
         layout.addWidget(self.buttonWidget)
 
-    def createBox(self, groupName, font, visibleItems):
+    def createBox(self, groupName, font, visibleItems, displayedPrecision):
         group = QtGui.QGroupBox(groupName)
         group.font = font
         layout = QtGui.QFormLayout(group)
@@ -86,7 +92,7 @@ class Dialog(QtGui.QDialog):
             precExample.setText(text)
 
         group.prec.valueChanged.connect(precValueChanged)
-        group.prec.setValue(6)
+        group.prec.setValue(displayedPrecision)
 
         itemsLabel = QtGui.QLabel("Items:")
 
@@ -116,11 +122,13 @@ class Dialog(QtGui.QDialog):
         itemsLayout.addWidget(leftRightArrows)
 
         visibleItemsPackLayout = QtGui.QVBoxLayout()
-        visibleItemsWidget = QtGui.QTreeWidget()
-        visibleItemsWidget.setColumnCount(1)
-        visibleItemsWidget.setHeaderLabels(["Visible"])
-        visibleItemsWidget.addTopLevelItems(itemWidgetList(visibleItems))
-        visibleItemsPackLayout.addWidget(visibleItemsWidget)
+        group.visibleItemsWidget = QtGui.QTreeWidget()
+        group.visibleItemsWidget.setColumnCount(1)
+        group.visibleItemsWidget.setHeaderLabels(["Visible"])
+        group.visibleItemsWidget.addTopLevelItems(itemWidgetList(visibleItems))
+
+        group.visibleItemsWidget.itemList = itemList
+        visibleItemsPackLayout.addWidget(group.visibleItemsWidget)
 
         upDownArrowsLayout = QtGui.QHBoxLayout()
         upArrow = QtGui.QPushButton("Up")
@@ -132,22 +140,22 @@ class Dialog(QtGui.QDialog):
         visibleItemsPackLayout.addWidget(upDownArrows)
 
         def updateUpDownArrowsEnable():
-            selectedItems = visibleItemsWidget.selectedItems()
+            selectedItems = group.visibleItemsWidget.selectedItems()
             if len(selectedItems) != 1:
                 upArrow.setEnabled(False)
                 downArrow.setEnabled(False)
                 return
-            modelIndex = visibleItemsWidget.indexFromItem(selectedItems[0])
+            modelIndex = group.visibleItemsWidget.indexFromItem(selectedItems[0])
             upArrow.setEnabled(modelIndex.row() > 0)
-            downArrow.setEnabled(modelIndex.row() < visibleItemsWidget.topLevelItemCount() - 1)
+            downArrow.setEnabled(modelIndex.row() < group.visibleItemsWidget.topLevelItemCount() - 1)
 
-        visibleItemsWidget.itemSelectionChanged.connect(updateUpDownArrowsEnable)
+        group.visibleItemsWidget.itemSelectionChanged.connect(updateUpDownArrowsEnable)
         updateUpDownArrowsEnable()
 
         def updateLeftArrowEnable():
-            leftArrow.setEnabled(len(visibleItemsWidget.selectedItems()) > 0)
+            leftArrow.setEnabled(len(group.visibleItemsWidget.selectedItems()) > 0)
 
-        visibleItemsWidget.itemSelectionChanged.connect(updateLeftArrowEnable)
+        group.visibleItemsWidget.itemSelectionChanged.connect(updateLeftArrowEnable)
         updateLeftArrowEnable()
 
         def updateRightArrowEnable():
@@ -157,29 +165,29 @@ class Dialog(QtGui.QDialog):
         updateRightArrowEnable()
 
         def upArrowClicked():
-            item = visibleItemsWidget.selectedItems()[0]
-            index = visibleItemsWidget.indexOfTopLevelItem(item)
-            visibleItemsWidget.takeTopLevelItem(index)
-            visibleItemsWidget.insertTopLevelItem(index - 1, item)
-            visibleItemsWidget.setCurrentItem(item)
+            item = group.visibleItemsWidget.selectedItems()[0]
+            index = group.visibleItemsWidget.indexOfTopLevelItem(item)
+            group.visibleItemsWidget.takeTopLevelItem(index)
+            group.visibleItemsWidget.insertTopLevelItem(index - 1, item)
+            group.visibleItemsWidget.setCurrentItem(item)
             updateUpDownArrowsEnable()
 
         upArrow.clicked.connect(upArrowClicked)
 
         def downArrowClicked():
-            item = visibleItemsWidget.selectedItems()[0]
-            index = visibleItemsWidget.indexOfTopLevelItem(item)
-            visibleItemsWidget.takeTopLevelItem(index)
-            visibleItemsWidget.insertTopLevelItem(index + 1, item)
-            visibleItemsWidget.setCurrentItem(item)
+            item = group.visibleItemsWidget.selectedItems()[0]
+            index = group.visibleItemsWidget.indexOfTopLevelItem(item)
+            group.visibleItemsWidget.takeTopLevelItem(index)
+            group.visibleItemsWidget.insertTopLevelItem(index + 1, item)
+            group.visibleItemsWidget.setCurrentItem(item)
             updateUpDownArrowsEnable()
 
         downArrow.clicked.connect(downArrowClicked)
 
         def leftArrowClicked():
-            item = visibleItemsWidget.selectedItems()[0]
-            index = visibleItemsWidget.indexOfTopLevelItem(item)
-            visibleItemsWidget.takeTopLevelItem(index)
+            item = group.visibleItemsWidget.selectedItems()[0]
+            index = group.visibleItemsWidget.indexOfTopLevelItem(item)
+            group.visibleItemsWidget.takeTopLevelItem(index)
             availableItemsWidget.addTopLevelItem(item)
             updateUpDownArrowsEnable()
 
@@ -189,7 +197,7 @@ class Dialog(QtGui.QDialog):
             item = availableItemsWidget.selectedItems()[0]
             index = availableItemsWidget.indexOfTopLevelItem(item)
             availableItemsWidget.takeTopLevelItem(index)
-            visibleItemsWidget.addTopLevelItem(item)
+            group.visibleItemsWidget.addTopLevelItem(item)
             updateUpDownArrowsEnable()
 
         rightArrow.clicked.connect(rightArrowClicked)
