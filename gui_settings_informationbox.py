@@ -6,18 +6,24 @@ import variables
 import sip
 
 def itemListFromWidget(widget):
-    # TODO
-    pass
-
+    """
+    widget - QtGui.QTreeWidget containing items
+    Returns list of labels from the widget
+    """
+    items = []
+    for i in range(0, widget.topLevelItemCount()):
+        widgetItem = widget.topLevelItem(i)
+        items.append(widgetItem.data(0, QtCore.Qt.UserRole).toPyObject().__class__.__name__)
+    return items
 
 class Dialog(QtGui.QDialog):
     """
-    Textual Data dialog sets fonts, captions, printed precision.
-    Loads from QSettings, saves to QSettings.
+    Information Box Data dialog sets fonts, captions, printed
+    precision.  Loads from QSettings, saves to QSettings.
     """
     def __init__(self, parentWindow):
         QtGui.QDialog.__init__(self, parentWindow)
-        self.setWindowTitle("Textual Data Settings")
+        self.setWindowTitle("Information Box Settings")
         self.create(False)
 
     def create(self, default):
@@ -63,6 +69,13 @@ class Dialog(QtGui.QDialog):
         layout.addWidget(self.buttonWidget)
 
     def createBox(self, groupName, font, visibleItems, displayedPrecision):
+        """
+        Parameters:
+        groupName - the name of the UI group (string)
+        font - font of the legend text
+        visibleItems - array
+        displayedPrecision - number
+        """
         group = QtGui.QGroupBox(groupName)
         group.font = font
         layout = QtGui.QFormLayout(group)
@@ -101,6 +114,7 @@ class Dialog(QtGui.QDialog):
             for item in items:
                 textItem = self.parent().textItems.all[str(item)]
                 widgetItem = QtGui.QTreeWidgetItem([ textItem.label ])
+                widgetItem.setData(0, QtCore.Qt.UserRole, textItem)
                 widgetItems.append(widgetItem)
             return widgetItems
 
@@ -127,7 +141,6 @@ class Dialog(QtGui.QDialog):
         group.visibleItemsWidget.setHeaderLabels(["Visible"])
         group.visibleItemsWidget.addTopLevelItems(itemWidgetList(visibleItems))
 
-        group.visibleItemsWidget.itemList = itemList
         visibleItemsPackLayout.addWidget(group.visibleItemsWidget)
 
         upDownArrowsLayout = QtGui.QHBoxLayout()

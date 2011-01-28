@@ -14,4 +14,4 @@ class Parameter:
         result += " sigma:%e" % self.sigma
         result += " fixed:" + str(self.fixed)
         result += " a0minusAinf:%e" % self.a0minusAinf
-        return result        
+        return result

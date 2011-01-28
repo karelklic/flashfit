@@ -1,33 +1,40 @@
 # -*- coding: utf-8 -*- (Python reads this)
 from PyQt4 import QtCore, QtGui
+import variables
 
 class TextItem:
     def __init__(self, data, label):
         self.data = data
         self.label = label
 
-    def text():
+    def text(self):
         raise NotImplemented
 
 class Name(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "Name")
 
-    def text():
-        return u"name: %s" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
+    def text(self):
+        if len(self.data.fileName) > 0:
+            return u"name: %s" % QtCore.QFileInfo(self.data.fileName).completeBaseName()
+        else:
+            return ""
 
 class MeasureDate(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "Measure Date")
 
-    def text():
-        return u"measured: %s" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
+    def text(self):
+        if len(self.data.fileName) > 0:
+            return u"measured: %s" % self.data.fileCreated.toString("yyyy-MM-dd hh:mm")
+        else:
+            return ""
 
 class Model(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "Model")
 
-    def text():
+    def text(self):
         if self.data.fitdata.modelName != None:
             return u"model: %s" % self.data.fitdata.modelName
         else:
@@ -37,9 +44,9 @@ class A0(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "A0")
 
-    def text():
+    def text(self):
         if len(self.data.fitdata.values) > 0:
-            text += u"A0 = %.4e" % self.data.fitdata.values[0]
+            return u"A0 = %.4e" % self.data.fitdata.values[0]
         else:
             return ""
 
@@ -47,7 +54,7 @@ class Ainf(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "Ainf")
 
-    def text():
+    def text(self):
         if self.data.fitdata.ainf != None:
             return u"Ainf = %.4e" % self.data.fitdata.ainf
         else:
@@ -57,27 +64,31 @@ class Amax(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "Amax")
 
-    def text():
+    def text(self):
         if self.data.maxAbsorbance != None:
             return u"Amax = %.4e" % self.data.maxAbsorbance
+        else:
+            return ""
 
 class RateConstants(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "Rate Constants k(n)")
 
-    def text():
-        text = u""
+    def text(self):
+        lines = []
         for i in range(0, len(self.data.fitdata.parameters)):
             prec = variables.legendDisplayedPrecision.value()
             template = u"k(%%d) = %%.%de ± %%.%de" % (prec, prec)
-            text += template % (i + 1, self.data.fitdata.parameters[i].value, self.data.fitdata.parameters[i].sigma)
-        return text
+            lines.append(template % (i + 1,
+                                     self.data.fitdata.parameters[i].value,
+                                     self.data.fitdata.parameters[i].sigma))
+        return '\n'.join(lines)
 
 class A0minusAinf(TextItem):
     def __init__(self, data):
         TextItem.__init__(self, data, "A0 - Ainf")
 
-    def text():
+    def text(self):
         text = u""
         for i in range(0, len(self.data.fitdata.parameters)):
             text += u"A0 - Ainf(%d) = %.4e" % (i + 1, self.data.fitdata.parameters[i].a0minusAinf)

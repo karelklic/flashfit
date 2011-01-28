@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui
 import math
 from gui_timebarline import TimeBarLine
 from gui_timebartriangle import TimeBarTriangle
-  
+
 class TimeBar(QtGui.QGraphicsItemGroup):
     # Defined here until PyQt includes it.
     ItemSendsGeometryChanges = 0x800
@@ -59,7 +59,7 @@ class TimeBar(QtGui.QGraphicsItemGroup):
         # Emit positionChanged signal if the object is moved
         if change == self.ItemPositionHasChanged:
             self.signals.positionChanged.emit()
-        
+
         return super(TimeBar, self).itemChange(change, value)
 
     def mousePressEvent(self, event):

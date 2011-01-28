@@ -7,7 +7,7 @@ import gui_graphicsview
 import gui_settings
 import gui_settings_bars
 import gui_settings_axes
-import gui_settings_textualdata
+import gui_settings_informationbox
 import gui_console
 import gui_menubar
 import gui_textitems
@@ -27,17 +27,17 @@ class MenuBarWithActions(gui_menubar.MenuBar):
         self.saveAct.triggered.connect(parent.saveAsImage)
         for act in self.recentFileActs:
             act.triggered.connect(self.openRecentFile)
-        self.quitAct.triggered.connect(self.close)
-        self.textualDataSettingsAct.triggered.connect(self.editTextualDataSettings)
+        self.quitAct.triggered.connect(parent.close)
+        self.informationBoxSettingsAct.triggered.connect(self.editInformationBoxSettings)
         self.barsSettingsAct.triggered.connect(self.editBarsSettings)
         self.axesSettingsAct.triggered.connect(self.editAxesSettings)
 
-    def editTextualDataSettings(self):
+    def editInformationBoxSettings(self):
         """
         Opens the Appearance editor, where user can select font sizes,
         format details etc.
         """
-        dialog = gui_settings_textualdata.Dialog(self.parent())
+        dialog = gui_settings_informationbox.Dialog(self.parent())
         if dialog.exec_() == PyQt4.QtGui.QDialog.Accepted:
             self.parent().scene.updateAppearance()
             self.parent().view.fitSceneInView()

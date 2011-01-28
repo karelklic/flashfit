@@ -34,7 +34,10 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.absorbanceResidualSeparatorAxis)
         self.residualsGraph = ResidualsGraph(data)
         self.addItem(self.residualsGraph)
-        self.informationTable = InformationTable(data, parentWindow.menuBar(), self.absorbanceGraph)
+        self.informationTable = InformationTable(data,
+                                                 parentWindow.menuBar(),
+                                                 parentWindow.textItems,
+                                                 self.absorbanceGraph)
         self.addItem(self.informationTable)
         self.fullLightBars = FullLightBarPair(self.timeAxis, self)
         self.fullLightBars.setBarPos(100, 400)

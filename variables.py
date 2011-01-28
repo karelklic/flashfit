@@ -1,6 +1,5 @@
 from PyQt4 import QtCore, QtGui
 from font import Font
-import pickle
 import numbers
 import gui_textitems
 

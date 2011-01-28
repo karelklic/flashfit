@@ -82,7 +82,7 @@ class Tab(PyQt4.QtGui.QWidget):
             except ValueError:
                 guiparam.value.setStyleSheet("background-color:red")
                 failure = True
-            
+
             param.fixed = guiparam.fixed.isChecked()
             param.firstOrder = guiparam.order.currentIndex() == 0
             params.append(param)

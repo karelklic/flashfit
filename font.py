@@ -25,4 +25,3 @@ class Font(QtGui.QFont):
             self.setFamily(elems[0])
         if len(elems) > 1:
             self.setPointSize(int(elems[1]))
-    

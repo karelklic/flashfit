@@ -10,7 +10,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
     def setSize(self, width, height):
         self.width = width
         self.height = height
-        
+
     def recreateFromData(self):
         # Remove all subitems.
         self.removeFromGroup(self.child)
@@ -30,7 +30,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
                 line.setParentItem(self.child)
             lastTime = time
             lastAbsorbance = absorbance
-                    
+
     def resizeFromData(self):
         if self.data.absorbanceSpan == None:
             return

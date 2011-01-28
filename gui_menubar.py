@@ -38,8 +38,8 @@ class MenuBar(QtGui.QMenuBar):
 
         ### Edit menu
         self.editMenu = self.addMenu("&Settings")
-        self.textualDataSettingsAct = QtGui.QAction("&Textual Data...", self)
-        self.editMenu.addAction(self.textualDataSettingsAct)
+        self.informationBoxSettingsAct = QtGui.QAction("&Information box...", self)
+        self.editMenu.addAction(self.informationBoxSettingsAct)
         self.axesSettingsAct = QtGui.QAction("A&xes...", self)
         self.editMenu.addAction(self.axesSettingsAct)
         self.barsSettingsAct = QtGui.QAction("&Bars...", self)
@@ -48,36 +48,11 @@ class MenuBar(QtGui.QMenuBar):
         ### Show menu
         self.showMenu = self.addMenu("&Show")
 
-        self.showInformationBoxAct = QtGui.QAction("&Show information box", self)
+        self.showInformationBoxAct = QtGui.QAction("&Show information box",
+                                                   self)
         self.showInformationBoxAct.setCheckable(True)
         self.showInformationBoxAct.setChecked(True)
         self.showMenu.addAction(self.showInformationBoxAct)
-        self.showMenu.addSeparator()
-
-        self.showNameAct = QtGui.QAction("&Show name", self)
-        self.showNameAct.setCheckable(True)
-        self.showNameAct.setChecked(True)
-        self.showMenu.addAction(self.showNameAct)
-
-        self.showDateAct = QtGui.QAction("&Show measurement date", self)
-        self.showDateAct.setCheckable(True)
-        self.showDateAct.setChecked(True)
-        self.showMenu.addAction(self.showDateAct)
-
-        self.showModelAct = QtGui.QAction("&Show model name", self)
-        self.showModelAct.setCheckable(True)
-        self.showModelAct.setChecked(True)
-        self.showMenu.addAction(self.showModelAct)
-
-        self.showRateConstantAct = QtGui.QAction("&Show rate constant", self)
-        self.showRateConstantAct.setCheckable(True)
-        self.showRateConstantAct.setChecked(True)
-        self.showMenu.addAction(self.showRateConstantAct)
-
-        self.showA0Act = QtGui.QAction("&Show A0", self)
-        self.showA0Act.setCheckable(True)
-        self.showA0Act.setChecked(True)
-        self.showMenu.addAction(self.showA0Act)
 
     def updateRecentFileActions(self):
         """
@@ -107,7 +82,8 @@ class MenuBar(QtGui.QMenuBar):
         self.updateRecentFileActions()
 
     def setEnabled(self, enabled):
-        for item in [self.openAct, self.saveAct, self.separatorAct, self.showMenu] + self.recentFileActs:
+        for item in [self.openAct, self.saveAct,
+                     self.separatorAct, self.showMenu] + self.recentFileActs:
             item.setEnabled(enabled)
 
     def showMenuToggleConnect(self, function):

@@ -1,3 +1,21 @@
+2011-01-28  Karel Klíč  <kklic@redhat.com>
+
+	* gui_textitems.py: Fixed the text methods of all classes.
+
+	* gui_settings_informationbox.py: Implemented method
+	itemListFromWidget.
+
+	* gui_settings_textualdata.py: Renamed to
+	gui_settings_informationbox.py.
+
+	* gui_menubar.py (MenuBar.__init__): Remove "Show name", "Show
+	measurement date", "Show model name", "Show rate constant", "Show
+	A0" checkboxes. The visibility and order of lines can now be
+	changed in Settings->Information Box.
+
+	* gui_informationtable.py (InformationTable.textFromData): Use
+	textItems instead of hard-coded lines.
+
 2010-08-31  Karel Klíč  <kklic@redhat.com>
 
 	* variables.py: New variable legendTable.
