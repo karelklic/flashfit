@@ -37,7 +37,10 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         text = self.textFromData()
         self.textItem.setText(text)
         BORDER = 16 # pixels
-        self.rect.setRect(self.textItem.boundingRect().normalized().adjusted(-BORDER, -BORDER, BORDER, BORDER))
+        self.rect.setRect(self.textItem.boundingRect().normalized().adjusted(-BORDER,
+                                                                              -BORDER,
+                                                                              BORDER,
+                                                                              BORDER))
         self.rect.setVisible(len(text) > 0)
         #self.findPlaceInScene()
 

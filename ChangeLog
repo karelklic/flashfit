@@ -1,4 +1,14 @@
+2011-01-29  Karel Klíč  <kklic@redhat.com>
+
+	* README (Homepage): Updated.
+
+	* configure.ac: Increased version number to 0.7.
+
+	* Makefile.am (EXTRA_DIST): Distribute flashfit.nsis.
+
 2011-01-28  Karel Klíč  <kklic@redhat.com>
+
+	* Makefile.am (PYTHON_FILES): Update the list of files.
 
 	* gui_textitems.py: Fixed the text methods of all classes.
 

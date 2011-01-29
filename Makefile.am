@@ -3,16 +3,15 @@ SUBDIRS = docs utils
 bin_SCRIPTS = flashfit.py
 
 PYTHON_FILES = \
+	data.py \
 	data_fit.py \
 	data_fit_parameter.py \
 	data_original.py \
-	data.py \
 	flashfit.py \
 	font.py \
 	gui_absorbanceaxis.py \
 	gui_absorbancefit.py \
 	gui_absorbancegraph.py \
-	gui_appearance.py \
 	gui_console.py \
 	gui_graphicsscene.py \
 	gui_graphicsview.py \
@@ -20,18 +19,20 @@ PYTHON_FILES = \
 	gui_mainwindow.py \
 	gui_menubar.py \
 	gui_residualsgraph.py \
+	gui_settings.py \
+	gui_settings_axes.py \
+	gui_settings_bars.py \
 	gui_settings_compatible.py \
 	gui_settings_experimental.py \
-	gui_settings.py \
+	gui_settings_informationbox.py \
 	gui_spinbox.py \
 	gui_timeaxis.py \
+	gui_timebar.py \
 	gui_timebarline.py \
 	gui_timebarpair.py \
-	gui_timebar.py \
 	gui_timebartriangle.py \
 	method_compatible.py \
 	method_experimental.py \
-	nonneglstsq.py \
 	task_fit.py \
 	task_changepointcount.py \
 	task_loadfile.py \
@@ -49,6 +50,7 @@ CLEANFILES = $(notdir $(wildcard *~)) $(notdir $(wildcard *\#)) $(notdir $(wildc
 #
 INSTALLERFILE = $(PACKAGE)-$(VERSION).exe
 CLEANFILES += $(INSTALLERFILE)
+EXTRA_DIST += flashfit.nsis
 
 if INSTALLER
 all: $(INSTALLERFILE)
