@@ -25,15 +25,13 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
             absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier
-            if lastTime != None and lastAbsorbance != None:
+            if lastTime is not None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance))
                 line.setParentItem(self.child)
             lastTime = time
             lastAbsorbance = absorbance
 
     def resizeFromData(self):
-        if self.data.absorbanceSpan == None:
-            return
         timeModifier = self.width / float(self.data.timeSpan)
         absorbanceModifier = self.height / float(self.data.absorbanceSpan)
         lastTime = None
@@ -44,7 +42,7 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
             absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier
-            if lastTime != None and lastAbsorbance != None:
+            if lastTime is not None:
                 line = QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance)
                 children[t - 1].setLine(line)
             lastTime = time

@@ -18,9 +18,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
 
-        # Do nothing if no data are loaded.
-        if self.data.timeSpan == None:
-            return
+        # Do nothing if no fit exists.
         if len(self.data.fitdata.residuals.values) == 0:
             return
 
@@ -31,7 +29,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
             residual = self.height - (self.data.fitdata.residuals.values[t] - self.data.fitdata.residuals.min) * residualsModifier
-            if lastTime != None and lastResidual != None:
+            if lastTime is not None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastResidual, time, residual))
                 line.setParentItem(self.child)
             lastTime = time
@@ -44,9 +42,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
             line.setParentItem(self.child)
 
     def resizeFromData(self):
-        # Do nothing if no data are loaded.
-        if self.data.timeSpan == None:
-            return
+        # Do nothing if no fit exists.
         if len(self.data.fitdata.residuals.values) == 0:
             return
 
@@ -58,7 +54,7 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
             time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
             residual = self.height - (self.data.fitdata.residuals.values[t] - self.data.fitdata.residuals.min) * residualsModifier
-            if lastTime != None and lastResidual != None:
+            if lastTime is not None:
                 line = QtCore.QLineF(lastTime, lastResidual, time, residual)
                 children[t - 1].setLine(line)
             lastTime = time
@@ -66,5 +62,6 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
 
         # Update zero line
         oldLine = children[-1].line()
-        line = QtCore.QLineF(oldLine.x1(), oldLine.y1(), self.width, oldLine.y2())
+        line = QtCore.QLineF(oldLine.x1(), oldLine.y1(),
+                             self.width, oldLine.y2())
         children[-1].setLine(line)

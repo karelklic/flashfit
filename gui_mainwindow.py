@@ -68,27 +68,19 @@ class MenuBarWithActions(gui_menubar.MenuBar):
 class MainWindow(PyQt4.QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-
         # Set initial value of self.loadFilePath
         self.setLoadedFilePath("")
-
         # Create and connect Main Menu Bar
         self.setMenuBar(MenuBarWithActions(self))
-
         self.data = data.Data()
-
         self.textItems = gui_textitems.List(self.data)
-
         self.settings = gui_settings.Settings(self)
         self.addDockWidget(PyQt4.QtCore.Qt.LeftDockWidgetArea, self.settings)
-
         self.console = gui_console.Console(self)
         self.addDockWidget(PyQt4.QtCore.Qt.BottomDockWidgetArea, self.console)
         self.setCorner(PyQt4.QtCore.Qt.BottomLeftCorner,
                        PyQt4.QtCore.Qt.LeftDockWidgetArea)
-
         self.createStatusBar()
-
         self.scene = gui_graphicsscene.GraphicsScene(self.data, self)
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
@@ -103,14 +95,11 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.data.dataChanged.connect(self.scene.onDataChanged)
         self.view = gui_graphicsview.GraphicsView(self.scene)
         self.setCentralWidget(self.view)
-
         # Current task (separate thread doing some work)
         self.task = None
-
         # Refresh GUI
         self.scene.updateFromData(True)
         self.settings.onDataLoaded(self.data)
-
 
     def saveAsImage(self):
         """
@@ -144,7 +133,6 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         painter = PyQt4.QtGui.QPainter(pixmap)
         self.scene.render(painter, targetRect)
         painter.end()
-
         pixmap.save(image)
 
     def loadFile(self, name):
@@ -188,7 +176,6 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.scene.fullLightBars.setEnabled(False)
         self.scene.fitAbsorbanceBars.setEnabled(False)
         self.scene.setBackgroundBrush(PyQt4.QtGui.QBrush(PyQt4.QtGui.QColor("#d0d0d0")));
-
         task.finished.connect(self.onTaskFinished)
         task.messageAdded.connect(self.statusBar().showMessage)
         task.messageAdded.connect(self.console.showMessage)

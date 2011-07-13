@@ -35,7 +35,7 @@ class Model(TextItem):
         TextItem.__init__(self, data, "Model")
 
     def text(self):
-        if self.data.fitdata.modelName != None:
+        if self.data.fitdata.modelName is not None:
             return u"model: %s" % self.data.fitdata.modelName
         else:
             return ""
@@ -55,7 +55,7 @@ class Ainf(TextItem):
         TextItem.__init__(self, data, "Ainf")
 
     def text(self):
-        if self.data.fitdata.ainf != None:
+        if self.data.fitdata.ainf is not None:
             return u"Ainf = %.4e" % self.data.fitdata.ainf
         else:
             return ""
@@ -65,7 +65,7 @@ class Amax(TextItem):
         TextItem.__init__(self, data, "Amax")
 
     def text(self):
-        if self.data.maxAbsorbance != None:
+        if self.data.maxAbsorbance is not None:
             return u"Amax = %.4e" % self.data.maxAbsorbance
         else:
             return ""

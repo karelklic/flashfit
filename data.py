@@ -65,9 +65,9 @@ class Data(QtCore.QObject):
     def clearAbsorbance(self):
         # Absorbance in time.
         self.absorbance = []
-        self.minAbsorbance = None
-        self.maxAbsorbance = None
-        self.absorbanceSpan = None
+        self.minAbsorbance = float("inf")
+        self.maxAbsorbance = float("-inf")
+        self.absorbanceSpan = float("inf")
         self.fitdata.clear()
 
     def copyFromOriginalData(self):
@@ -113,7 +113,6 @@ class Data(QtCore.QObject):
         Slow!
         """
         self.clearAbsorbance()
-
         # If we do not know full light voltage, we are done.
         if self.fullLightVoltage is None:
             return
@@ -127,13 +126,9 @@ class Data(QtCore.QObject):
                     print error
                     print "Voltage:", v - self.noLightVoltage, "vdiff:", vdiff
                 self.absorbance.append(absorbance)
-                if self.minAbsorbance == None or self.minAbsorbance > absorbance:
-                    self.minAbsorbance = absorbance
-                if self.maxAbsorbance == None or self.maxAbsorbance < absorbance:
-                    self.maxAbsorbance = absorbance
-
-        if self.minAbsorbance != None and self.maxAbsorbance != None:
-            self.absorbanceSpan = self.maxAbsorbance - self.minAbsorbance
+        self.minAbsorbance = min(self.absorbance)
+        self.maxAbsorbance = max(self.absorbance)
+        self.absorbanceSpan = self.maxAbsorbance - self.minAbsorbance
 
     def guessFullLightVoltagePointerValue(self):
         """
@@ -189,21 +184,22 @@ class Data(QtCore.QObject):
         if maxOffset - minOffset == 1:
             if (time - self.time[minOffset]) < (self.time[maxOffset] - time):
                 return minOffset
-            else:
-                return maxOffset
+            return maxOffset
 
         middleOffset = minOffset + (maxOffset - minOffset) / 2
         middleTime = self.time[middleOffset]
         if time < middleTime:
             return self.findClosestTimeOffset(time, minOffset, middleOffset)
-        else:
-            return self.findClosestTimeOffset(time, middleOffset, maxOffset)
+        return self.findClosestTimeOffset(time, middleOffset, maxOffset)
 
     def fullLightVoltageTime1(self):
         """
         Returns time in seconds.
         """
-        assert self.fullLightVoltagePointer[0] >= 0 and self.fullLightVoltagePointer[0] < len(self.time), "FullLight pointer invalid: %d, time length %d" % (self.fullLightVoltagePointer[0], len(self.time))
+        assert self.fullLightVoltagePointer[0] >= 0 and \
+            self.fullLightVoltagePointer[0] < len(self.time), \
+            "FullLight pointer invalid: %d, time length %d" % \
+            (self.fullLightVoltagePointer[0], len(self.time))
         return self.time[self.fullLightVoltagePointer[0]]
 
     def fullLightVoltageTime2(self):

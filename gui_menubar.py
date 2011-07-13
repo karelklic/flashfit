@@ -82,7 +82,7 @@ class MenuBar(QtGui.QMenuBar):
         self.updateRecentFileActions()
 
     def setEnabled(self, enabled):
-        for item in [self.openAct, self.saveAct,
+        for item in [self.openAct, self.saveAct, self.editMenu,
                      self.separatorAct, self.showMenu] + self.recentFileActs:
             item.setEnabled(enabled)
 
