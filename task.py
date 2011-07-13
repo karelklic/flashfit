@@ -7,6 +7,7 @@ class Task(QtCore.QThread):
         super(Task, self).__init__(parent)
         self.mainWindow = mainWindow
         self.finished.connect(self.postRun)
+        self.terminated.connect(self.postTerminated)
 
     def run(self):
         """
@@ -15,6 +16,12 @@ class Task(QtCore.QThread):
         pass
 
     def postRun(self):
+        """
+        The code in this method is run in GUI thread.
+        """
+        pass
+
+    def postTerminated(self):
         """
         The code in this method is run in GUI thread.
         """

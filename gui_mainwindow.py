@@ -84,7 +84,8 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
 
         self.console = gui_console.Console(self)
         self.addDockWidget(PyQt4.QtCore.Qt.BottomDockWidgetArea, self.console)
-        self.setCorner(PyQt4.QtCore.Qt.BottomLeftCorner, PyQt4.QtCore.Qt.LeftDockWidgetArea)
+        self.setCorner(PyQt4.QtCore.Qt.BottomLeftCorner,
+                       PyQt4.QtCore.Qt.LeftDockWidgetArea)
 
         self.createStatusBar()
 
@@ -102,6 +103,14 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.data.dataChanged.connect(self.scene.onDataChanged)
         self.view = gui_graphicsview.GraphicsView(self.scene)
         self.setCentralWidget(self.view)
+
+        # Current task (separate thread doing some work)
+        self.task = None
+
+        # Refresh GUI
+        self.scene.updateFromData(True)
+        self.settings.onDataLoaded(self.data)
+
 
     def saveAsImage(self):
         """
@@ -153,7 +162,8 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
 
     def reloadFromOriginalData(self, pointCount):
         """
-        Changes the number of measured points used from all points loaded from input file.
+        Changes the number of measured points used from all points
+        loaded from input file.
         """
         # Do nothing if the number of points hasn't changed.
         if self.data.maxPoints == pointCount:
@@ -170,7 +180,8 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
 
     def runTask(self, task):
         """
-        Runs a task. This involves disabling most of the UI during the task.
+        Runs a task. This involves disabling most of the UI during the
+        task.
         """
         self.settings.setEnabled(False)
         self.menuBar().setEnabled(False)
@@ -210,3 +221,10 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
 
         consoleButton.toggled.connect(self.console.setVisible)
         statusBar.addPermanentWidget(consoleButton)
+
+    def keyPressEvent(self, event):
+        if event.key() == PyQt4.QtCore.Qt.Key_Escape and \
+                self.task is not None and self.task.isRunning():
+            self.task.terminate()
+        else:
+            super(MainWindow, self).keyPressEvent(event)

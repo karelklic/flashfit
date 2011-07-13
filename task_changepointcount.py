@@ -12,19 +12,16 @@ class ChangePointCountTask(Task):
         # Set the maxPoints _now_, otherwise two threads are started.
         self.mainWindow.data.maxPoints = self.pointCount
 
-        # Do not act on timeAxisLength changes when loading.
-        # Maybe a problem here because it's called from another thread.
-        #self.mainWindow.settings.timeAxisLength.valueChangeFinished.disconnect(self.mainWindow.scene.changeWidth)
-
     def run(self):
         """
         The code in this method is run in another thread.
         """
-        # Save fulllightvoltage pointer and fit absorbance pointer time, to be recovered after loading
+        # Save fulllightvoltage pointer and fit absorbance pointer
+        # time, to be recovered after loading.
         fullLightVoltageTimes = self.mainWindow.data.fullLightVoltageTimes()
         fitAbsorbanceTimes = self.mainWindow.data.fitAbsorbanceTimes()
 
-        self.messageAdded.emit("Copying %d points from loaded data..." % self.mainWindow.data.maxPoints)
+        self.messageAdded.emit("Copying {0} points from loaded data...".format(self.mainWindow.data.maxPoints))
         self.mainWindow.data.copyFromOriginalData()
 
         # Recover fulllightvoltage pointer and fit absorbance pointer times
@@ -39,5 +36,11 @@ class ChangePointCountTask(Task):
         The code in this method is run in GUI thread.
         """
         self.mainWindow.scene.updateFromData()
-        # Connect the settings signal back to the slot.
-        #self.mainWindow.settings.timeAxisLength.valueChangeFinished.connect(self.mainWindow.scene.changeWidth)
+
+    def postTerminated(self):
+        """
+        The code in this method is run in GUI thread.
+        """
+        self.mainWindow.data.clear()
+        self.mainWindow.setLoadedFilePath("")
+        self.mainWindow.settings.onDataLoaded(self.mainWindow.data)

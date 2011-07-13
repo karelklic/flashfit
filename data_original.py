@@ -1,4 +1,3 @@
-
 class Data:
     """
     Data loaded from input file.
@@ -18,17 +17,12 @@ class Data:
         self.maxVoltage = None
         self.voltageSpan = None
 
-    def readFromCsvReader(self, reader, logger = None):
+    def readFromCsvReader(self, reader, logger):
         """
         The reader must be opened and valid.
         The method might raise csv.Error
         """
-        self.time = []
-        self.voltage = []
-        self.minVoltage = None
-        self.maxVoltage = None
-        self.voltageSpan = None
-
+        # Skip file header
         reader.next() # Row 1 - record length, points
         reader.next() # Row 2 - sample interval
         reader.next() # Row 3 - trigger point, samples
@@ -37,19 +31,14 @@ class Data:
         reader.next() # Row 6 - horizontal offset
 
         # Read measured data.
-        rowCount = 0
+        self.time = []
+        self.voltage = []
         for row in reader:
-            rowCount += 1
-            if rowCount % 20000 == 0 and logger:
-                logger("Loaded %d rows from the input file." % rowCount)
+            if reader.line_num % 20000 == 0:
+                logger("Loaded {0} rows from the input file.".format(reader.line_num))
             self.time.append(float(row[3]))
-            voltage = float(row[4])
-            self.voltage.append(voltage)
-            if self.minVoltage == None or self.minVoltage > voltage:
-                self.minVoltage = voltage
-            if self.maxVoltage == None or self.maxVoltage < voltage:
-                self.maxVoltage = voltage
+            self.voltage.append(float(row[4]))
 
-        # Calculate voltageSpan only if some data were present in the input.
-        if self.minVoltage != None and self.maxVoltage != None:
-            self.voltageSpan = self.maxVoltage - self.minVoltage
+        self.minVoltage = min(self.voltage)
+        self.maxVoltage = max(self.voltage)
+        self.voltageSpan = self.maxVoltage - self.minVoltage

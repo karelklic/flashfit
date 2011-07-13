@@ -4,7 +4,7 @@ import data
 import task
 
 class Task(task.Task):
-    def __init__(self, name, mainWindow, parent = None):
+    def __init__(self, name, mainWindow, parent=None):
         """
         Parameters
         name: name of the opened file.
@@ -22,11 +22,11 @@ class Task(task.Task):
             self.mainWindow.data.originalData.readFromCsvReader(reader, self.messageAdded.emit)
         except (StopIteration, csv.Error):
             PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
-                                       "Error occured when loading " + name)
+                                             "Error occured when loading " + name)
             return
 
         self.mainWindow.data.maxPoints = data.Data.DEFAULT_USED_POINTS_COUNT
-        self.messageAdded.emit("Copying %d points from loaded data..." % self.mainWindow.data.maxPoints)
+        self.messageAdded.emit("Copying {0} points from loaded data...".format(self.mainWindow.data.maxPoints))
         self.mainWindow.data.fileName = self.name # full path
         self.mainWindow.data.fileCreated = PyQt4.QtCore.QFileInfo(self.name).lastModified()
         self.mainWindow.data.copyFromOriginalData()
@@ -45,4 +45,12 @@ class Task(task.Task):
         self.mainWindow.setLoadedFilePath(self.name)
         self.mainWindow.settings.onDataLoaded(self.mainWindow.data)
         # Update Recent files in the Main Menu
-        self.mainWindow.menuBar().addRecentFile(self.name)
+        if len(self.name) > 0:
+            self.mainWindow.menuBar().addRecentFile(self.name)
+
+    def postTerminated(self):
+        """
+        The code in this method is run in GUI thread.
+        """
+        self.mainWindow.data.clear()
+        self.name = ""

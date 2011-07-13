@@ -21,37 +21,46 @@ class Data(QtCore.QObject):
         No data is present after init.
         """
         QtCore.QObject.__init__(self, parent)
+        self.clear()
 
-        # Data loaded from input file.
-        self.originalData = data_original.Data()
+    def clear(self):
+        """
+        Sets nice initial state of the data.
+        """
         self.maxPoints = self.DEFAULT_USED_POINTS_COUNT
         self.fileName = "" # Full Path
         self.fileCreated = QtCore.QDateTime()
 
-        # Subset of originalData.time
-        self.time = []
-        self.minTime = None
-        self.maxTime = None
-        self.timeSpan = None
         # Absorbance fit in time.
         self.fitdata = data_fit.Fit()
         self.fitdata.changed.connect(self.onFitChanged)
-        # Subset of originalData.voltage
-        self.voltage = []
-        self.clearAbsorbance()
-        # Full light voltage
-        # Used to calculate absorbance from voltage.
-        self.fullLightVoltage = None
         # No light voltage
         # Used to calculate absorbance from voltage.
         self.noLightVoltage = 0.0
+
+        # Data loaded from input file.
+        self.originalData = data_original.Data()
+        POINT_COUNT = 2000
+        self.originalData.time = [(x / float(POINT_COUNT)) for x in range(0, POINT_COUNT)]
+        self.originalData.voltage = [100] * int(POINT_COUNT * 0.2)
+        self.originalData.voltage += [40 + (60 * i) / (POINT_COUNT * 0.6) for i in range(0, int(POINT_COUNT * 0.6))]
+        self.originalData.voltage += [100] * int(POINT_COUNT - len(self.originalData.voltage))
+        self.originalData.minVoltage = 40
+        self.originalData.maxVoltage = 100
+        self.originalData.voltageSpan = 60
+        self.copyFromOriginalData()
+
         # Full Light Voltage time pointer
         # Both values are offsets to self.time array.
         # self.fullLightVoltage is calculated from this pointers
-        self.fullLightVoltagePointer = None
+        # Full light voltage is used to calculate absorbance from voltage.
+        self.setFullLightVoltagePointer(int(0.05 * POINT_COUNT),
+                                        int(0.15 * POINT_COUNT))
+        self.recalculateAbsorbances()
         # Fit Absorbance time pointer
         # Both values are offsets to self.time array.
-        self.fitAbsorbanceTimePointer = None
+        self.setFitAbsorbanceTimePointer(int(0.25 * POINT_COUNT),
+                                         int(0.70 * POINT_COUNT))
 
     def clearAbsorbance(self):
         # Absorbance in time.
@@ -69,9 +78,9 @@ class Data(QtCore.QObject):
         maxPoints = len(self.originalData.time)
         idealRatio = maxPoints / float(self.maxPoints)
         self.time = []
-        self.minTime = None
-        self.maxTime = None
-        self.timeSpan = None
+        self.minTime = float("inf")
+        self.maxTime = float("-inf")
+        self.timeSpan = float("inf")
         self.voltage = []
         ratio = float('inf')
         for offs in range(0, maxPoints):
@@ -79,19 +88,17 @@ class Data(QtCore.QObject):
                 ratio = offs / float(len(self.time))
 
             if ratio >= idealRatio:
-                #print "copy " + str(offs) + "ratio " + str(ratio) + " ideal " + str(idealRatio)
                 # Copy time.
                 time = self.originalData.time[offs]
                 self.time.append(time)
-                if self.minTime == None or self.minTime > time:
+                if self.minTime > time:
                     self.minTime = time
-                if self.maxTime == None or self.maxTime < time:
+                if self.maxTime < time:
                     self.maxTime = time
                 # Copy voltage
                 self.voltage.append(self.originalData.voltage[offs])
 
-        if self.maxTime != None and self.minTime != None:
-            self.timeSpan = self.maxTime - self.minTime
+        self.timeSpan = self.maxTime - self.minTime
 
         # Clear invalid data.
         self.clearAbsorbance()
@@ -108,7 +115,7 @@ class Data(QtCore.QObject):
         self.clearAbsorbance()
 
         # If we do not know full light voltage, we are done.
-        if self.fullLightVoltage == None:
+        if self.fullLightVoltage is None:
             return
 
         vdiff = self.fullLightVoltage - self.noLightVoltage
@@ -169,7 +176,6 @@ class Data(QtCore.QObject):
         """
         if start > stop:
             start, stop = stop, start
-
         self.fullLightVoltagePointer = [start, stop]
 
         # Calculate the arithmetic mean voltage from it.
@@ -221,7 +227,8 @@ class Data(QtCore.QObject):
         start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFullLightVoltagePointer(start, self.fullLightVoltagePointer[1])
         self.recalculateAbsorbances()
-        self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE | self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+        self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE |
+                              self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
 
     def setFullLightVoltageTime2(self, time):
         """
@@ -232,7 +239,8 @@ class Data(QtCore.QObject):
         stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFullLightVoltagePointer(self.fullLightVoltagePointer[0], stop)
         self.recalculateAbsorbances()
-        self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE | self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+        self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE |
+                              self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
 
     def setFullLightVoltageTimes(self, times, emitDataChangedSignal=True):
         """
@@ -245,7 +253,8 @@ class Data(QtCore.QObject):
         self.setFullLightVoltagePointer(start, stop)
         self.recalculateAbsorbances()
         if emitDataChangedSignal:
-            self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE | self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+            self.dataChanged.emit(self.DATA_CHANGED_ABSORBANCE |
+                                  self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
 
     def setFitAbsorbanceTimePointer(self, start, stop):
         """
@@ -280,14 +289,16 @@ class Data(QtCore.QObject):
             return
         start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(start, self.fitAbsorbanceTimePointer[1])
-        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE |
+                              self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def setFitAbsorbanceTime2(self, time):
         if len(self.time) < 2:
             return
         stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(self.fitAbsorbanceTimePointer[0], stop)
-        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+        self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE |
+                              self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def setFitAbsorbanceTimes(self, times, emitDataChangedSignal=True):
         if len(self.time) < 2:
@@ -296,13 +307,14 @@ class Data(QtCore.QObject):
         stop = self.findClosestTimeOffset(times[1], 0, len(self.time) - 1)
         self.setFitAbsorbanceTimePointer(start, stop)
         if emitDataChangedSignal:
-            self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE | self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
+            self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE |
+                                  self.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER)
 
     def onFitChanged(self):
         self.dataChanged.emit(self.DATA_CHANGED_FIT_ABSORBANCE)
 
     def fit(self, logger):
         self.fitdata.fit(self.fitAbsorbanceTimePointer,
-                     self.time,
-                     self.absorbance,
-                     logger)
+                         self.time,
+                         self.absorbance,
+                         logger)
