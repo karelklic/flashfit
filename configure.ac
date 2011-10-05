@@ -1,4 +1,4 @@
-AC_INIT([flashfit], [0.7], [karelklic@gmail.com])
+AC_INIT([flashfit], [0.8], [karelklic@gmail.com])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
@@ -10,13 +10,16 @@ fi
 
 AC_ARG_ENABLE([installer],
 	AS_HELP_STRING([--enable-installer],[Build NSIS installer [yes]]),
-	[ enable_installer=${enableval} ], [ enable_installer=yes ])
+	[ enable_installer=${enableval} ], [ enable_installer=no ])
 AM_CONDITIONAL(INSTALLER, test "x$enable_installer" = "xyes")
 AC_MSG_CHECKING([whether to build NSIS installer])
 AC_MSG_RESULT([${enable_installer}])
 
 AC_ARG_WITH(makensis,
-	AS_HELP_STRING([--with-makensis],[Path to makensis]))
+	[AS_HELP_STRING([--with-makensis],
+		[Path to makensis])],
+	[],
+	[with_makensis=no])
 
 if test "x$enable_installer" = "xyes" ; then
 	if test "x$with_makensis" = "x" ; then
