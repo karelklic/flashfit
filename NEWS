@@ -1,3 +1,8 @@
+== FlashFit 0.8
+Released 2011-10-05.
+
+- Long-running calculations can be terminated by pressing ESC key.
+
 == FlashFit 0.7
 Released 2011-01-29.
 

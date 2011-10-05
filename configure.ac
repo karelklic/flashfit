@@ -15,11 +15,7 @@ AM_CONDITIONAL(INSTALLER, test "x$enable_installer" = "xyes")
 AC_MSG_CHECKING([whether to build NSIS installer])
 AC_MSG_RESULT([${enable_installer}])
 
-AC_ARG_WITH(makensis,
-	[AS_HELP_STRING([--with-makensis],
-		[Path to makensis])],
-	[],
-	[with_makensis=no])
+AC_ARG_WITH(makensis, [AS_HELP_STRING([--with-makensis], [Path to makensis])])
 
 if test "x$enable_installer" = "xyes" ; then
 	if test "x$with_makensis" = "x" ; then
