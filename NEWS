@@ -1,3 +1,8 @@
+== FlashFit 0.9
+
+- `make install` properly installs helper script to execute Python
+  code to bindir
+
 == FlashFit 0.8
 Released 2011-10-05.
 

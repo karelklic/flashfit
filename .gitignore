@@ -8,6 +8,8 @@ autom4te.cache
 config.log
 config.status
 configure
+flashfit
+flashfit.spec
 install-sh
 missing
 py-compile

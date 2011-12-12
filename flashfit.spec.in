@@ -1,0 +1,34 @@
+%{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+
+Name:           flashfit
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        Photochemistry data analyser
+License:        GPLv3+
+Group:          Applications/Science
+URL:            http://klic.name/computer/flashfit
+Source0:        ftp://klic.name/flashfit/flashfit-%{version}.tar.xz
+BuildRequires:  python-devel
+BuildArch:      noarch
+
+%description
+
+%prep
+%setup -q
+
+%build
+%configure
+make %{?_smp_mflags}
+
+%install
+make install DESTDIR=%{buildroot}
+
+%files
+%doc COPYING README NEWS AUTHORS
+%{_bindir}/flashfit
+%dir %{_datadir}/flashfit
+%{_datadir}/flashfit/*.py*
+
+%changelog
+* Wed Oct  5 2011 Karel Klíč <kklic@redhat.com> - @VERSION@-1
+- Initial package

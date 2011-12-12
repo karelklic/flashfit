@@ -1,4 +1,4 @@
-AC_INIT([flashfit], [0.8], [karelklic@gmail.com])
+AC_INIT([flashfit], [0.9], [karelklic@gmail.com])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
@@ -31,6 +31,7 @@ if test "x$enable_installer" = "xyes" ; then
 fi
 
 AC_CONFIG_FILES([
+	flashfit.spec
         Makefile
 	docs/Makefile
 	utils/Makefile
