@@ -1,4 +1,4 @@
-AC_INIT([flashfit], [0.9], [karelklic@gmail.com])
+AC_INIT([flashfit], [0.10], [karelklic@gmail.com])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
