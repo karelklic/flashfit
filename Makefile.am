@@ -64,7 +64,7 @@ endif
 $(INSTALLERFILE): flashfit.nsis
 	$(MAKENSIS) -DPACKAGE="$(PACKAGE)" -DPACKAGE_NAME="$(PACKAGE_NAME)" -DPACKAGE_VERSION="$(PACKAGE_VERSION)" -DPACKAGE_BUGREPORT="$(PACKAGE_BUGREPORT)" $<
 
-upload: $(INSTALLERFILE) dist-gzip dist-xz
+upload: $(INSTALLERFILE)
 	scp $(INSTALLERFILE) klic.name:/var/ftp/flashfit/windows
 	make dist-gzip
 	scp $(distdir).tar.gz klic.name:/var/ftp/flashfit

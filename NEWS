@@ -1,7 +1,12 @@
 == FlashFit 0.9
+Released 2012-01-22.
 
+- Previously, Flashfit was able to open only comma-separated CSV
+  files, but not the tab-separated CSV files. The file reading routine
+  has been extended to handle both comma-separated and tab-separated
+  files for this version.
 - `make install` properly installs helper script to execute Python
-  code to bindir
+  code to bindir.
 
 == FlashFit 0.8
 Released 2011-10-05.
