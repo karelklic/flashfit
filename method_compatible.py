@@ -16,6 +16,8 @@ class Parameter(data_fit_parameter.Parameter):
 
 def ngml(time, absorbance, parameters, logger):
     """
+    Levenberg–Marquardt algorithm
+
     Calculates the fit, residuals, and reaction rate coefficients from
     absorbance values.
 
@@ -29,7 +31,7 @@ def ngml(time, absorbance, parameters, logger):
     residuals : array of differences between measured and fitted absorbances
     The array has the same size as the `absorbance_fit` array.
     """
-    # make column vector from y
+    # Make column vector from absorbance.
     y = numpy.matrix(absorbance).T
 
     val = 10 / (time[len(time) / 2] - time[0])
