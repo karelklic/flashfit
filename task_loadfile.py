@@ -17,13 +17,16 @@ class Task(task.Task):
         The code in this method is run in another thread.
         """
         # Load data
-        reader = csv.reader(open(self.name))
-        try:
-            self.mainWindow.data.originalData.readFromCsvReader(reader, self.messageAdded.emit)
-        except (StopIteration, csv.Error):
-            PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
-                                             "Error occured when loading " + name)
-            return
+        with open(self.name, "rb") as csvfile:
+            dialect = csv.Sniffer().sniff(csvfile.read(2048))
+            csvfile.seek(0)
+            reader = csv.reader(csvfile, dialect)
+            try:
+                self.mainWindow.data.originalData.readFromCsvReader(reader, self.messageAdded.emit)
+            except (StopIteration, csv.Error):
+                PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
+                                                 "Error occured when loading " + name)
+                return
 
         self.mainWindow.data.maxPoints = data.Data.DEFAULT_USED_POINTS_COUNT
         self.messageAdded.emit("Copying {0} points from loaded data...".format(self.mainWindow.data.maxPoints))

@@ -16,7 +16,7 @@ class Parameter(data_fit_parameter.Parameter):
 
 def ngml(time, absorbance, parameters, logger):
     """
-    Levenberg–Marquardt algorithm
+    Levenberg-Marquardt algorithm
 
     Calculates the fit, residuals, and reaction rate coefficients from
     absorbance values.
