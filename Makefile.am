@@ -1,6 +1,6 @@
 SUBDIRS = docs utils
 
-bin_SCRIPTS = flashfit.py
+nodist_bin_SCRIPTS = flashfit
 
 PYTHON_FILES = \
 	data.py \
@@ -26,6 +26,7 @@ PYTHON_FILES = \
 	gui_settings_experimental.py \
 	gui_settings_informationbox.py \
 	gui_spinbox.py \
+	gui_textitems.py \
 	gui_timeaxis.py \
 	gui_timebar.py \
 	gui_timebarline.py \
@@ -39,11 +40,15 @@ PYTHON_FILES = \
 	task.py \
 	variables.py
 
-EXTRA_DIST = $(PYTHON_FILES)
+EXTRA_DIST = $(PYTHON_FILES) flashfit.in
 
 pkgdata_PYTHON = $(PYTHON_FILES)
 
 CLEANFILES = $(notdir $(wildcard *~)) $(notdir $(wildcard *\#)) $(notdir $(wildcard \.\#*)) $(notdir $(wildcard *.pyc))
+
+flashfit: flashfit.in Makefile
+	sed -e 's|@pkgdatadir[@]|$(pkgdatadir)|g' $< > $@
+	chmod +x $@
 
 #
 # Windows NSIS installer
@@ -60,10 +65,22 @@ $(INSTALLERFILE): flashfit.nsis
 	$(MAKENSIS) -DPACKAGE="$(PACKAGE)" -DPACKAGE_NAME="$(PACKAGE_NAME)" -DPACKAGE_VERSION="$(PACKAGE_VERSION)" -DPACKAGE_BUGREPORT="$(PACKAGE_BUGREPORT)" $<
 
 upload: $(INSTALLERFILE) dist-gzip dist-xz
-	scp $(INSTALLERFILE) klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit/windows
+	scp $(INSTALLERFILE) klic.name:/var/ftp/flashfit/windows
 	make dist-gzip
-	scp $(distdir).tar.gz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
+	scp $(distdir).tar.gz klic.name:/var/ftp/flashfit
 	make dist-zip
-	scp $(distdir).zip klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
+	scp $(distdir).zip klic.name:/var/ftp/flashfit
 	make dist-xz
-	scp $(distdir).tar.xz klic.name:/home/karel/public_html/ftp.klic.name/public/flashfit
+	scp $(distdir).tar.xz klic.name:/var/ftp/flashfit
+
+RPM_DIRS = --define "_sourcedir `pwd`" \
+           --define "_rpmdir `pwd`" \
+           --define "_specdir `pwd`" \
+           --define "_builddir `pwd`" \
+           --define "_srcrpmdir `pwd`"
+
+EXTRA_DIST += flashfit.spec.in
+rpm: dist-xz flashfit.spec
+	rpmbuild $(RPM_DIRS) -ba flashfit.spec
+srpm: dist-xz btparser.spec
+	rpmbuild $(RPM_DIRS) -bs flashfit.spec

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python @pkgdatadir@/flashfit.py
