@@ -6,8 +6,7 @@ import sip
 
 class Dialog(QtGui.QDialog):
     """
-    Allows user to change Absorbance Axis settings and Time Axis
-    settings.
+    Allows user to change Value Axis settings and Time Axis settings.
     """
     def __init__(self, parentWindow):
         QtGui.QDialog.__init__(self, parentWindow)
@@ -15,11 +14,12 @@ class Dialog(QtGui.QDialog):
         self.create(False)
 
     def create(self, default):
-        absorbanceAxis = self.createAxisBox("Absorbance axis",
-                                            variables.absorbanceAxisValuesFont.value(default),
-                                            variables.absorbanceAxisCaptionFont.value(default))
-        absorbanceAxis.captionText.setChecked(variables.absorbanceAxisCaptionEnabled.value(default))
-        absorbanceAxis.captionEdit.setText(variables.absorbanceAxisCaption.value(default))
+        valueAxis = self.createAxisBox("Value axis",
+                                       variables.valueAxisValuesFont.value(default),
+                                       variables.valueAxisCaptionFont.value(default))
+        valueAxis.captionText.setChecked(variables.valueAxisCaptionEnabled.value(default))
+        # TODO allow to set both captions
+        valueAxis.captionEdit.setText(variables.absorbanceAxisCaption.value(default))
 
         timeAxis = self.createAxisBox("Time axis",
                                       variables.timeAxisValuesFont.value(default),
@@ -33,9 +33,9 @@ class Dialog(QtGui.QDialog):
         gridLayout.addWidget(timeAxis, 0, 1)
 
         def okPushed():
-            variables.absorbanceAxisValuesFont.setValue(absorbanceAxis.valuesFont)
-            variables.absorbanceAxisCaptionFont.setValue(absorbanceAxis.captionFont)
-            variables.absorbanceAxisCaptionEnabled.setValue(absorbanceAxis.captionText.isChecked())
+            variables.valueAxisValuesFont.setValue(absorbanceAxis.valuesFont)
+            variables.valueAxisCaptionFont.setValue(absorbanceAxis.captionFont)
+            variables.valueAxisCaptionEnabled.setValue(absorbanceAxis.captionText.isChecked())
             variables.absorbanceAxisCaption.setValue(absorbanceAxis.captionEdit.text())
 
             variables.timeAxisValuesFont.setValue(timeAxis.valuesFont)

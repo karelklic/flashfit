@@ -1,4 +1,4 @@
-SUBDIRS = docs utils
+SUBDIRS = docs utils tests
 
 nodist_bin_SCRIPTS = flashfit
 

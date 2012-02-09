@@ -6,8 +6,8 @@ import sip
 
 class Dialog(QtGui.QDialog):
     """
-    Allows user to change Full Light bars settings and Absorbance Fit
-    bars settings.
+    Allows user to change Full Light bars settings and Fit bars
+    settings.
     """
     def __init__(self, parentWindow):
         QtGui.QDialog.__init__(self, parentWindow)
@@ -21,16 +21,16 @@ class Dialog(QtGui.QDialog):
                                           variables.fullLightBarsCaptionEnabled.value(default),
                                           variables.fullLightBarsCaption.value(default))
 
-        absorbanceFitBars = self.createBarBox("Absorbance Fit bars",
-                                              variables.absorbanceFitBarsVisible.value(default),
-                                              variables.absorbanceFitBarsFont.value(default),
-                                              variables.absorbanceFitBarsCaptionEnabled.value(default),
-                                              variables.absorbanceFitBarsCaption.value(default))
+        fitBars = self.createBarBox("Fit bars",
+                                    variables.fitBarsVisible.value(default),
+                                    variables.fitBarsFont.value(default),
+                                    variables.fitBarsCaptionEnabled.value(default),
+                                    variables.fitBarsCaption.value(default))
 
         self.gridWidget = QtGui.QWidget()
         gridLayout = QtGui.QGridLayout(self.gridWidget)
         gridLayout.addWidget(fullLightBars, 0, 0)
-        gridLayout.addWidget(absorbanceFitBars, 0, 1)
+        gridLayout.addWidget(fitBars, 0, 1)
 
         def okPushed():
             variables.fullLightBarsVisible.setValue(fullLightBars.visible.isChecked())
@@ -38,10 +38,10 @@ class Dialog(QtGui.QDialog):
             variables.fullLightBarsCaptionEnabled.setValue(fullLightBars.captionText.isChecked())
             variables.fullLightBarsCaption.setValue(fullLightBars.captionEdit.text())
 
-            variables.absorbanceFitBarsVisible.setValue(absorbanceFitBars.visible.isChecked())
-            variables.absorbanceFitBarsFont.setValue(absorbanceFitBars.captionFont)
-            variables.absorbanceFitBarsCaptionEnabled.setValue(absorbanceFitBars.captionText.isChecked())
-            variables.absorbanceFitBarsCaption.setValue(absorbanceFitBars.captionEdit.text())
+            variables.fitBarsVisible.setValue(fitBars.visible.isChecked())
+            variables.fitBarsFont.setValue(fitBars.captionFont)
+            variables.fitBarsCaptionEnabled.setValue(fitBars.captionText.isChecked())
+            variables.fitBarsCaption.setValue(fitBars.captionEdit.text())
             self.done(QtGui.QDialog.Accepted)
 
         def cancelPushed():

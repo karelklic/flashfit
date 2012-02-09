@@ -65,8 +65,8 @@ class Amax(TextItem):
         TextItem.__init__(self, data, "Amax")
 
     def text(self):
-        if self.data.maxAbsorbance is not None:
-            return u"Amax = %.4e" % self.data.maxAbsorbance
+        if self.data.absorbanceData.maxAbsorbance is not None:
+            return u"Amax = %.4e" % self.data.absorbanceData.maxAbsorbance
         else:
             return ""
 

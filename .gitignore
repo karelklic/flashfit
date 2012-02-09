@@ -1,6 +1,5 @@
 *~
 *.pyc
-*.csv
 Makefile
 Makefile.in
 aclocal.m4

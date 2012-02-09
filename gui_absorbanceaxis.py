@@ -56,7 +56,7 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
                     absorbance = absorbance - ticSpan
 
                 text = QtGui.QGraphicsTextItem(str(absorbance))
-                text.setFont(variables.absorbanceAxisValuesFont.value())
+                text.setFont(variables.valueAxisValuesFont.value())
                 text.setPos(-12 - text.boundingRect().width(), ticy - text.boundingRect().height() / 2)
                 maxValuesWidth = max(maxValuesWidth, text.boundingRect().width())
                 text.setParentItem(self.child)
@@ -69,9 +69,9 @@ class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
             count += 1
 
         # Draw the caption
-        if variables.absorbanceAxisCaptionEnabled.value():
+        if variables.valueAxisCaptionEnabled.value():
             text = QtGui.QGraphicsTextItem(variables.absorbanceAxisCaption.value())
-            text.setFont(variables.absorbanceAxisCaptionFont.value())
+            text.setFont(variables.valueAxisCaptionFont.value())
             text.setPos(-text.boundingRect().height() - maxValuesWidth, text.boundingRect().width())
             text.rotate(-90)
             text.setParentItem(self.child)

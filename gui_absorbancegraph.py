@@ -19,12 +19,12 @@ class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
         self.child.setParentItem(self)
 
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceSpan)
+        absorbanceModifier = self.height / float(self.data.absorbanceData.absorbanceSpan)
         lastTime = None
         lastAbsorbance = None
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
-            absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier
+            absorbance = self.height - (self.data.absorbanceData.absorbance[t] - self.data.absorbanceData.minAbsorbance) * absorbanceModifier
             if lastTime is not None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance))
                 line.setParentItem(self.child)

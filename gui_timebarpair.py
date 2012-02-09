@@ -100,13 +100,13 @@ class FullLightBarPair(TimeBarPair):
         self.updateLegend()
         self.setVisible(variables.fullLightBarsVisible.value())
 
-class AbsorbanceFitBarPair(TimeBarPair):
+class FitBarPair(TimeBarPair):
     def __init__(self, timeAxis, parent):
         TimeBarPair.__init__(self, timeAxis, parent)
 
     def updateAppearance(self):
-        self.legendText.setFont(variables.absorbanceFitBarsFont.value())
-        self.legendTextVisible = variables.absorbanceFitBarsCaptionEnabled.value()
-        self.legendText.setText(variables.absorbanceFitBarsCaption.value())
+        self.legendText.setFont(variables.fitBarsFont.value())
+        self.legendTextVisible = variables.fitBarsCaptionEnabled.value()
+        self.legendText.setText(variables.fitBarsCaption.value())
         self.updateLegend()
-        self.setVisible(variables.absorbanceFitBarsVisible.value())
+        self.setVisible(variables.fitBarsVisible.value())

@@ -85,13 +85,13 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.scene.sceneRectChanged.connect(self.settings.onSceneRectChanged)
         self.settings.timeAxisLength.valueChangeFinished.connect(self.scene.changeWidth)
         self.settings.usedPoints.valueChangeFinished.connect(self.reloadFromOriginalData)
-        self.settings.experimental.fit.clicked.connect(self.fitAbsorbances)
-        self.settings.compatible.fit.clicked.connect(self.fitAbsorbances)
+        self.settings.experimental.fit.clicked.connect(self.fit)
+        self.settings.compatible.fit.clicked.connect(self.fit)
         self.menuBar().showMenuToggleConnect(self.scene.informationTable.recreateFromData)
-        self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime1)
-        self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.setFullLightVoltageTime2)
-        self.scene.fitAbsorbanceBars.bar1.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime1)
-        self.scene.fitAbsorbanceBars.bar2.signals.positionChangeFinished.connect(self.data.setFitAbsorbanceTime2)
+        self.scene.fullLightBars.bar1.signals.positionChangeFinished.connect(self.data.absorbanceData.setFullLightVoltageTime1)
+        self.scene.fullLightBars.bar2.signals.positionChangeFinished.connect(self.data.absorbanceData.setFullLightVoltageTime2)
+        self.scene.fitBars.bar1.signals.positionChangeFinished.connect(self.data.setFitTime1)
+        self.scene.fitBars.bar2.signals.positionChangeFinished.connect(self.data.setFitTime2)
         self.data.dataChanged.connect(self.scene.onDataChanged)
         self.view = gui_graphicsview.GraphicsView(self.scene)
         self.setCentralWidget(self.view)
@@ -162,7 +162,7 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.task = task_changepointcount.ChangePointCountTask(pointCount, self)
         self.runTask(self.task)
 
-    def fitAbsorbances(self):
+    def fit(self):
         self.task = task_fit.Task(self)
         self.runTask(self.task)
 
@@ -174,7 +174,7 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.settings.setEnabled(False)
         self.menuBar().setEnabled(False)
         self.scene.fullLightBars.setEnabled(False)
-        self.scene.fitAbsorbanceBars.setEnabled(False)
+        self.scene.fitBars.setEnabled(False)
         self.scene.setBackgroundBrush(PyQt4.QtGui.QBrush(PyQt4.QtGui.QColor("#d0d0d0")));
         task.finished.connect(self.onTaskFinished)
         task.messageAdded.connect(self.statusBar().showMessage)
@@ -185,7 +185,7 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         self.settings.setEnabled(True)
         self.menuBar().setEnabled(True)
         self.scene.fullLightBars.setEnabled(True)
-        self.scene.fitAbsorbanceBars.setEnabled(True)
+        self.scene.fitBars.setEnabled(True)
         self.statusBar().showMessage("Done", 3000)
         self.scene.setBackgroundBrush(PyQt4.QtGui.QBrush(PyQt4.QtCore.Qt.NoBrush));
 

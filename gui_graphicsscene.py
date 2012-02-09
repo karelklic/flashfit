@@ -2,7 +2,7 @@ from PyQt4 import QtCore, QtGui
 from gui_timeaxis import TimeAxis
 from gui_absorbanceaxis import AbsorbanceAxis
 from gui_absorbancegraph import AbsorbanceGraph
-from gui_timebarpair import FullLightBarPair, AbsorbanceFitBarPair
+from gui_timebarpair import FullLightBarPair, FitBarPair
 from gui_absorbancefit import AbsorbanceFit
 from gui_residualsgraph import ResidualsGraph
 from gui_informationtable import InformationTable
@@ -30,8 +30,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.addItem(self.absorbanceGraph)
         self.absorbanceFit = AbsorbanceFit(data)
         self.addItem(self.absorbanceFit)
-        self.absorbanceResidualSeparatorAxis = QtGui.QGraphicsLineItem()
-        self.addItem(self.absorbanceResidualSeparatorAxis)
+        self.residualSeparatorAxis = QtGui.QGraphicsLineItem()
+        self.addItem(self.residualSeparatorAxis)
         self.residualsGraph = ResidualsGraph(data)
         self.addItem(self.residualsGraph)
         self.informationTable = InformationTable(data,
@@ -42,9 +42,9 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.fullLightBars = FullLightBarPair(self.timeAxis, self)
         self.fullLightBars.setBarPos(100, 400)
         self.fullLightBars.setColor(QtGui.QColor("#333366"))
-        self.fitAbsorbanceBars = AbsorbanceFitBarPair(self.timeAxis, self)
-        self.fitAbsorbanceBars.setBarPos(500, 1500)
-        self.fitAbsorbanceBars.setColor(QtGui.QColor("#336633"))
+        self.fitBars = FitBarPair(self.timeAxis, self)
+        self.fitBars.setBarPos(500, 1500)
+        self.fitBars.setColor(QtGui.QColor("#336633"))
 
         self.timeAxis.setTime(0, 1.0)
         # Draw the time axis to get proper children bounding rect.
@@ -75,13 +75,14 @@ class GraphicsScene(QtGui.QGraphicsScene):
 
         self.timeAxis.setTime(self.data.minTime, self.data.maxTime)
         self.timeAxis.update()
-        self.absorbanceAxis.setAbsorbance(self.data.minAbsorbance, self.data.maxAbsorbance)
+        self.absorbanceAxis.setAbsorbance(self.data.absorbanceData.minAbsorbance,
+                                          self.data.absorbanceData.maxAbsorbance)
         self.absorbanceAxis.update()
         self.updateAbsorbanceGraph()
         self.updateAbsorbanceFit()
         self.updateResidualsGraph()
         self.updateFullLightBars()
-        self.updateFitAbsorbanceBars()
+        self.updateFitBars()
         self.informationTable.recreateFromData()
         self.informationTable.findPlaceInScene()
 
@@ -110,7 +111,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.__setSceneSize(self.sceneWidth)
 
         self.fullLightBars.updateAppearance()
-        self.fitAbsorbanceBars.updateAppearance()
+        self.fitBars.updateAppearance()
 
     def updateAbsorbanceGraph(self):
         self.absorbanceGraph.recreateFromData()
@@ -125,15 +126,15 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # Do nothing when no data are loaded.
         if len(self.data.time) == 0:
             return
-        self.fullLightBars.updatePositionFromData(self.data.fullLightVoltageTime1(),
-                                                  self.data.fullLightVoltageTime2())
+        self.fullLightBars.updatePositionFromData(self.data.absorbanceData.fullLightVoltageTime1(),
+                                                  self.data.absorbanceData.fullLightVoltageTime2())
 
-    def updateFitAbsorbanceBars(self):
+    def updateFitBars(self):
         # Do nothing when no data are loaded.
         if len(self.data.time) == 0:
             return
-        self.fitAbsorbanceBars.updatePositionFromData(self.data.fitAbsorbanceTime1(),
-                                                      self.data.fitAbsorbanceTime2())
+        self.fitBars.updatePositionFromData(self.data.fitTime1(),
+                                            self.data.fitTime2())
 
     def changeWidth(self, width):
         # Only change the scene width if it really changed.
@@ -146,7 +147,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.absorbanceFit.resizeFromData()
         self.residualsGraph.resizeFromData()
         self.updateFullLightBars()
-        self.updateFitAbsorbanceBars()
+        self.updateFitBars()
 
     def __setSceneSize(self, width):
         """
@@ -165,14 +166,14 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.absorbanceGraph.setSize(width, self.HEIGHT - residualsSize)
         self.absorbanceFit.setPos(self.borderLeft, self.borderTop)
         self.absorbanceFit.setSize(width, self.HEIGHT - residualsSize)
-        self.absorbanceResidualSeparatorAxis.setPos(self.borderLeft, self.HEIGHT + self.borderTop - residualsSize)
-        self.absorbanceResidualSeparatorAxis.setLine(0, 0, width, 0)
+        self.residualSeparatorAxis.setPos(self.borderLeft, self.HEIGHT + self.borderTop - residualsSize)
+        self.residualSeparatorAxis.setLine(0, 0, width, 0)
         self.residualsGraph.setPos(self.borderLeft, self.HEIGHT + self.borderTop - residualsSize)
         self.residualsGraph.setSize(width, residualsSize)
         self.fullLightBars.setPos(self.borderLeft, 0)
         self.fullLightBars.setHeight(self.HEIGHT + self.borderTop + self.borderBottom)
-        self.fitAbsorbanceBars.setPos(self.borderLeft, 0)
-        self.fitAbsorbanceBars.setHeight(self.HEIGHT + self.borderTop + self.borderBottom)
+        self.fitBars.setPos(self.borderLeft, 0)
+        self.fitBars.setHeight(self.HEIGHT + self.borderTop + self.borderBottom)
 
     def onDataChanged(self, change):
         if change & Data.DATA_CHANGED_ABSORBANCE:
@@ -180,11 +181,11 @@ class GraphicsScene(QtGui.QGraphicsScene):
             self.informationTable.recreateFromData()
         if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
             self.updateFullLightBars()
-        if change & Data.DATA_CHANGED_FIT_ABSORBANCE:
+        if change & Data.DATA_CHANGED_FIT:
             # Delete absorbance and residuals, hide params from the information table.
             self.updateAbsorbanceFit()
             self.updateResidualsGraph()
             self.informationTable.recreateFromData()
 
-        if change & Data.DATA_CHANGED_FIT_ABSORBANCE_TIME_POINTER:
-            self.updateFitAbsorbanceBars()
+        if change & Data.DATA_CHANGED_FIT_TIME_POINTER:
+            self.updateFitBars()
