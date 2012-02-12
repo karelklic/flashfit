@@ -2,9 +2,9 @@ from PyQt4 import QtCore, QtGui
 import math
 import variables
 
-class AbsorbanceAxis(QtGui.QGraphicsItemGroup):
+class ValueAxis(QtGui.QGraphicsItemGroup):
     def __init__(self, parent = None):
-        super(AbsorbanceAxis, self).__init__(parent)
+        super(ValueAxis, self).__init__(parent)
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)
         self.height = 800 # random initial value

@@ -1,8 +1,8 @@
 from PyQt4 import QtCore, QtGui
 
-class AbsorbanceFit(QtGui.QGraphicsItemGroup):
+class Fit(QtGui.QGraphicsItemGroup):
     def __init__(self, data, parent=None):
-        super(AbsorbanceFit, self).__init__(parent)
+        super(Fit, self).__init__(parent)
         self.data = data
         self.pen = QtGui.QPen()
         self.pen.setWidth(3)

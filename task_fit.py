@@ -16,6 +16,6 @@ class Task(task.Task):
         The code in this method is run in GUI thread.
         """
         # Refresh GUI
-        self.mainWindow.scene.updateAbsorbanceFit()
+        self.mainWindow.scene.updateFit()
         self.mainWindow.scene.updateResidualsGraph()
         self.mainWindow.scene.informationTable.recreateFromData()

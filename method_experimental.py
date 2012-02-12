@@ -244,9 +244,9 @@ def ngml(time, absorbance, model, logger):
 
     # Set absorbance fit curve
     a_tot = numpy.matlib.dot(c, a)
-    absorbanceFit = a_tot[:,0].transpose().tolist()[0]
+    fit = a_tot[:,0].transpose().tolist()[0]
 
     # Set residuals
     # Should 'r' be used, or maybe 'r0' should be?
     residuals = data_fit.Residuals(r0.transpose().tolist()[0])
-    return (model.parameters, absorbanceFit, residuals, ainf)
+    return (model.parameters, fit, residuals, ainf)

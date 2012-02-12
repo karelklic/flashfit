@@ -36,6 +36,8 @@ AC_CONFIG_FILES([
 	docs/Makefile
 	utils/Makefile
 	tests/Makefile
+	tests/absorbance/Makefile
+	tests/luminiscence/Makefile
 ])
 
 AC_OUTPUT

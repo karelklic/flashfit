@@ -1,8 +1,8 @@
 from PyQt4 import QtCore, QtGui
 
-class AbsorbanceGraph(QtGui.QGraphicsItemGroup):
+class ValueGraph(QtGui.QGraphicsItemGroup):
     def __init__(self, data, parent=None):
-        super(AbsorbanceGraph, self).__init__(parent)
+        super(ValueGraph, self).__init__(parent)
         self.data = data
         self.child = QtGui.QGraphicsItemGroup()
         self.child.setParentItem(self)

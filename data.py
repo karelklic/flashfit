@@ -32,7 +32,7 @@ class Data(QtCore.QObject):
         self.fileName = "" # Full Path
         self.fileCreated = QtCore.QDateTime()
 
-        # Absorbance/luminance fit in time.
+        # Absorbance/luminiscence fit in time.
         self.fitdata = data_fit.Fit()
         self.fitdata.changed.connect(self.onFitChanged)
 

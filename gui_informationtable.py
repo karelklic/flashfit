@@ -5,12 +5,12 @@ import variables
 class InformationTable(QtGui.QGraphicsItemGroup):
     ItemSendsGeometryChanges = 0x800
 
-    def __init__(self, data, menuBar, textItems, absorbanceGraph, parent=None):
+    def __init__(self, data, menuBar, textItems, valueGraph, parent=None):
         super(InformationTable, self).__init__(parent)
         self.data = data
         self.menuBar = menuBar
         self.textItems = textItems
-        self.absorbanceGraph = absorbanceGraph
+        self.valueGraph = valueGraph
         self.setFlag(QtGui.QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(QtGui.QGraphicsItem.ItemStacksBehindParent, True)
         self.setFlag(self.ItemSendsGeometryChanges, True)
@@ -56,7 +56,7 @@ class InformationTable(QtGui.QGraphicsItemGroup):
         return '\n'.join(lines)
 
     def findPlaceInScene(self):
-        self.setPos(self.absorbanceGraph.pos().x() + 400, self.absorbanceGraph.pos().y() + 80)
+        self.setPos(self.valueGraph.pos().x() + 400, self.valueGraph.pos().y() + 80)
 
     def mousePressEvent(self, event):
         if event.buttons() & QtCore.Qt.LeftButton:

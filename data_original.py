@@ -7,8 +7,8 @@ class Data:
 
     # Data capturing absorbance over time.
     ABSORBANCE = 1
-    # Data capturing luminance over time.
-    LUMINANCE = 2
+    # Data capturing luminiscence over time.
+    LUMINISCENCE = 2
 
     def __init__(self):
         # The time values from input file.
@@ -24,7 +24,7 @@ class Data:
         self.minVoltage = None
         self.maxVoltage = None
         self.voltageSpan = None
-        # Either ABSORBANCE or LUMINANCE.
+        # Either ABSORBANCE or LUMINISCENCE.
         self.type = None
 
     def readFromCsvFile(self, path, logger):
@@ -67,4 +67,4 @@ class Data:
                 positive += 1
         #print "Total:", len(self.voltage), " Positive:", positive
         negative = positive < len(self.voltage) / 2
-        self.type = self.ABSORBANCE if negative else self.LUMINANCE
+        self.type = self.ABSORBANCE if negative else self.LUMINISCENCE
