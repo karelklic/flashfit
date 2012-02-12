@@ -25,12 +25,12 @@ class Fit(QtGui.QGraphicsItemGroup):
             return
 
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceData.absorbanceSpan)
+        valueModifier = self.height / float(self.data.valueSpan)
         lastTime = None
-        lastAbsorbance = None
+        lastValue = None
         for t in range(0, self.data.fitTimePointer[1] - self.data.fitTimePointer[0] + 1):
             time = (self.data.time[self.data.fitTimePointer[0] + t] - self.data.minTime) * timeModifier
-            fit = self.height - (self.data.fitdata.values[t] - self.data.absorbanceData.minAbsorbance) * absorbanceModifier
+            fit = self.height - (self.data.fitdata.values[t] - self.data.minValue) * valueModifier
             if lastTime is not None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastFit, time, fit))
                 line.setPen(self.pen)
@@ -44,13 +44,13 @@ class Fit(QtGui.QGraphicsItemGroup):
             return
 
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceData.absorbanceSpan)
+        valueModifier = self.height / float(self.data.valueSpan)
         lastTime = None
-        lastAbsorbance = None
+        lastValue = None
         children = self.child.childItems()
         for t in range(0, self.data.fitTimePointer[1] - self.data.fitTimePointer[0] + 1):
             time = (self.data.time[self.data.fitTimePointer[0] + t] - self.data.minTime) * timeModifier
-            fit = self.height - (self.data.fitdata.values[t] - self.data.absorbanceData.minAbsorbance) * absorbanceModifier
+            fit = self.height - (self.data.fitdata.values[t] - self.data.minValue) * valueModifier
             if lastTime is not None:
                 line = QtCore.QLineF(lastTime, lastFit, time, fit)
                 children[t - 1].setLine(line)

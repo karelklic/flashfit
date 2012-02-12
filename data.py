@@ -10,7 +10,7 @@ class Data(QtCore.QObject):
     DEFAULT_USED_POINTS_COUNT = 2000
 
     # Qt Signals
-    DATA_CHANGED_ABSORBANCE = 0x01
+    DATA_CHANGED_VALUES = 0x01
     DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER = 0x02
     DATA_CHANGED_FIT = 0x04
     DATA_CHANGED_FIT_TIME_POINTER = 0x08
@@ -22,6 +22,7 @@ class Data(QtCore.QObject):
         """
         QtCore.QObject.__init__(self, parent)
         self.absorbanceData = AbsorbanceData(self)
+        self.luminiscenceData = LuminiscenceData(self)
         self.clear()
 
     def clear(self):
@@ -49,13 +50,40 @@ class Data(QtCore.QObject):
         self.originalData.type = self.originalData.ABSORBANCE
         self.copyFromOriginalData()
 
+        self.fullLightVoltage = None
+        self.fullLightVoltagePointer = None
+
+        self.clearValues()
+
+        # Full Light Voltage time pointer
+        # Both values are offsets to self.time array.
+        # self.fullLightVoltage is calculated from this pointers
+        # Full light voltage is used to calculate absorbance from voltage.
+        self.setFullLightVoltagePointer(int(0.05 * POINT_COUNT),
+                                        int(0.15 * POINT_COUNT))
+
         # Fit time pointer
         # Both values are offsets to self.time array.
         self.setFitTimePointer(int(0.25 * POINT_COUNT),
                                int(0.70 * POINT_COUNT))
 
+        self.absorbanceData.recalculateAbsorbances()
+
+    def clearValues(self):
+        """
+        Clear values measured in time.
+        """
+        self.values = []
+        self.minValue = float("inf")
+        self.maxValue = float("-inf")
+        self.valueSpan = float("inf")
+        self.fitdata.clear()
+
+    def recalculateValues(self):
         if self.originalData.type == self.originalData.ABSORBANCE:
-            self.absorbanceData.clear(POINT_COUNT)
+            self.absorbanceData.recalculateAbsorbances()
+        else:
+            self.luminiscenceData.recalculateLuminiscence()
 
     def copyFromOriginalData(self):
         """
@@ -88,10 +116,11 @@ class Data(QtCore.QObject):
         self.timeSpan = self.maxTime - self.minTime
         self.fitTimePointer = None
 
+        self.fullLightVoltage = None
+        self.fullLightVoltagePointer = None
+
         # Clear invalid data.
-        if self.originalData.type == self.originalData.ABSORBANCE:
-            self.absorbanceData.clearAbsorbance()
-            self.absorbanceData.onCopyFromOriginalData()
+        self.clearValues()
 
     def guessFitTimePointer(self):
         """
@@ -180,69 +209,8 @@ class Data(QtCore.QObject):
     def fit(self, logger):
         self.fitdata.fit(self.fitTimePointer,
                          self.time,
-                         self.absorbanceData.absorbance,
+                         self.values,
                          logger)
-
-class AbsorbanceData:
-    def __init__(self, data):
-        # All instance attributes must be initialized here.
-        self.data = data
-        self.absorbance = []
-        self.minAbsorbance = float("inf")
-        self.maxAbsorbance = float("-inf")
-        self.absorbanceSpan = float("inf")
-        self.noLightVoltage = 0.0
-        self.fullLightVoltage = None
-        self.fullLightVoltagePointer = None
-
-    def clear(self, pointCount):
-        # No light voltage
-        # Used to calculate absorbance from voltage.
-        self.noLightVoltage = 0.0
-
-        # Full Light Voltage time pointer
-        # Both values are offsets to self.time array.
-        # self.fullLightVoltage is calculated from this pointers
-        # Full light voltage is used to calculate absorbance from voltage.
-        self.setFullLightVoltagePointer(int(0.05 * pointCount),
-                                        int(0.15 * pointCount))
-        self.recalculateAbsorbances()
-
-    def clearAbsorbance(self):
-        # Absorbance in time.
-        self.absorbance = []
-        self.minAbsorbance = float("inf")
-        self.maxAbsorbance = float("-inf")
-        self.absorbanceSpan = float("inf")
-        self.data.fitdata.clear()
-
-    def onCopyFromOriginalData(self):
-        self.fullLightVoltage = None
-        self.fullLightVoltagePointer = None
-
-    def recalculateAbsorbances(self):
-        """
-        Recalculates all absorbance values!
-        Also updates minAbsorbance and maxAbsorbance values
-        Slow!
-        """
-        self.clearAbsorbance()
-        # If we do not know full light voltage, we are done.
-        if self.fullLightVoltage is None:
-            return
-
-        vdiff = self.fullLightVoltage - self.noLightVoltage
-        if vdiff != 0: # Divide by zero.
-            for v in self.data.voltage: # v is the voltage in time t
-                try:
-                    absorbance = -math.log10((v - self.noLightVoltage) / vdiff)
-                except ValueError as error:
-                    print error
-                    print "Voltage:", v - self.noLightVoltage, "vdiff:", vdiff
-                self.absorbance.append(absorbance)
-        self.minAbsorbance = min(self.absorbance)
-        self.maxAbsorbance = max(self.absorbance)
-        self.absorbanceSpan = self.maxAbsorbance - self.minAbsorbance
 
     def guessFullLightVoltagePointerValue(self):
         """
@@ -253,14 +221,14 @@ class AbsorbanceData:
         """
         start = 0
         end = 0
-        sum = self.data.voltage[0]
-        for i in range(start + 1, len(self.data.voltage) - 1):
-            if (self.data.voltage[i] - sum / i) > self.data.originalData.voltageSpan * 0.5:
+        sum = self.voltage[0]
+        for i in range(start + 1, len(self.voltage) - 1):
+            if (self.voltage[i] - sum / i) > self.originalData.voltageSpan * 0.5:
                 end = i - max(1, int(i * 0.1))
                 break
-            sum += self.data.voltage[i]
+            sum += self.voltage[i]
         if end == start:
-            end = len(self.data.voltage) / 2
+            end = len(self.voltage) / 2
 
         self.setFullLightVoltagePointer(start, end)
 
@@ -275,25 +243,27 @@ class AbsorbanceData:
         # Calculate the arithmetic mean voltage from it.
         sum = 0.0
         for i in range(start, stop):
-            sum += self.data.voltage[i]
+            sum += self.voltage[i]
         self.fullLightVoltage = sum / float(stop - start + 1)
-        self.clearAbsorbance()
+
+        if self.originalData.type == self.originalData.ABSORBANCE:
+            self.clearValues()
 
     def fullLightVoltageTime1(self):
         """
         Returns time in seconds.
         """
         assert self.fullLightVoltagePointer[0] >= 0 and \
-            self.fullLightVoltagePointer[0] < len(self.data.time), \
+            self.fullLightVoltagePointer[0] < len(self.time), \
             "FullLight pointer invalid: %d, time length %d" % \
-            (self.fullLightVoltagePointer[0], len(self.data.time))
-        return self.data.time[self.fullLightVoltagePointer[0]]
+            (self.fullLightVoltagePointer[0], len(self.time))
+        return self.time[self.fullLightVoltagePointer[0]]
 
     def fullLightVoltageTime2(self):
         """
         Returns time in seconds.
         """
-        return self.data.time[self.fullLightVoltagePointer[1]]
+        return self.time[self.fullLightVoltagePointer[1]]
 
     def fullLightVoltageTimes(self):
         """
@@ -305,36 +275,102 @@ class AbsorbanceData:
         """
         Recalculates absorbance values.
         """
-        if len(self.data.time) < 2:
+        if len(self.time) < 2:
             return
-        start = self.data.findClosestTimeOffset(time, 0, len(self.data.time) - 1)
+        start = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFullLightVoltagePointer(start, self.fullLightVoltagePointer[1])
-        self.recalculateAbsorbances()
-        self.data.dataChanged.emit(self.data.DATA_CHANGED_ABSORBANCE |
-                                   self.data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
+        if self.originalData.type == self.originalData.ABSORBANCE:
+            self.recalculateAbsorbances()
+            self.dataChanged.emit(self.DATA_CHANGED_VALUES |
+                                  self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+        else:
+            self.dataChanged.emit(self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
 
     def setFullLightVoltageTime2(self, time):
         """
         Recalculates absorbance values.
         """
-        if len(self.data.time) < 2:
+        if len(self.time) < 2:
             return
-        stop = self.data.findClosestTimeOffset(time, 0, len(self.data.time) - 1)
+        stop = self.findClosestTimeOffset(time, 0, len(self.time) - 1)
         self.setFullLightVoltagePointer(self.fullLightVoltagePointer[0], stop)
-        self.recalculateAbsorbances()
-        self.data.dataChanged.emit(self.data.DATA_CHANGED_ABSORBANCE |
-                                   self.data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
+        if self.originalData.type == self.originalData.ABSORBANCE:
+            self.absorbanceData.recalculateAbsorbances()
+            self.dataChanged.emit(self.DATA_CHANGED_VALUES |
+                                  self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+        else:
+            self.dataChanged.emit(self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
 
     def setFullLightVoltageTimes(self, times, emitDataChangedSignal=True):
         """
         Recalculates absorbance values.
         """
-        if len(self.data.time) < 2:
+        if len(self.time) < 2:
             return
-        start = self.data.findClosestTimeOffset(times[0], 0, len(self.data.time) - 1)
-        stop = self.data.findClosestTimeOffset(times[1], 0, len(self.data.time) - 1)
+        start = self.findClosestTimeOffset(times[0], 0, len(self.time) - 1)
+        stop = self.findClosestTimeOffset(times[1], 0, len(self.time) - 1)
         self.setFullLightVoltagePointer(start, stop)
-        self.recalculateAbsorbances()
-        if emitDataChangedSignal:
-            self.data.dataChanged.emit(self.data.DATA_CHANGED_ABSORBANCE |
-                                       self.data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
+        if self.originalData.type == self.originalData.ABSORBANCE:
+            self.absorbanceData.recalculateAbsorbances()
+
+            if emitDataChangedSignal:
+                self.dataChanged.emit(self.DATA_CHANGED_VALUES |
+                                      self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+        else:
+            if emitDataChangedSignal:
+                self.dataChanged.emit(self.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER)
+
+class AbsorbanceData:
+    def __init__(self, data):
+        # All instance attributes must be initialized here.
+        self.data = data
+        # No light voltage
+        # Used to calculate absorbance from voltage.
+        self.noLightVoltage = 0.0
+
+    def recalculateAbsorbances(self):
+        """
+        Recalculates all absorbance values!
+        Also updates minValue and maxValue values
+        Slow!
+        """
+        self.data.clearValues()
+        # If we do not know full light voltage, we are done.
+        if self.data.fullLightVoltage is None:
+            return
+
+        vdiff = self.data.fullLightVoltage - self.noLightVoltage
+        if vdiff != 0: # Divide by zero.
+            for v in self.data.voltage: # v is the voltage in time t
+                try:
+                    absorbance = -math.log10((v - self.noLightVoltage) / vdiff)
+                except ValueError as error:
+                    print error
+                    print "Voltage:", v - self.noLightVoltage, "vdiff:", vdiff
+                self.data.values.append(absorbance)
+        self.data.minValue = min(self.data.values)
+        self.data.maxValue = max(self.data.values)
+        self.data.valueSpan = self.data.maxValue - self.data.minValue
+
+class LuminiscenceData:
+    def __init__(self, data):
+        self.data = data
+
+    def recalculateLuminiscence(self):
+        self.data.clearValues()
+
+        maxVoltage = max(self.data.voltage)
+        minVoltage = min(self.data.voltage)
+        spanVoltage = abs(maxVoltage - minVoltage)
+        for v in self.data.voltage:
+            luminiscence = (v - minVoltage) / spanVoltage
+
+            luminiscence = -luminiscence + 1.0
+            self.data.values.append(luminiscence)
+
+        self.data.minValue = min(self.data.values)
+        self.data.maxValue = max(self.data.values)
+        self.data.valueSpan = self.data.maxValue - self.data.minValue

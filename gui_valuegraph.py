@@ -19,31 +19,32 @@ class ValueGraph(QtGui.QGraphicsItemGroup):
         self.child.setParentItem(self)
 
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceData.absorbanceSpan)
+        valueModifier = self.height / float(self.data.valueSpan)
+
         lastTime = None
-        lastAbsorbance = None
+        lastValue = None
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
-            absorbance = self.height - (self.data.absorbanceData.absorbance[t] - self.data.absorbanceData.minAbsorbance) * absorbanceModifier
+            value = self.height - (self.data.values[t] - self.data.minValue) * valueModifier
             if lastTime is not None:
-                line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance))
+                line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastValue, time, value))
                 line.setParentItem(self.child)
             lastTime = time
-            lastAbsorbance = absorbance
+            lastValue = value
 
     def resizeFromData(self):
         timeModifier = self.width / float(self.data.timeSpan)
-        absorbanceModifier = self.height / float(self.data.absorbanceSpan)
+        valueModifier = self.height / float(self.data.valueSpan)
         lastTime = None
-        lastAbsorbance = None
+        lastValue = None
         children = self.child.childItems()
         if len(children) < len(self.data.time) - 1:
             print "Error in absorbance graph resize", len(children), len(self.data.time) - 1
         for t in range(0, len(self.data.time)):
             time = (self.data.time[t] - self.data.minTime) * timeModifier
-            absorbance = self.height - (self.data.absorbance[t] - self.data.minAbsorbance) * absorbanceModifier
+            value = self.height - (self.data.values[t] - self.data.minValue) * valueModifier
             if lastTime is not None:
-                line = QtCore.QLineF(lastTime, lastAbsorbance, time, absorbance)
+                line = QtCore.QLineF(lastTime, lastValue, time, value)
                 children[t - 1].setLine(line)
             lastTime = time
-            lastAbsorbance = absorbance
+            lastValue = value

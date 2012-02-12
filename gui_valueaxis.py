@@ -14,9 +14,10 @@ class ValueAxis(QtGui.QGraphicsItemGroup):
         self.height = height
         self.residualStart = residualStart
 
-    def setAbsorbance(self, minAbsorbance, maxAbsorbance):
-        self.minAbsorbance = minAbsorbance
-        self.maxAbsorbance = maxAbsorbance
+    def setData(self, minValue, maxValue, captionVariable):
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.captionVariable = captionVariable
 
     def update(self):
         # Remove all subitems.
@@ -29,33 +30,33 @@ class ValueAxis(QtGui.QGraphicsItemGroup):
         line.setParentItem(self.child)
 
         # Calculate and draw tics.
-        absorbanceSpan = float(self.maxAbsorbance - self.minAbsorbance)
+        valueSpan = float(self.maxValue - self.minValue)
         bigTicSpan = float(1e10)
-        while math.fmod(absorbanceSpan, bigTicSpan) == absorbanceSpan:
+        while math.fmod(valueSpan, bigTicSpan) == valueSpan:
             bigTicSpan /= 10
-        if absorbanceSpan / bigTicSpan < 2:
+        if valueSpan / bigTicSpan < 2:
             bigTicSpan /= 10
         ticSpan = bigTicSpan / 10
-        ticAbsorbance = self.minAbsorbance - math.fmod(self.minAbsorbance, ticSpan)
-        if ticAbsorbance < self.minAbsorbance:
-            ticAbsorbance += ticSpan
-        bigTicAbsorbance = self.minAbsorbance + bigTicSpan - math.fmod(self.minAbsorbance, bigTicSpan)
-        count = 10 - int((bigTicAbsorbance - self.minAbsorbance) / ticSpan)
-        absorbance = ticAbsorbance
+        ticValue = self.minValue - math.fmod(self.minValue, ticSpan)
+        if ticValue < self.minValue:
+            ticValue += ticSpan
+        bigTicValue = self.minValue + bigTicSpan - math.fmod(self.minValue, bigTicSpan)
+        count = 10 - int((bigTicValue - self.minValue) / ticSpan)
+        value = ticValue
         maxValuesWidth = 0
-        while absorbance < self.maxAbsorbance:
+        while value < self.maxValue:
             ticlen = 10
-            ticy = self.residualStart - ((absorbance - self.minAbsorbance) * self.residualStart) / absorbanceSpan
+            ticy = self.residualStart - ((value - self.minValue) * self.residualStart) / valueSpan
             if count % 10 == 0:
-                # Normalize absorbance
-                diff = math.fmod(absorbance, ticSpan)
-                absorbance = absorbance - diff
+                # Normalize value
+                diff = math.fmod(value, ticSpan)
+                value = value - diff
                 if diff > ticSpan / 2.0:
-                    absorbance = absorbance + ticSpan
+                    value = value + ticSpan
                 elif -diff > ticSpan / 2.0:
-                    absorbance = absorbance - ticSpan
+                    value = value - ticSpan
 
-                text = QtGui.QGraphicsTextItem(str(absorbance))
+                text = QtGui.QGraphicsTextItem(str(value))
                 text.setFont(variables.valueAxisValuesFont.value())
                 text.setPos(-12 - text.boundingRect().width(), ticy - text.boundingRect().height() / 2)
                 maxValuesWidth = max(maxValuesWidth, text.boundingRect().width())
@@ -65,12 +66,12 @@ class ValueAxis(QtGui.QGraphicsItemGroup):
 
             tic = QtGui.QGraphicsLineItem(QtCore.QLineF(-ticlen, ticy, 0, ticy))
             tic.setParentItem(self.child)
-            absorbance += ticSpan
+            value += ticSpan
             count += 1
 
         # Draw the caption
         if variables.valueAxisCaptionEnabled.value():
-            text = QtGui.QGraphicsTextItem(variables.absorbanceAxisCaption.value())
+            text = QtGui.QGraphicsTextItem(self.captionVariable.value())
             text.setFont(variables.valueAxisCaptionFont.value())
             text.setPos(-text.boundingRect().height() - maxValuesWidth, text.boundingRect().width())
             text.rotate(-90)

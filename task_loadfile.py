@@ -17,24 +17,27 @@ class Task(task.Task):
         The code in this method is run in another thread.
         """
         # Load data
+        data = self.mainWindow.data
+        odata = data.originalData
         try:
-            odata = self.mainWindow.data.originalData
             odata.readFromCsvFile(self.name, self.messageAdded.emit)
         except (StopIteration, csv.Error):
             PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
                                              "Error occured when loading " + name)
             return
 
-        self.mainWindow.data.maxPoints = data.Data.DEFAULT_USED_POINTS_COUNT
+        data.maxPoints = data.DEFAULT_USED_POINTS_COUNT
         self.messageAdded.emit("Copying {0} points from loaded data...".format(self.mainWindow.data.maxPoints))
-        self.mainWindow.data.fileName = self.name # full path
-        self.mainWindow.data.fileCreated = PyQt4.QtCore.QFileInfo(self.name).lastModified()
-        self.mainWindow.data.copyFromOriginalData()
-        self.messageAdded.emit("Computing absorbance...")
-        self.mainWindow.data.absorbanceData.guessFullLightVoltagePointerValue() # sets fullLightVoltage
-        self.mainWindow.data.absorbanceData.recalculateAbsorbances()
-        self.messageAdded.emit("Setting fit absorbance pointers")
-        self.mainWindow.data.guessFitTimePointer()
+        data.fileName = self.name # full path
+        data.fileCreated = PyQt4.QtCore.QFileInfo(self.name).lastModified()
+        data.copyFromOriginalData()
+        data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
+
+        self.messageAdded.emit("Computing values...")
+        data.recalculateValues()
+
+        self.messageAdded.emit("Setting fitting pointers")
+        data.guessFitTimePointer()
 
     def postRun(self):
         """

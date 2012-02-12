@@ -19,17 +19,17 @@ class ChangePointCountTask(Task):
         # Save fulllightvoltage pointer and fit absorbance pointer
         # time, to be recovered after loading.
         fullLightVoltageTimes = self.mainWindow.data.fullLightVoltageTimes()
-        fitAbsorbanceTimes = self.mainWindow.data.fitAbsorbanceTimes()
+        fitTimes = self.mainWindow.data.fitTimes()
 
         self.messageAdded.emit("Copying {0} points from loaded data...".format(self.mainWindow.data.maxPoints))
         self.mainWindow.data.copyFromOriginalData()
 
         # Recover fulllightvoltage pointer and fit absorbance pointer times
         self.mainWindow.data.setFullLightVoltageTimes(fullLightVoltageTimes, False)
-        self.mainWindow.data.setFitAbsorbanceTimes(fitAbsorbanceTimes, False)
+        self.mainWindow.data.setFitTimes(fitTimes, False)
 
-        self.messageAdded.emit("Computing absorbance...")
-        self.mainWindow.data.recalculateAbsorbances()
+        self.messageAdded.emit("Computing values...")
+        self.mainWindow.data.recalculateValues()
 
     def postRun(self):
         """

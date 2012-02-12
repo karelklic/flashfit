@@ -7,6 +7,7 @@ from gui_fit import Fit
 from gui_residualsgraph import ResidualsGraph
 from gui_informationtable import InformationTable
 from data import Data
+import variables
 
 class GraphicsScene(QtGui.QGraphicsScene):
     """
@@ -49,7 +50,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.timeAxis.setTime(0, 1.0)
         # Draw the time axis to get proper children bounding rect.
         self.timeAxis.update()
-        self.valueAxis.setAbsorbance(0, 1.0)
+        self.valueAxis.setData(0, 1.0, variables.absorbanceAxisCaption)
         # Draw the absorbance axis to get proper children bounding rect,
         # even when the initial heights are wrong.
         self.valueAxis.update()
@@ -75,8 +76,11 @@ class GraphicsScene(QtGui.QGraphicsScene):
 
         self.timeAxis.setTime(self.data.minTime, self.data.maxTime)
         self.timeAxis.update()
-        self.valueAxis.setAbsorbance(self.data.absorbanceData.minAbsorbance,
-                                     self.data.absorbanceData.maxAbsorbance)
+
+        self.valueAxis.setData(self.data.minValue,
+                               self.data.maxValue,
+                               variables.absorbanceAxisCaption if self.data.originalData.type == self.data.originalData.ABSORBANCE else variables.luminiscenceAxisCaption)
+
         self.valueAxis.update()
         self.updateValueGraph()
         self.updateFit()
@@ -126,8 +130,8 @@ class GraphicsScene(QtGui.QGraphicsScene):
         # Do nothing when no data are loaded.
         if len(self.data.time) == 0:
             return
-        self.fullLightBars.updatePositionFromData(self.data.absorbanceData.fullLightVoltageTime1(),
-                                                  self.data.absorbanceData.fullLightVoltageTime2())
+        self.fullLightBars.updatePositionFromData(self.data.fullLightVoltageTime1(),
+                                                  self.data.fullLightVoltageTime2())
 
     def updateFitBars(self):
         # Do nothing when no data are loaded.
@@ -176,7 +180,7 @@ class GraphicsScene(QtGui.QGraphicsScene):
         self.fitBars.setHeight(self.HEIGHT + self.borderTop + self.borderBottom)
 
     def onDataChanged(self, change):
-        if change & Data.DATA_CHANGED_ABSORBANCE:
+        if change & Data.DATA_CHANGED_VALUES:
             self.updateValueGraph()
             self.informationTable.recreateFromData()
         if change & Data.DATA_CHANGED_FULL_LIGHT_VOLTAGE_TIME_POINTER:
