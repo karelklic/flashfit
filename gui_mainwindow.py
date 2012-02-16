@@ -13,6 +13,7 @@ import gui_menubar
 import gui_textitems
 import task_loadfile
 import task_changepointcount
+import task_changemode
 import task_fit
 
 class MenuBarWithActions(gui_menubar.MenuBar):
@@ -31,6 +32,8 @@ class MenuBarWithActions(gui_menubar.MenuBar):
         self.informationBoxSettingsAct.triggered.connect(self.editInformationBoxSettings)
         self.barsSettingsAct.triggered.connect(self.editBarsSettings)
         self.axesSettingsAct.triggered.connect(self.editAxesSettings)
+        self.absorbanceModeAct.triggered.connect(self.setAbsorbanceMode)
+        self.luminiscenceModeAct.triggered.connect(self.setLuminiscenceMode)
 
     def editInformationBoxSettings(self):
         """
@@ -64,6 +67,12 @@ class MenuBarWithActions(gui_menubar.MenuBar):
     def openRecentFile(self):
         if self.sender():
             self.parent().loadFile(self.sender().data().toString())
+
+    def setAbsorbanceMode(self):
+        self.parent().changeMode(self.parent().data.originalData.ABSORBANCE)
+
+    def setLuminiscenceMode(self):
+        self.parent().changeMode(self.parent().data.originalData.LUMINISCENCE)
 
 class MainWindow(PyQt4.QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -160,6 +169,16 @@ class MainWindow(PyQt4.QtGui.QMainWindow):
         # The task must be stored in self to prevent Python from
         # deleting it.
         self.task = task_changepointcount.ChangePointCountTask(pointCount, self)
+        self.runTask(self.task)
+
+    def changeMode(self, mode):
+        # Do nothing if the type has not changed.
+        if self.data.originalData.type == mode:
+            return
+
+        # The task must be stored in self to prevent Python from
+        # deleting it.
+        self.task = task_changemode.ChangeModeTask(mode, self)
         self.runTask(self.task)
 
     def fit(self):

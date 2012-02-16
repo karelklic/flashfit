@@ -50,6 +50,8 @@ class Task(task.Task):
         # Update Recent files in the Main Menu
         if len(self.name) > 0:
             self.mainWindow.menuBar().addRecentFile(self.name)
+        self.mainWindow.menuBar().absorbanceModeAct.setChecked(self.mainWindow.data.originalData.type == self.mainWindow.data.originalData.ABSORBANCE)
+        self.mainWindow.menuBar().luminiscenceModeAct.setChecked(self.mainWindow.data.originalData.type == self.mainWindow.data.originalData.LUMINISCENCE)
 
     def postTerminated(self):
         """

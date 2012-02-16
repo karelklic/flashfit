@@ -36,6 +36,7 @@ PYTHON_FILES = \
 	method_experimental.py \
 	task.py \
 	task_changepointcount.py \
+	task_changemode.py \
 	task_fit.py \
 	task_loadfile.py \
 	variables.py

@@ -348,8 +348,9 @@ class AbsorbanceData:
                 try:
                     absorbance = -math.log10((v - self.noLightVoltage) / vdiff)
                 except ValueError as error:
-                    print error
-                    print "Voltage:", v - self.noLightVoltage, "vdiff:", vdiff
+                    print error, "; voltage:", v - self.noLightVoltage, "vdiff:", vdiff
+                    absorbance = 0
+
                 self.data.values.append(absorbance)
         self.data.minValue = min(self.data.values)
         self.data.maxValue = max(self.data.values)
