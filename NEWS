@@ -1,3 +1,9 @@
+== FlashFit 1
+
+- Previously, A0-Ainf data for every speed constant were displayed all
+  together on single line. Now, the A0-Ainf data are properly
+  separated by a newline character.
+
 == FlashFit 0.9
 Released 2012-01-22.
 

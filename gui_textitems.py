@@ -89,10 +89,10 @@ class A0minusAinf(TextItem):
         TextItem.__init__(self, data, "A0 - Ainf")
 
     def text(self):
-        text = u""
+        lines = []
         for i in range(0, len(self.data.fitdata.parameters)):
-            text += u"A0 - Ainf(%d) = %.4e" % (i + 1, self.data.fitdata.parameters[i].a0minusAinf)
-        return text
+            lines.append(u"A0 - Ainf(%d) = %.4e" % (i + 1, self.data.fitdata.parameters[i].a0minusAinf))
+        return '\n'.join(lines)
 
 class List:
     def __init__(self, data):
