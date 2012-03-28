@@ -1,8 +1,13 @@
-== FlashFit 1
+== FlashFit 0.11
 
 - Previously, A0-Ainf data for every speed constant were displayed all
   together on single line. Now, the A0-Ainf data are properly
   separated by a newline character.
+
+== FlashFit 0.10
+Released 2012-02-17.
+
+- Initial support for luminiscence.
 
 == FlashFit 0.9
 Released 2012-01-22.

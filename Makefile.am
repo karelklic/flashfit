@@ -1,4 +1,4 @@
-SUBDIRS = docs utils
+SUBDIRS = docs utils tests
 
 nodist_bin_SCRIPTS = flashfit
 
@@ -9,10 +9,8 @@ PYTHON_FILES = \
 	data_original.py \
 	flashfit.py \
 	font.py \
-	gui_absorbanceaxis.py \
-	gui_absorbancefit.py \
-	gui_absorbancegraph.py \
 	gui_console.py \
+	gui_fit.py \
 	gui_graphicsscene.py \
 	gui_graphicsview.py \
 	gui_informationtable.py \
@@ -32,12 +30,15 @@ PYTHON_FILES = \
 	gui_timebarline.py \
 	gui_timebarpair.py \
 	gui_timebartriangle.py \
+	gui_valueaxis.py \
+	gui_valuegraph.py \
 	method_compatible.py \
 	method_experimental.py \
-	task_fit.py \
-	task_changepointcount.py \
-	task_loadfile.py \
 	task.py \
+	task_changepointcount.py \
+	task_changemode.py \
+	task_fit.py \
+	task_loadfile.py \
 	variables.py
 
 EXTRA_DIST = $(PYTHON_FILES) flashfit.in

@@ -6,8 +6,7 @@ import sip
 
 class Dialog(QtGui.QDialog):
     """
-    Allows user to change Absorbance Axis settings and Time Axis
-    settings.
+    Allows user to change Value Axis settings and Time Axis settings.
     """
     def __init__(self, parentWindow):
         QtGui.QDialog.__init__(self, parentWindow)
@@ -15,28 +14,32 @@ class Dialog(QtGui.QDialog):
         self.create(False)
 
     def create(self, default):
-        absorbanceAxis = self.createAxisBox("Absorbance axis",
-                                            variables.absorbanceAxisValuesFont.value(default),
-                                            variables.absorbanceAxisCaptionFont.value(default))
-        absorbanceAxis.captionText.setChecked(variables.absorbanceAxisCaptionEnabled.value(default))
-        absorbanceAxis.captionEdit.setText(variables.absorbanceAxisCaption.value(default))
+        valueAxis = self.createAxisBox("Value axis",
+                                       variables.valueAxisValuesFont.value(default),
+                                       variables.valueAxisCaptionFont.value(default),
+                                       True)
+        valueAxis.captionTextAbsorbance.setChecked(variables.valueAxisCaptionEnabled.value(default))
+        valueAxis.captionEditAbsorbance.setText(variables.absorbanceAxisCaption.value(default))
+        valueAxis.captionEditLuminiscence.setText(variables.luminiscenceAxisCaption.value(default))
 
         timeAxis = self.createAxisBox("Time axis",
                                       variables.timeAxisValuesFont.value(default),
-                                      variables.timeAxisCaptionFont.value(default))
+                                      variables.timeAxisCaptionFont.value(default),
+                                      False)
         timeAxis.captionText.setChecked(variables.timeAxisCaptionEnabled.value(default))
         timeAxis.captionEdit.setText(variables.timeAxisCaption.value(default))
 
         self.gridWidget = QtGui.QWidget()
         gridLayout = QtGui.QGridLayout(self.gridWidget)
-        gridLayout.addWidget(absorbanceAxis, 0, 0)
+        gridLayout.addWidget(valueAxis, 0, 0)
         gridLayout.addWidget(timeAxis, 0, 1)
 
         def okPushed():
-            variables.absorbanceAxisValuesFont.setValue(absorbanceAxis.valuesFont)
-            variables.absorbanceAxisCaptionFont.setValue(absorbanceAxis.captionFont)
-            variables.absorbanceAxisCaptionEnabled.setValue(absorbanceAxis.captionText.isChecked())
-            variables.absorbanceAxisCaption.setValue(absorbanceAxis.captionEdit.text())
+            variables.valueAxisValuesFont.setValue(valueAxis.valuesFont)
+            variables.valueAxisCaptionFont.setValue(valueAxis.captionFont)
+            variables.valueAxisCaptionEnabled.setValue(valueAxis.captionTextAbsorbance.isChecked())
+            variables.absorbanceAxisCaption.setValue(valueAxis.captionEditAbsorbance.text())
+            variables.luminiscenceAxisCaption.setValue(valueAxis.captionEditLuminiscence.text())
 
             variables.timeAxisValuesFont.setValue(timeAxis.valuesFont)
             variables.timeAxisCaptionFont.setValue(timeAxis.captionFont)
@@ -70,7 +73,10 @@ class Dialog(QtGui.QDialog):
         layout.addWidget(self.gridWidget)
         layout.addWidget(self.buttonWidget)
 
-    def createAxisBox(self, groupName, valuesFont, captionFont):
+    def createAxisBox(self, groupName, valuesFont, captionFont, valueAxis):
+        """
+        valueAxis - boolean, True for value axis, False for time axis
+        """
         group = QtGui.QGroupBox(groupName)
         group.valuesFont = valuesFont
         group.captionFont = captionFont
@@ -88,10 +94,32 @@ class Dialog(QtGui.QDialog):
 
         group.valuesFontButton.clicked.connect(valuesFontButtonPush)
 
-        group.captionText = QtGui.QCheckBox("Caption:")
-        group.captionText.setChecked(True)
-        group.captionEdit = QtGui.QLineEdit()
-        layout.addRow(group.captionText, group.captionEdit)
+        def captionTextStateChanged(state):
+            if valueAxis:
+                group.captionEditAbsorbance.setEnabled(state == QtCore.Qt.Checked)
+                group.captionEditLuminiscence.setEnabled(state == QtCore.Qt.Checked)
+            else:
+                group.captionEdit.setEnabled(state == QtCore.Qt.Checked)
+
+            captionFontLabel.setEnabled(state == QtCore.Qt.Checked)
+            group.captionFontButton.setEnabled(state == QtCore.Qt.Checked)
+
+        if valueAxis:
+            group.captionTextAbsorbance = QtGui.QCheckBox("Absorbance Caption:")
+            group.captionTextAbsorbance.setChecked(True)
+            group.captionTextAbsorbance.stateChanged.connect(captionTextStateChanged)
+            group.captionEditAbsorbance = QtGui.QLineEdit()
+            layout.addRow(group.captionTextAbsorbance, group.captionEditAbsorbance)
+
+            group.captionTextLuminiscence = QtGui.QLabel("Luminiscence Caption:")
+            group.captionEditLuminiscence = QtGui.QLineEdit()
+            layout.addRow(group.captionTextLuminiscence, group.captionEditLuminiscence)
+        else:
+            group.captionText = QtGui.QCheckBox("Caption:")
+            group.captionText.setChecked(True)
+            group.captionText.stateChanged.connect(captionTextStateChanged)
+            group.captionEdit = QtGui.QLineEdit()
+            layout.addRow(group.captionText, group.captionEdit)
 
         captionFontLabel = QtGui.QLabel("Caption font:")
         group.captionFontButton = QtGui.QPushButton(group.captionFont.toUserString())
@@ -104,11 +132,4 @@ class Dialog(QtGui.QDialog):
                 group.captionFontButton.setText(group.captionFont.toUserString())
 
         group.captionFontButton.clicked.connect(captionFontButtonPush)
-
-        def captionTextStateChanged(state):
-            group.captionEdit.setEnabled(state == QtCore.Qt.Checked)
-            captionFontLabel.setEnabled(state == QtCore.Qt.Checked)
-            group.captionFontButton.setEnabled(state == QtCore.Qt.Checked)
-
-        group.captionText.stateChanged.connect(captionTextStateChanged)
         return group

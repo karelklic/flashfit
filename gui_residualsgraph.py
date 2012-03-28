@@ -26,8 +26,8 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         residualsModifier = self.height / float(self.data.fitdata.residuals.span)
         lastTime = None
         lastResidual = None
-        for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
-            time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
+        for t in range(0, self.data.fitTimePointer[1] - self.data.fitTimePointer[0] + 1):
+            time = (self.data.time[self.data.fitTimePointer[0] + t] - self.data.minTime) * timeModifier
             residual = self.height - (self.data.fitdata.residuals.values[t] - self.data.fitdata.residuals.min) * residualsModifier
             if lastTime is not None:
                 line = QtGui.QGraphicsLineItem(QtCore.QLineF(lastTime, lastResidual, time, residual))
@@ -51,8 +51,8 @@ class ResidualsGraph(QtGui.QGraphicsItemGroup):
         lastTime = None
         lastResidual = None
         children = self.child.childItems()
-        for t in range(0, self.data.fitAbsorbanceTimePointer[1] - self.data.fitAbsorbanceTimePointer[0] + 1):
-            time = (self.data.time[self.data.fitAbsorbanceTimePointer[0] + t] - self.data.minTime) * timeModifier
+        for t in range(0, self.data.fitTimePointer[1] - self.data.fitTimePointer[0] + 1):
+            time = (self.data.time[self.data.fitTimePointer[0] + t] - self.data.minTime) * timeModifier
             residual = self.height - (self.data.fitdata.residuals.values[t] - self.data.fitdata.residuals.min) * residualsModifier
             if lastTime is not None:
                 line = QtCore.QLineF(lastTime, lastResidual, time, residual)

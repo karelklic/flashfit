@@ -17,27 +17,27 @@ class Task(task.Task):
         The code in this method is run in another thread.
         """
         # Load data
-        with open(self.name, "rb") as csvfile:
-            dialect = csv.Sniffer().sniff(csvfile.read(2048))
-            csvfile.seek(0)
-            reader = csv.reader(csvfile, dialect)
-            try:
-                self.mainWindow.data.originalData.readFromCsvReader(reader, self.messageAdded.emit)
-            except (StopIteration, csv.Error):
-                PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
-                                                 "Error occured when loading " + name)
-                return
+        data = self.mainWindow.data
+        odata = data.originalData
+        try:
+            odata.readFromCsvFile(self.name, self.messageAdded.emit)
+        except (StopIteration, csv.Error):
+            PyQt4.QtGui.QMessageBox.critical(self, "Error while loading file",
+                                             "Error occured when loading " + name)
+            return
 
-        self.mainWindow.data.maxPoints = data.Data.DEFAULT_USED_POINTS_COUNT
+        data.maxPoints = data.DEFAULT_USED_POINTS_COUNT
         self.messageAdded.emit("Copying {0} points from loaded data...".format(self.mainWindow.data.maxPoints))
-        self.mainWindow.data.fileName = self.name # full path
-        self.mainWindow.data.fileCreated = PyQt4.QtCore.QFileInfo(self.name).lastModified()
-        self.mainWindow.data.copyFromOriginalData()
-        self.messageAdded.emit("Computing absorbance...")
-        self.mainWindow.data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
-        self.mainWindow.data.recalculateAbsorbances()
-        self.messageAdded.emit("Setting fit absorbance pointers")
-        self.mainWindow.data.guessFitAbsorbanceTimePointer()
+        data.fileName = self.name # full path
+        data.fileCreated = PyQt4.QtCore.QFileInfo(self.name).lastModified()
+        data.copyFromOriginalData()
+        data.guessFullLightVoltagePointerValue() # sets fullLightVoltage
+
+        self.messageAdded.emit("Computing values...")
+        data.recalculateValues()
+
+        self.messageAdded.emit("Setting fitting pointers")
+        data.guessFitTimePointer()
 
     def postRun(self):
         """
@@ -50,6 +50,8 @@ class Task(task.Task):
         # Update Recent files in the Main Menu
         if len(self.name) > 0:
             self.mainWindow.menuBar().addRecentFile(self.name)
+        self.mainWindow.menuBar().absorbanceModeAct.setChecked(self.mainWindow.data.originalData.type == self.mainWindow.data.originalData.ABSORBANCE)
+        self.mainWindow.menuBar().luminiscenceModeAct.setChecked(self.mainWindow.data.originalData.type == self.mainWindow.data.originalData.LUMINISCENCE)
 
     def postTerminated(self):
         """

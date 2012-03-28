@@ -54,6 +54,20 @@ class MenuBar(QtGui.QMenuBar):
         self.showInformationBoxAct.setChecked(True)
         self.showMenu.addAction(self.showInformationBoxAct)
 
+        ### Mode menu
+        self.modeMenu = self.addMenu("&Mode")
+        self.modeGroup = QtGui.QActionGroup(self)
+        self.absorbanceModeAct = QtGui.QAction("Absorbance", self)
+        self.absorbanceModeAct.setCheckable(True)
+        self.absorbanceModeAct.setChecked(True)
+        self.modeGroup.addAction(self.absorbanceModeAct)
+        self.modeMenu.addAction(self.absorbanceModeAct)
+        self.luminiscenceModeAct = QtGui.QAction("Luminiscence", self)
+        self.luminiscenceModeAct.setCheckable(True)
+        self.modeGroup.addAction(self.luminiscenceModeAct)
+        self.modeMenu.addAction(self.luminiscenceModeAct)
+
+
     def updateRecentFileActions(self):
         """
         Updates QActions associated with Recent Files in the main menu from
@@ -83,7 +97,9 @@ class MenuBar(QtGui.QMenuBar):
 
     def setEnabled(self, enabled):
         for item in [self.openAct, self.saveAct, self.editMenu,
-                     self.separatorAct, self.showMenu] + self.recentFileActs:
+                     self.separatorAct, self.showMenu,
+                     self.absorbanceModeAct,
+                     self.luminiscenceModeAct] + self.recentFileActs:
             item.setEnabled(enabled)
 
     def showMenuToggleConnect(self, function):

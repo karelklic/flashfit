@@ -1,7 +1,15 @@
+import csv
+
 class Data:
     """
     Data loaded from input file.
     """
+
+    # Data capturing absorbance over time.
+    ABSORBANCE = 1
+    # Data capturing luminiscence over time.
+    LUMINISCENCE = 2
+
     def __init__(self):
         # The time values from input file.
         # The array might contain several million values.
@@ -16,6 +24,15 @@ class Data:
         self.minVoltage = None
         self.maxVoltage = None
         self.voltageSpan = None
+        # Either ABSORBANCE or LUMINISCENCE.
+        self.type = None
+
+    def readFromCsvFile(self, path, logger):
+        with open(path, "rb") as csvfile:
+            dialect = csv.Sniffer().sniff(csvfile.read(2048))
+            csvfile.seek(0)
+            reader = csv.reader(csvfile, dialect)
+            self.readFromCsvReader(reader, logger)
 
     def readFromCsvReader(self, reader, logger):
         """
@@ -39,6 +56,15 @@ class Data:
             self.time.append(float(row[3]))
             self.voltage.append(float(row[4]))
 
+        # Save data properties
         self.minVoltage = min(self.voltage)
         self.maxVoltage = max(self.voltage)
         self.voltageSpan = self.maxVoltage - self.minVoltage
+
+        positive = 0
+        for value in self.voltage:
+            if value > 0:
+                positive += 1
+        #print "Total:", len(self.voltage), " Positive:", positive
+        negative = positive < len(self.voltage) / 2
+        self.type = self.ABSORBANCE if negative else self.LUMINISCENCE

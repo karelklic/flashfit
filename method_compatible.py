@@ -166,10 +166,10 @@ def ngml(time, absorbance, parameters, logger):
     ainf = parameters[len(parameters) - 1].a0minusAinf
 
     a_tot = numpy.matlib.dot(c, a)
-    absorbanceFit = a_tot[:,0].transpose().tolist()[0]
+    fit = a_tot[:,0].transpose().tolist()[0]
     r = y - a_tot
     residuals = data_fit.Residuals(r.transpose().tolist()[0])
 
     # Remove the last p we added in this function.
     parameters = parameters[0:-1]
-    return (parameters, absorbanceFit, residuals, ainf)
+    return (parameters, fit, residuals, ainf)

@@ -1,0 +1,57 @@
+#!/usr/bin/python
+# -*- encoding: utf-8 -*-
+import unittest
+import sys
+import os.path
+sys.path.insert(0, os.path.abspath(".."))
+import data_original
+
+class DataTestCase(unittest.TestCase):
+    def _emptyLogger(self, message):
+        pass
+
+    def testDetermineDataType(self):
+        data = data_original.Data()
+        for luminiscenceFile in ["luminiscence/120130009.csv",
+                              "luminiscence/12013001.csv",
+                              "luminiscence/12013002.csv",
+                              "luminiscence/12013003.csv",
+                              "luminiscence/12013004.csv",
+                              "luminiscence/12013006.csv",
+                              "luminiscence/12013007.csv",
+                              "luminiscence/12013008.csv",
+                              "luminiscence/12013010.csv",
+                              "luminiscence/12013011.csv",
+                              "luminiscence/12013012.csv",
+                              "luminiscence/12013013.csv",
+                              "luminiscence/12013014.csv",
+                              "luminiscence/luminiscence.csv"]:
+            data.readFromCsvFile(luminiscenceFile, self._emptyLogger)
+            self.assertEqual(data.type, data.LUMINISCENCE)
+
+        for absorbanceFile in ["absorbance/091221_010805_Ch1.csv",
+                               "absorbance/100107_015523.csv",
+                               "absorbance/100107_015635.csv",
+                               "absorbance/100108_045106.csv",
+                               "absorbance/100108_045630.csv",
+                               "absorbance/100108_045637.csv",
+                               "absorbance/ph1.08_330nm.csv",
+                               "absorbance/ph1.08_350nm.csv",
+                               "absorbance/ph1.08_370nm.csv",
+                               "absorbance/ph1.08_395nm.csv",
+                               "absorbance/ph1.08_405nm.csv",
+                               "absorbance/ph1.85_330nm.csv",
+                               "absorbance/ph1.85_350nm.csv",
+                               "absorbance/ph1.85_370nm.csv",
+                               "absorbance/ph1.85_395nm.csv",
+                               "absorbance/ph1.85_405nm.csv",
+                               "absorbance/ph2.67_350nm.csv",
+                               "absorbance/ph2.67_370nm.csv",
+                               "absorbance/ph2.67_395nm.csv",
+                               "absorbance/ph2.67_405nm.csv",
+                               "absorbance/ph2.67.csv"]:
+            data.readFromCsvFile(absorbanceFile, self._emptyLogger)
+            self.assertEqual(data.type, data.ABSORBANCE)
+
+if __name__ == '__main__':
+    unittest.main()
